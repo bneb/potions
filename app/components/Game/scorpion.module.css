@@ -1,213 +1,663 @@
-.scorpionProxy {
-    --shell-dark: #3e2723;
-    --shell-light: #5d4037;
-    --stinger: #bf360c;
+/* =================================================================
+   SCORPION CSS - COORDINATE SYSTEM
+   =================================================================
+   All measurements are relative to a 180x150 rig container.
+   The BODY is the anchor. Limbs attach to the body edges.
+   
+   BODY: 100w x 80h, centered horizontally, bottom at 30px
+   - Body Left Edge:  (180/2) - (100/2) = 40px from rig left
+   - Body Right Edge: (180/2) + (100/2) = 140px from rig left
+   - Body Bottom:     30px from rig bottom
+   - Body Top:        30 + 80 = 110px from rig bottom
+   
+   LEGS attach at the BOTTOM-SIDES of the body
+   ARMS attach at the MIDDLE-SIDES of the body
+   TAIL attaches at the TOP-BACK of the body
+   ================================================================= */
 
-    width: 160px;
-    height: 160px;
+/* SCOPED VARIABLES */
+.stage {
+    /* === DIMENSIONS === */
+    --rig-width: 180px;
+    --rig-height: 150px;
+
+    --body-width: 100px;
+    --body-height: 80px;
+    --body-bottom: 30px;
+    /* From rig bottom */
+    --body-left: 40px;
+    /* (rig-width - body-width) / 2 */
+    --body-right: 40px;
+    /* Same, from right edge */
+
+    /* === COLORS (Iridescent Jewel) === */
+    --scorp-body: #4a148c;
+    --scorp-dark: #311b92;
+    --sheen-jade: #26a69a;
+    --sheen-gold: #ffd740;
+    --sheen-turq: #00bcd4;
+    --claw-main: #9c27b0;
+    --claw-light: #e1bee7;
+    --eye-white: #ffffff;
+    --pupil: #000000;
+    --blush: #f48fb1;
+
     position: relative;
-    display: inline-block;
+    width: 200px;
+    height: 160px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    padding-bottom: 10px;
+    cursor: pointer;
 }
 
-.scorpionScene {
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    width: 300px;
-    height: 400px;
-    cursor: pointer;
-    transform-style: preserve-3d;
-    transform: translateX(-50%) scale(0.5);
+/* RIG CONTAINER */
+.scorpRig {
+    position: relative;
+    width: var(--rig-width);
+    height: var(--rig-height);
+    animation: idle-bop 3s ease-in-out infinite;
     transform-origin: bottom center;
 }
 
-.scorpion {
+/* SHADOW */
+.shadow {
+    position: absolute;
+    bottom: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 18px;
+    background: radial-gradient(circle, rgba(38, 166, 154, 0.3), transparent);
+    border-radius: 50%;
+    filter: blur(5px);
+    z-index: 0;
+}
+
+/* =================================================================
+   BODY - The Central Anchor
+   ================================================================= */
+.body {
+    position: absolute;
+    bottom: var(--body-bottom);
+    left: var(--body-left);
+    width: var(--body-width);
+    height: var(--body-height);
+    background: radial-gradient(circle at 40% 30%, #7e57c2, var(--scorp-body));
+    border: 2px solid var(--scorp-dark);
+    border-radius: 45%;
+    z-index: 10;
+    box-shadow: inset -5px -5px 15px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+}
+
+.body::before {
+    content: '';
+    position: absolute;
+    top: -20%;
+    left: -20%;
+    width: 80%;
+    height: 80%;
+    background: radial-gradient(circle, rgba(38, 166, 154, 0.3), transparent);
+    filter: blur(8px);
+}
+
+.body::after {
+    content: '';
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    width: 25px;
+    height: 25px;
+    background: radial-gradient(circle, rgba(255, 215, 64, 0.5), transparent);
+    filter: blur(10px);
+}
+
+/* =================================================================
+   FACE - Inside Body
+   ================================================================= */
+.face {
     position: relative;
     width: 100%;
     height: 100%;
-    transform-style: preserve-3d;
-    animation: hoverFloat 3s ease-in-out infinite;
-}
-
-@keyframes hoverFloat {
-
-    0%,
-    100% {
-        transform: translateY(0);
-    }
-
-    50% {
-        transform: translateY(-5px);
-    }
-}
-
-/* PARTS */
-.body {
-    position: absolute;
-    top: 200px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 80px;
-    height: 120px;
-    background: var(--shell-dark);
-    border-radius: 40%;
-    z-index: 10;
-}
-
-.segment {
-    width: 100%;
-    height: 20px;
-    border-bottom: 2px solid var(--shell-light);
-    margin-top: 10px;
-}
-
-.tail {
-    position: absolute;
-    top: 120px;
-    left: 50%;
-    transform-origin: bottom center;
-    transform: translateX(-50%) rotateX(-45deg);
-    /* Arc back */
-    width: 30px;
-    height: 150px;
-    background: var(--shell-light);
-    border-radius: 20px;
-    z-index: 5;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.stinger {
-    width: 40px;
-    height: 40px;
-    background: var(--stinger);
-    border-radius: 50% 50% 0 50%;
-    transform: rotate(45deg);
-    margin-top: -20px;
-}
-
-.head {
-    position: absolute;
-    top: 180px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 70px;
-    height: 50px;
-    background: var(--shell-dark);
-    border-radius: 40%;
     z-index: 15;
 }
 
-.eyeLeft,
-.eyeRight {
+.eyeRidge {
     position: absolute;
-    top: 10px;
-    width: 8px;
-    height: 8px;
-    background: black;
-    border-radius: 50%;
-}
-
-.eyeLeft {
-    left: 15px;
-}
-
-.eyeRight {
-    right: 15px;
-}
-
-/* Claws */
-.claw {
-    position: absolute;
-    top: 150px;
-    width: 100px;
-    height: 20px;
-    background: var(--shell-dark);
-    transform-origin: center right;
-    z-index: 12;
-}
-
-.cLeft {
-    left: -50px;
-    transform: rotate(-30deg);
-    transform-origin: center right;
-}
-
-.cRight {
-    right: -50px;
-    transform: rotate(30deg);
-    transform-origin: center left;
-}
-
-.pincer {
-    position: absolute;
-    width: 40px;
-    height: 60px;
-    background: var(--shell-light);
-    border-radius: 50%;
-    border: 5px solid var(--shell-dark);
-    border-left-color: transparent;
-    /* Open pincer */
-}
-
-.cLeft .pincer {
+    top: 20px;
     left: 0;
-    transform: rotate(-45deg);
+    width: 100%;
+    height: 40px;
 }
 
-.cRight .pincer {
-    right: 0;
-    transform: rotate(225deg);
-}
-
-/* Legs */
-.leg {
+.eye {
     position: absolute;
-    width: 60px;
+    top: 0;
+    width: 26px;
+    height: 30px;
+    background: var(--eye-white);
+    border-radius: 50%;
+    border: 2px solid var(--scorp-dark);
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.eyeL {
+    left: 16px;
+    transform: rotate(-8deg);
+}
+
+.eyeR {
+    right: 16px;
+    transform: rotate(8deg);
+}
+
+.pupil {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 14px;
+    height: 18px;
+    background: var(--pupil);
+    border-radius: 50%;
+}
+
+.highlight {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 6px;
+    height: 6px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 0 5px #00bcd4;
+}
+
+.blushL,
+.blushR {
+    position: absolute;
+    top: 50px;
+    width: 14px;
+    height: 8px;
+    background: var(--blush);
+    border-radius: 50%;
+    opacity: 0.6;
+    filter: blur(2px);
+}
+
+.blushL {
+    left: 12px;
+}
+
+.blushR {
+    right: 12px;
+}
+
+.mouth {
+    position: absolute;
+    top: 55px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 10px;
     height: 5px;
-    background: var(--shell-dark);
+    border-bottom: 2px solid #311b92;
+    border-radius: 50%;
+    opacity: 0.7;
+}
+
+/* =================================================================
+   LEGS - Attach to BOTTOM-SIDES of Body
+   Each leg group positioned at body edge
+   ================================================================= */
+.legsLeft {
+    position: absolute;
+    /* Position at body's left edge, near body bottom */
+    bottom: calc(var(--body-bottom) + 5px);
+    left: calc(var(--body-left) - 5px);
+    width: 30px;
+    height: 50px;
+    z-index: 8;
+    /* Behind body */
+}
+
+.legsRight {
+    position: absolute;
+    bottom: calc(var(--body-bottom) + 5px);
+    right: calc(var(--body-right) - 5px);
+    width: 30px;
+    height: 50px;
     z-index: 8;
 }
 
-.l1Left {
-    top: 220px;
-    left: -20px;
-    transform: rotate(-10deg);
+.leg {
+    position: absolute;
+    width: 35px;
+    height: 20px;
+    z-index: 8;
 }
 
-.l1Right {
-    top: 220px;
-    right: -20px;
-    transform: rotate(10deg);
+/* Leg Segments - LARGER for visibility */
+.legUpper {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 22px;
+    height: 12px;
+    background: var(--scorp-body);
+    border: 2px solid var(--scorp-dark);
+    border-radius: 8px;
+    transform-origin: right center;
 }
 
-.l2Left {
-    top: 240px;
-    left: -15px;
-    transform: rotate(-20deg);
+.legLower {
+    position: absolute;
+    top: 8px;
+    right: 18px;
+    width: 18px;
+    height: 10px;
+    background: linear-gradient(to left, var(--scorp-body), var(--sheen-jade));
+    border: 2px solid var(--scorp-dark);
+    border-radius: 8px;
+    transform-origin: right center;
+    transform: rotate(35deg);
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.2);
 }
 
-.l2Right {
-    top: 240px;
-    right: -15px;
-    transform: rotate(20deg);
-}
-
-.l3Left {
-    top: 260px;
-    left: -10px;
+/* Left Legs - fanning outward to the left */
+.legL1 {
+    top: 0;
+    right: 0;
     transform: rotate(-30deg);
 }
 
-.l3Right {
-    top: 260px;
-    right: -10px;
+.legL2 {
+    top: 18px;
+    right: 0;
+    transform: rotate(0deg);
+}
+
+.legL3 {
+    top: 36px;
+    right: 0;
     transform: rotate(30deg);
 }
 
-/* Hover */
-.scorpionScene:hover .tail {
-    transform: translateX(-50%) rotateX(0deg);
-    /* Strike! */
+/* Right Legs - mirrored */
+.legR1 {
+    top: 0;
+    left: 0;
+    transform: scaleX(-1) rotate(-30deg);
+}
+
+.legR2 {
+    top: 18px;
+    left: 0;
+    transform: scaleX(-1) rotate(0deg);
+}
+
+.legR3 {
+    top: 36px;
+    left: 0;
+    transform: scaleX(-1) rotate(30deg);
+}
+
+/* =================================================================
+   ARMS/CLAWS - Attach to MIDDLE-SIDES of Body
+   ================================================================= */
+.arm {
+    position: absolute;
+    /* Position at body's left/right edge, vertically centered on body */
+    bottom: calc(var(--body-bottom) + var(--body-height) / 2 - 15px);
+    width: 45px;
+    height: 35px;
+    z-index: 12;
+}
+
+.armL {
+    left: calc(var(--body-left) - 40px);
+    transform: rotate(-10deg);
+}
+
+.armR {
+    right: calc(var(--body-right) - 40px);
+    transform: scaleX(-1) rotate(-10deg);
+}
+
+.clawGroup {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    animation: claw-idle 3s ease-in-out infinite;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.clawFixed {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 35px;
+    height: 28px;
+    background: linear-gradient(135deg, var(--sheen-gold), #ab47bc, var(--sheen-turq));
+    border: 2px solid var(--scorp-dark);
+    border-radius: 50% 50% 10px 40%;
+    box-shadow: inset 2px 2px 5px rgba(255, 255, 255, 0.4);
+}
+
+.clawThumb {
+    position: absolute;
+    top: -10px;
+    right: 20px;
+    width: 16px;
+    height: 22px;
+    background: linear-gradient(to bottom, var(--sheen-gold), #e1bee7);
+    border: 2px solid var(--scorp-dark);
+    border-radius: 50% 20px 0 0;
+    transform-origin: bottom center;
+    transform: rotate(-15deg);
+    animation: pinch-idle 3s ease-in-out infinite;
+}
+
+/* Shoulder connector */
+.arm::before {
+    content: '';
+    position: absolute;
+    right: -5px;
+    top: 12px;
+    width: 20px;
+    height: 10px;
+    background: var(--scorp-dark);
+    border-radius: 8px;
+    z-index: -1;
+}
+
+/* =================================================================
+   TAIL - Attach to TOP-BACK of Body
+   ================================================================= */
+.tailGroup {
+    position: absolute;
+    bottom: calc(var(--body-bottom) + var(--body-height) - 20px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50px;
+    height: 80px;
+    z-index: 1;
+}
+
+.segment {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    background: radial-gradient(circle at 30% 30%, var(--sheen-turq), var(--scorp-body));
+    border: 1px solid rgba(255, 215, 64, 0.3);
+    border-radius: 50%;
+    box-shadow: inset -2px -2px 5px rgba(0, 0, 0, 0.5);
+}
+
+.seg1 {
+    bottom: 0;
+    width: 35px;
+    height: 30px;
+    z-index: 5;
+}
+
+.seg2 {
+    bottom: 22px;
+    width: 30px;
+    height: 26px;
+    z-index: 4;
+    left: 60%;
+    transform: translate(-50%) rotate(15deg);
+}
+
+.seg3 {
+    bottom: 42px;
+    width: 26px;
+    height: 24px;
+    z-index: 3;
+    left: 65%;
+    transform: translate(-50%) rotate(35deg);
+}
+
+.seg4 {
+    bottom: 60px;
+    width: 22px;
+    height: 22px;
+    z-index: 2;
+    left: 55%;
+    transform: translate(-50%) rotate(55deg);
+}
+
+.stingerBase {
+    position: absolute;
+    bottom: 70px;
+    left: 30%;
+    width: 30px;
+    height: 30px;
+    background: radial-gradient(circle at 40% 40%, #e040fb, #7b1fa2);
+    border: 2px solid var(--scorp-dark);
+    border-radius: 50% 50% 50% 0;
+    transform: translateX(-50%) rotate(130deg);
+    z-index: 100;
+    box-shadow: 0 0 10px rgba(224, 64, 251, 0.4);
+}
+
+.stingerTip {
+    position: absolute;
+    bottom: -4px;
+    right: -4px;
+    width: 12px;
+    height: 12px;
+    background: var(--scorp-dark);
+    border-radius: 50%;
+    border-top-right-radius: 0;
+    transform: rotate(45deg) scale(0.6);
+}
+
+/* =================================================================
+   ANIMATIONS
+   ================================================================= */
+@keyframes idle-bop {
+
+    0%,
+    100% {
+        transform: scale(0.85) translateY(0);
+    }
+
+    50% {
+        transform: scale(0.85) translateY(-4px);
+    }
+}
+
+@keyframes claw-idle {
+
+    0%,
+    100% {
+        transform: rotate(0deg);
+    }
+
+    50% {
+        transform: rotate(5deg);
+    }
+}
+
+@keyframes pinch-idle {
+
+    0%,
+    100% {
+        transform: rotate(-15deg);
+    }
+
+    50% {
+        transform: rotate(-25deg);
+    }
+}
+
+/* SELECTED STATE */
+/* SELECTED STATE - Max 3 seconds total */
+@keyframes happy-wiggle {
+
+    0%,
+    100% {
+        transform: scale(0.9) rotate(0);
+    }
+
+    25% {
+        transform: scale(0.95) rotate(-5deg);
+    }
+
+    75% {
+        transform: scale(0.95) rotate(5deg);
+    }
+}
+
+@keyframes tail-sting {
+    0% {
+        transform: translateX(-50%) rotate(130deg) scale(1);
+    }
+
+    30% {
+        transform: translateX(-50%) rotate(95deg) scale(1.3);
+    }
+
+    50% {
+        transform: translateX(-50%) rotate(160deg) scale(1.3);
+    }
+
+    100% {
+        transform: translateX(-50%) rotate(130deg) scale(1);
+    }
+}
+
+@keyframes pinch-fast {
+
+    0%,
+    100% {
+        transform: rotate(-10deg);
+    }
+
+    50% {
+        transform: rotate(-45deg);
+    }
+}
+
+@keyframes selected-glow {
+
+    0%,
+    100% {
+        filter: drop-shadow(0 0 5px var(--sheen-gold));
+    }
+
+    50% {
+        filter: drop-shadow(0 0 15px var(--sheen-gold));
+    }
+}
+
+.selected .scorpRig {
+    animation: happy-wiggle 0.4s ease-in-out 3 alternate, selected-glow 1.5s ease-in-out infinite;
+}
+
+.selected .stingerBase {
+    animation: tail-sting 0.5s ease-in-out 2;
+}
+
+.selected .clawThumb {
+    animation: pinch-fast 0.15s ease-in-out 6;
+}
+
+/* HOVER STATE - Tail Waggle */
+.stage:hover .tailGroup {
+    animation: tail-waggle 0.8s ease-in-out;
+}
+
+@keyframes tail-waggle {
+    0% {
+        transform: translateX(-50%) rotate(0deg);
+    }
+
+    20% {
+        transform: translateX(-50%) rotate(-15deg);
+    }
+
+    40% {
+        transform: translateX(-50%) rotate(12deg);
+    }
+
+    60% {
+        transform: translateX(-50%) rotate(-8deg);
+    }
+
+    80% {
+        transform: translateX(-50%) rotate(5deg);
+    }
+
+    100% {
+        transform: translateX(-50%) rotate(0deg);
+    }
+}
+
+/* SPARKLES */
+.sparkles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 50;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.sparkle {
+    position: absolute;
+    background: white;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+    animation: sparkle-spin 0.8s linear infinite;
+}
+
+.sparkle:nth-child(1) {
+    top: -25px;
+    left: 15px;
+    animation-duration: 0.6s;
+}
+
+.sparkle:nth-child(2) {
+    top: -35px;
+    right: 15px;
+    animation-duration: 0.9s;
+    animation-delay: 0.15s;
+}
+
+.sparkle:nth-child(3) {
+    bottom: 5px;
+    right: 5px;
+    animation-duration: 0.7s;
+    animation-delay: 0.3s;
+}
+
+@keyframes sparkle-spin {
+    0% {
+        transform: scale(0) rotate(0);
+        opacity: 0;
+    }
+
+    40% {
+        transform: scale(1.2) rotate(144deg);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(0) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+.selected .sparkles {
+    opacity: 1;
 }
