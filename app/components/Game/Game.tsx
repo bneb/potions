@@ -163,7 +163,7 @@ export function Game() {
             <main className="w-full max-w-6xl flex-grow flex flex-col items-center justify-center relative z-10">
                 <AnimalCarousel
                     selectedId={selectedId}
-                    onSelect={setSelectedId}
+                    onSelect={(id) => setSelectedId(prev => prev === id ? null : id)}
                     animalStates={animalStates}
                 />
             </main>

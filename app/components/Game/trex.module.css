@@ -1,39 +1,500 @@
-/* T-Rex Palette */
-.trexProxy {
-    --skin-base: #4caf50;
-    /* Green */
-    --skin-dark: #388e3c;
-    --skin-light: #81c784;
-    --belly: #c8e6c9;
+/* Scoped Variables */
+.stage {
+    --skin-base: #5dc15c;
+    --skin-light: #9be49a;
+    --skin-shadow: #3a963a;
+    --skin-dark: #1b5e20;
+    --belly: #dcedc8;
+    --pupil: #212121;
 
-    width: 160px;
-    height: 160px;
     position: relative;
-    display: inline-block;
+    width: 200px;
+    /* Adjusted from 320px to fit carousel better */
+    height: 160px;
+    /* Match container height */
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    /* Align to bottom */
+    padding-bottom: 12px;
+    /* Lift slightly to match Orangutan scale offset */
+    cursor: pointer;
 }
 
-.trexScene {
+/* --- MATERIAL SHADER --- */
+.part {
+    background-color: var(--skin-base);
+    background: radial-gradient(130% 130% at 30% 20%, var(--skin-light) 0%, var(--skin-base) 60%, var(--skin-shadow) 100%);
+    box-shadow:
+        inset 2px 2px 5px rgba(255, 255, 255, 0.4),
+        inset -2px -2px 6px rgba(0, 0, 0, 0.12);
+}
+
+/* --- THE RIG --- */
+.dinoRig {
+    position: relative;
+    width: 200px;
+    height: 220px;
+    transform-origin: bottom center;
+    /* Default Idle */
+    animation: idle-breathe 3s ease-in-out infinite;
+    transform: scale(0.6);
+    /* Internal scaling to fit container */
+}
+
+/* --- STATE ANIMATIONS --- */
+
+/* 1. Jump Forward (Select) */
+.selected {
+    animation: jump-flip-forward 0.6s cubic-bezier(0.45, 0, 0.55, 1) forwards;
+}
+
+/* 2. Jump Reverse (Unselect) */
+.unselected {
+    animation: jump-flip-reverse 0.6s cubic-bezier(0.45, 0, 0.55, 1) forwards;
+}
+
+/* Shadow States */
+.shadow {
+    position: absolute;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 140px;
+    height: 20px;
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 50%;
+    filter: blur(6px);
+    z-index: 0;
+    animation: shadow-idle 3s ease-in-out infinite;
+}
+
+.selected~.shadow {
+    animation: shadow-jump 0.6s cubic-bezier(0.45, 0, 0.55, 1) forwards;
+}
+
+.unselected~.shadow {
+    animation: shadow-jump 0.6s cubic-bezier(0.45, 0, 0.55, 1) forwards;
+}
+
+/* --- HOVER INTERACTION (Smile) --- */
+
+/* Only trigger smile on hover */
+.stage:hover .mouthCurve {
+    transform: rotate(5deg) translateY(-2px);
+    border-bottom: 4px solid #6d2424;
+    /* Open/Darker */
+    height: 18px;
+    transition: 0.3s ease;
+}
+
+.stage:hover .eyelid {
+    top: -65%;
+    /* Squint */
+    transition: 0.3s ease;
+}
+
+.stage:hover .headGroup {
+    transform: rotate(-5deg) translateY(-2px);
+    transition: 0.4s ease;
+}
+
+
+/* --- BODY PARTS --- */
+
+/* TAIL */
+.tail {
+    position: absolute;
+    bottom: 40px;
+    left: -50px;
+    width: 100px;
+    height: 50px;
+    border-radius: 0 0 0 100%;
+    transform: rotate(-10deg) skewX(5deg);
+    transform-origin: 100% 0%;
+    z-index: 1;
+    animation: tail-wag 4s ease-in-out infinite alternate;
+}
+
+/* LEGS */
+.legBack {
+    position: absolute;
+    bottom: 30px;
+    left: 50px;
+    width: 50px;
+    height: 60px;
+    background: var(--skin-shadow);
+    border-radius: 50% 50% 40% 40%;
+    transform: rotate(-10deg) scale(0.92);
+    z-index: 2;
+    filter: brightness(0.9);
+}
+
+.legFrontGroup {
+    position: absolute;
+    bottom: 10px;
+    left: 70px;
+    width: 60px;
+    height: 75px;
+    z-index: 20;
+}
+
+.thigh {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    position: relative;
+    z-index: 2;
+}
+
+.foot {
+    position: absolute;
+    bottom: -6px;
+    left: 6px;
+    width: 50px;
+    height: 25px;
+    background: inherit;
+    background: radial-gradient(circle at 40% 20%, var(--skin-light), var(--skin-base));
+    box-shadow: inset 2px 2px 5px rgba(255, 255, 255, 0.4), inset -2px -2px 6px rgba(0, 0, 0, 0.15);
+    border-radius: 15px 25px 10px 10px;
+    z-index: 1;
+}
+
+.toes {
     position: absolute;
     bottom: 0;
-    left: 50%;
-    width: 300px;
-    height: 400px;
-    cursor: pointer;
-    transform-style: preserve-3d;
-    transform: translateX(-50%) scale(0.5);
-    /* Scale to match */
-    transform-origin: bottom center;
+    right: 2px;
+    display: flex;
+    padding-right: 4px;
 }
 
-.trex {
-    position: relative;
+.toe {
+    width: 10px;
+    height: 7px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 50% 50% 2px 2px;
+    margin-left: 3px;
+}
+
+/* BODY */
+.body {
+    position: absolute;
+    bottom: 45px;
+    left: 30px;
+    width: 95px;
+    height: 120px;
+    border-radius: 50% 50% 45% 45% / 60% 60% 40% 40%;
+    transform: rotate(-10deg);
+    z-index: 10;
+}
+
+.belly {
+    position: absolute;
+    bottom: 15px;
+    left: 12px;
+    width: 65px;
+    height: 85px;
+    background: var(--belly);
+    border-radius: 50%;
+    opacity: 0.8;
+    filter: blur(5px);
+}
+
+/* ARM */
+.armWrapper {
+    position: absolute;
+    top: 95px;
+    left: 90px;
+    width: 40px;
+    height: 50px;
+    z-index: 30;
+    transform-origin: top center;
+    transform: rotate(-20deg);
+    animation: arm-idle 3s ease-in-out infinite;
+}
+
+.armUpper {
+    position: absolute;
+    top: 0;
+    left: 5px;
+    width: 14px;
+    height: 22px;
+    border-radius: 10px;
+    z-index: 3;
+}
+
+.armFore {
+    position: absolute;
+    top: 16px;
+    left: 8px;
+    width: 12px;
+    height: 18px;
+    border-radius: 8px;
+    transform: rotate(-30deg);
+    z-index: 2;
+}
+
+.armHand {
+    position: absolute;
+    top: 28px;
+    left: 10px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    z-index: 4;
+}
+
+.claw {
+    position: absolute;
+    width: 5px;
+    height: 8px;
+    background: white;
+    border-radius: 50% 50% 50% 50% / 80% 80% 20% 20%;
+    z-index: 1;
+}
+
+.claw1 {
+    top: 34px;
+    left: 10px;
+    transform: rotate(10deg);
+}
+
+.claw2 {
+    top: 34px;
+    left: 16px;
+    transform: rotate(-10deg);
+}
+
+/* HEAD */
+.headGroup {
+    position: absolute;
+    top: 15px;
+    left: 40px;
+    width: 140px;
+    height: 120px;
+    z-index: 25;
+    transform-origin: 40% 90%;
+    transition: transform 0.4s ease;
+    animation: head-bob 3s ease-in-out infinite;
+}
+
+.neckJoint {
+    position: absolute;
+    bottom: 25px;
+    left: 20px;
+    width: 60px;
+    height: 45px;
+    background: var(--skin-base);
+    border-radius: 20px;
+    transform: rotate(-15deg);
+    z-index: 24;
+}
+
+.head {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100px;
+    height: 90px;
+    border-radius: 45% 50% 35% 40%;
+    z-index: 25;
+}
+
+.snout {
+    position: absolute;
+    top: 35px;
+    right: 15px;
+    width: 65px;
+    height: 45px;
+    border-radius: 25px 30px 30px 25px;
+    z-index: 25;
+    background: radial-gradient(circle at 10% 20%, var(--skin-light), var(--skin-base));
+}
+
+/* FACE */
+.eye {
+    position: absolute;
+    top: 22px;
+    left: 50px;
+    width: 26px;
+    height: 26px;
+    background: white;
+    border-radius: 50%;
+    z-index: 30;
+    overflow: hidden;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
+    animation: blink 4s infinite;
+}
+
+.eyelid {
+    position: absolute;
+    top: -100%;
+    left: 0;
     width: 100%;
     height: 100%;
-    transform-style: preserve-3d;
-    animation: idleRoar 4s ease-in-out infinite;
+    background: var(--skin-base);
+    z-index: 31;
+    transition: top 0.4s ease;
 }
 
-@keyframes idleRoar {
+.pupil {
+    position: absolute;
+    top: 7px;
+    right: 6px;
+    width: 12px;
+    height: 12px;
+    background: var(--pupil);
+    border-radius: 50%;
+}
+
+.pupil::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    right: 3px;
+    width: 4px;
+    height: 4px;
+    background: white;
+    border-radius: 50%;
+}
+
+.nostril {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    width: 6px;
+    height: 4px;
+    background: var(--skin-dark);
+    border-radius: 50%;
+    opacity: 0.5;
+}
+
+.mouthCurve {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    width: 35px;
+    height: 15px;
+    border-radius: 0 0 50% 50%;
+    border-bottom: 3px solid var(--skin-dark);
+    z-index: 26;
+    transform-origin: center center;
+    transition: 0.3s ease;
+}
+
+.tooth {
+    position: absolute;
+    top: 100%;
+    right: 12px;
+    width: 6px;
+    height: 6px;
+    background: white;
+    border-radius: 0 0 50% 50%;
+}
+
+
+/* --- KEYFRAMES --- */
+
+/* Jump Forward: Facing Right -> Facing Left */
+@keyframes jump-flip-forward {
+    0% {
+        transform: translateX(0) translateY(0) scaleX(0.6) scaleY(0.6);
+    }
+
+    20% {
+        /* Squash */
+        transform: translateX(0) translateY(8px) scaleX(0.63) scaleY(0.57);
+    }
+
+    50% {
+        /* Apex & Flip */
+        transform: translateX(0) translateY(-40px) scaleX(-0.1) scaleY(0.61);
+    }
+
+    75% {
+        /* Land */
+        transform: translateX(0) translateY(5px) scaleX(-0.63) scaleY(0.57);
+    }
+
+    100% {
+        /* Rest Flipped */
+        transform: translateX(0) translateY(0) scaleX(-0.6) scaleY(0.6);
+    }
+}
+
+/* Jump Reverse: Facing Left -> Facing Right */
+@keyframes jump-flip-reverse {
+    0% {
+        transform: translateX(0) translateY(0) scaleX(-0.6) scaleY(0.6);
+    }
+
+    20% {
+        /* Squash */
+        transform: translateX(0) translateY(8px) scaleX(-0.63) scaleY(0.57);
+    }
+
+    50% {
+        /* Apex & Flip Back */
+        transform: translateX(0) translateY(-40px) scaleX(0.1) scaleY(0.61);
+    }
+
+    75% {
+        /* Land */
+        transform: translateX(0) translateY(5px) scaleX(0.63) scaleY(0.57);
+    }
+
+    100% {
+        /* Rest Normal */
+        transform: translateX(0) translateY(0) scaleX(0.6) scaleY(0.6);
+    }
+}
+
+@keyframes shadow-jump {
+    0% {
+        opacity: 0.15;
+        transform: translateX(-50%) scale(1);
+        filter: blur(6px);
+    }
+
+    20% {
+        opacity: 0.2;
+        transform: translateX(-50%) scale(1.1);
+        filter: blur(4px);
+    }
+
+    50% {
+        opacity: 0.05;
+        transform: translateX(-50%) scale(0.6);
+        filter: blur(10px);
+    }
+
+    75% {
+        opacity: 0.3;
+        transform: translateX(-50%) scale(1.1);
+        filter: blur(4px);
+    }
+
+    100% {
+        opacity: 0.15;
+        transform: translateX(-50%) scale(1);
+        filter: blur(6px);
+    }
+}
+
+/* Idle Animations */
+@keyframes idle-breathe {
+
+    0%,
+    100% {
+        transform: scale(0.6) translateY(0);
+    }
+
+    50% {
+        transform: scale(0.6) translateY(2px);
+    }
+}
+
+@keyframes head-bob {
 
     0%,
     100% {
@@ -41,183 +502,55 @@
     }
 
     50% {
-        transform: rotate(2deg);
+        transform: rotate(2deg) translateY(1px);
     }
 }
 
-/* PARTS */
+@keyframes tail-wag {
+    0% {
+        transform: rotate(-10deg) skewX(5deg);
+    }
 
-.body {
-    position: absolute;
-    top: 150px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 140px;
-    height: 180px;
-    background: radial-gradient(circle at 30% 30%, var(--skin-light), var(--skin-base));
-    border-radius: 60% 60% 50% 50%;
-    z-index: 10;
-    box-shadow: inset -10px -10px 20px rgba(0, 0, 0, 0.2);
+    100% {
+        transform: rotate(0deg) skewX(2deg);
+    }
 }
 
-.belly {
-    position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 80px;
-    height: 120px;
-    background: var(--belly);
-    border-radius: 50%;
-    opacity: 0.8;
+@keyframes arm-idle {
+
+    0%,
+    100% {
+        transform: rotate(-20deg);
+    }
+
+    50% {
+        transform: rotate(-30deg);
+    }
 }
 
-.tail {
-    position: absolute;
-    bottom: 50px;
-    left: 50%;
-    width: 20px;
-    height: 150px;
-    background: var(--skin-base);
-    transform-origin: top center;
-    transform: rotate(45deg) translateZ(-50px);
-    border-radius: 0 0 50% 50%;
-    z-index: 5;
+@keyframes blink {
+
+    0%,
+    96%,
+    100% {
+        transform: scaleY(1);
+    }
+
+    98% {
+        transform: scaleY(0.1);
+    }
 }
 
-/* Head Group */
-.head {
-    position: absolute;
-    top: 60px;
-    left: 50%;
-    transform: translateX(-50%) translateZ(20px);
-    width: 150px;
-    height: 120px;
-    background: var(--skin-base);
-    border-radius: 40% 60% 40% 40%;
-    z-index: 20;
-    box-shadow: inset 5px 5px 10px var(--skin-light);
-}
+@keyframes shadow-idle {
 
-.snout {
-    position: absolute;
-    top: 40px;
-    right: -30px;
-    width: 80px;
-    height: 60px;
-    background: var(--skin-base);
-    border-radius: 30% 50% 50% 30%;
-}
+    0%,
+    100% {
+        opacity: 0.15;
+        transform: translateX(-50%) scale(1);
+    }
 
-.nostril {
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    width: 10px;
-    height: 6px;
-    background: #1b5e20;
-    border-radius: 50%;
-}
-
-.teeth {
-    position: absolute;
-    bottom: 5px;
-    left: 10px;
-    width: 60px;
-    height: 10px;
-    background: repeating-linear-gradient(90deg, #fff 0 5px, transparent 5px 8px);
-    clip-path: polygon(0 0, 100% 0, 100% 80%, 0 80%);
-}
-
-.eye {
-    position: absolute;
-    top: 30px;
-    right: 40px;
-    width: 25px;
-    height: 25px;
-    background: white;
-    border-radius: 50%;
-    box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.2);
-}
-
-.eye::after {
-    content: '';
-    position: absolute;
-    top: 8px;
-    right: 5px;
-    width: 10px;
-    height: 10px;
-    background: #000;
-    border-radius: 50%;
-}
-
-/* Limbs */
-.arm {
-    position: absolute;
-    top: 200px;
-    width: 30px;
-    height: 50px;
-    background: var(--skin-dark);
-    border-radius: 15px;
-    z-index: 15;
-    transform-origin: top center;
-}
-
-.aLeft {
-    left: 20px;
-    transform: rotate(30deg);
-}
-
-.aRight {
-    right: 20px;
-    transform: rotate(-30deg);
-}
-
-.claw {
-    width: 6px;
-    height: 10px;
-    background: #fff;
-    display: inline-block;
-    margin: 0 2px;
-    border-radius: 50%;
-}
-
-.leg {
-    position: absolute;
-    bottom: -30px;
-    width: 60px;
-    height: 100px;
-    background: var(--skin-dark);
-    border-radius: 30px;
-    z-index: 5;
-}
-
-.lLeft {
-    left: 40px;
-    transform: rotate(-5deg);
-}
-
-.lRight {
-    right: 40px;
-    transform: rotate(5deg);
-}
-
-.foot {
-    position: absolute;
-    bottom: 0;
-    width: 70px;
-    height: 40px;
-    background: var(--skin-dark);
-    border-radius: 20px;
-    left: -5px;
-}
-
-/* Animations */
-.trexScene:hover .head {
-    transform: translateX(-50%) translateZ(20px) rotate(-10deg);
-}
-
-.trexScene:hover .snout {
-    transform: translateX(10px) rotate(-5deg) open-mouth;
-    /* Just wiggle */
+    50% {
+        opacity: 0.2;
+        transform: translateX(-50%) scale(1.05);
+    }
 }

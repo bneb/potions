@@ -1,62 +1,87 @@
 
 "use client";
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import styles from './trex.module.css';
 
 interface TrexProps {
     className?: string;
+    selected?: boolean;
 }
 
-export function Trex({ className }: TrexProps) {
+export function Trex({ className, selected = false }: TrexProps) {
+    // We need to track the "previous" selection state to determine if we should animate the "unselect" (reverse jump)
+    // or if this is just the initial mount.
+    const [hasMounted, setHasMounted] = useState(false);
+    const [wasSelected, setWasSelected] = useState(selected);
+
+    useEffect(() => {
+        setHasMounted(true);
+    }, []);
+
+    useEffect(() => {
+        if (selected !== wasSelected) {
+            setWasSelected(selected);
+        }
+    }, [selected, wasSelected]);
+
+    const animationClass = selected
+        ? styles.selected
+        : (hasMounted && wasSelected) ? styles.unselected : '';
+
     return (
-        <div className={cn(styles.trexProxy, className)}>
-            <div className={styles.trexScene}>
-                <div className={styles.trex}>
-                    {/* Tail */}
-                    <div className={styles.tail}></div>
+        <div className={cn(styles.stage, className)}>
+            <div className={cn(styles.dinoRig, animationClass)}>
+                {/* Tail */}
+                <div className={cn(styles.tail, styles.part)}></div>
 
-                    {/* Legs */}
-                    <div className={cn(styles.leg, styles.lLeft)}>
-                        <div className={styles.foot}>
-                            <div className={styles.claw}></div>
-                            <div className={styles.claw}></div>
+                {/* Back Leg */}
+                <div className={cn(styles.legBack, styles.part)}></div>
+
+                {/* Body */}
+                <div className={cn(styles.body, styles.part)}>
+                    <div className={styles.belly}></div>
+                </div>
+
+                {/* Head Group */}
+                <div className={styles.headGroup}>
+                    <div className={styles.neckJoint}></div>
+                    <div className={cn(styles.head, styles.part)}></div>
+                    <div className={cn(styles.snout, styles.part)}>
+                        <div className={styles.nostril}></div>
+                        <div className={styles.mouthCurve}>
+                            <div className={styles.tooth}></div>
                         </div>
                     </div>
-                    <div className={cn(styles.leg, styles.lRight)}>
-                        <div className={styles.foot}>
-                            <div className={styles.claw}></div>
-                            <div className={styles.claw}></div>
+                    <div className={styles.eye}>
+                        <div className={styles.eyelid}></div>
+                        <div className={styles.pupil}></div>
+                    </div>
+                </div>
+
+                {/* Arm */}
+                <div className={styles.armWrapper}>
+                    <div className={cn(styles.armUpper, styles.part)}></div>
+                    <div className={cn(styles.armFore, styles.part)}></div>
+                    <div className={cn(styles.armHand, styles.part)}></div>
+                    <div className={cn(styles.claw, styles.claw1)}></div>
+                    <div className={cn(styles.claw, styles.claw2)}></div>
+                </div>
+
+                {/* Front Leg */}
+                <div className={styles.legFrontGroup}>
+                    <div className={cn(styles.thigh, styles.part)}></div>
+                    <div className={cn(styles.foot, styles.part)}>
+                        <div className={styles.toes}>
+                            <div className={styles.toe}></div>
+                            <div className={styles.toe}></div>
+                            <div className={styles.toe}></div>
                         </div>
-                    </div>
-
-                    {/* Body */}
-                    <div className={styles.body}>
-                        <div className={styles.belly}></div>
-                    </div>
-
-                    {/* Arms */}
-                    <div className={cn(styles.arm, styles.aLeft)}>
-                        <div className={styles.claw}></div>
-                        <div className={styles.claw}></div>
-                    </div>
-                    <div className={cn(styles.arm, styles.aRight)}>
-                        <div className={styles.claw}></div>
-                        <div className={styles.claw}></div>
-                    </div>
-
-                    {/* Head */}
-                    <div className={styles.head}>
-                        <div className={styles.snout}>
-                            <div className={styles.nostril}></div>
-                            <div className={styles.teeth}></div>
-                        </div>
-                        <div className={styles.eye}></div>
                     </div>
                 </div>
             </div>
+            <div className={styles.shadow}></div>
         </div>
     );
 }
-

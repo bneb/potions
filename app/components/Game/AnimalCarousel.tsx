@@ -123,7 +123,7 @@ export function AnimalCarousel({ selectedId, onSelect, animalStates, className }
                                         </div>
                                     ) : animal.id === 'trex' ? (
                                         <div className="w-[160px] h-[160px] flex items-center justify-center">
-                                            <Trex className="scale-75 origin-center" />
+                                            <Trex className="origin-center" selected={isSelected} />
                                         </div>
                                     ) : animal.id === 'santa' ? (
                                         <div className="w-[160px] h-[160px] flex items-center justify-center">
