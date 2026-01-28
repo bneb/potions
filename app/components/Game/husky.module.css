@@ -1,261 +1,518 @@
-.huskyProxy {
-    --fur-grey: #90a4ae;
-    --fur-white: #ffffff;
+/* Scoped Variables */
+.stage {
+    --fur-dark: #546e7a;
+    --fur-base: #78909c;
+    --fur-light: #b0bec5;
+    --white-base: #ffffff;
+    --white-shadow: #eceff1;
     --eye-blue: #29b6f6;
+    --eye-dark: #0277bd;
+    --tongue: #ff8a80;
+    --nose: #263238;
 
-    width: 160px;
+    position: relative;
+    width: 200px;
     height: 160px;
-    position: relative;
-    display: inline-block;
-}
-
-.huskyScene {
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    width: 300px;
-    height: 400px;
+    /* Match Trex container height */
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    /* Align to bottom like Trex */
+    padding-bottom: 5px;
+    /* Slight offset adjustment */
     cursor: pointer;
-    transform-style: preserve-3d;
-    transform: translateX(-50%) scale(0.5);
-    transform-origin: bottom center;
 }
 
-.husky {
+/* --- MATERIALS --- */
+.furGrey {
+    background: radial-gradient(circle at 30% 20%, var(--fur-light), var(--fur-base));
+    box-shadow:
+        inset 2px 2px 5px rgba(255, 255, 255, 0.3),
+        inset -3px -3px 8px rgba(0, 0, 0, 0.2);
+}
+
+.furWhite {
+    background: radial-gradient(circle at 50% 10%, var(--white-base), var(--white-shadow));
+    box-shadow:
+        inset 2px 2px 6px rgba(255, 255, 255, 1),
+        inset -2px -2px 5px rgba(0, 0, 0, 0.05);
+}
+
+/* --- RIG --- */
+.huskyRig {
     position: relative;
-    width: 100%;
-    height: 100%;
-    transform-style: preserve-3d;
-    animation: pant 1s infinite alternate;
+    width: 200px;
+    height: 220px;
+    animation: idle-breathe 3s ease-in-out infinite;
+    transform-origin: bottom center;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transform: scale(0.65);
+    /* Scale to fit container */
 }
 
-@keyframes pant {
-    0% {
-        transform: translateY(0);
-    }
-
-    100% {
-        transform: translateY(-2px);
-    }
+/* --- TAIL --- */
+.tail {
+    position: absolute;
+    bottom: 25px;
+    right: 10px;
+    width: 90px;
+    height: 110px;
+    border-radius: 0 100% 100% 0 / 0 50% 50% 0;
+    transform-origin: bottom left;
+    transform: rotate(-10deg);
+    z-index: 1;
+    background: radial-gradient(circle at 50% 50%, var(--fur-light), var(--fur-base));
+    box-shadow: inset -5px -5px 10px rgba(0, 0, 0, 0.1);
+    animation: tail-wag 3s ease-in-out infinite alternate;
 }
 
-/* PARTS */
+.tail::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 40px;
+    height: 50px;
+    background: var(--white-base);
+    border-radius: 0 100% 50% 0;
+    opacity: 0.9;
+}
+
+/* --- BODY --- */
 .body {
     position: absolute;
-    top: 180px;
+    bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
-    width: 140px;
-    height: 160px;
-    background: var(--fur-grey);
-    border-radius: 40%;
+    width: 100px;
+    height: 110px;
+    border-radius: 45% 45% 40% 40% / 60% 60% 30% 30%;
     z-index: 10;
-}
-
-.belly {
-    position: absolute;
-    top: 190px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 80px;
-    height: 140px;
-    background: var(--fur-white);
-    border-radius: 45%;
-    z-index: 11;
-}
-
-.head {
-    position: absolute;
-    top: 80px;
-    left: 50%;
-    transform: translateX(-50%) translateZ(20px);
-    width: 140px;
-    height: 130px;
-    z-index: 20;
-}
-
-.face {
-    width: 100%;
-    height: 100%;
-    background: var(--fur-white);
-    border-radius: 45% 45% 50% 50%;
-    position: relative;
     overflow: hidden;
 }
 
-.maskLeft,
-.maskRight {
+.bellyPatch {
     position: absolute;
-    top: 0;
-    width: 50%;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 70px;
+    height: 90px;
+    background: var(--white-base);
+    border-radius: 50% 50% 0 0;
+    filter: blur(4px);
+}
+
+/* --- LEGS --- */
+.legBack {
+    position: absolute;
+    bottom: 20px;
+    width: 60px;
+    height: 70px;
+    border-radius: 50%;
+    z-index: 5;
+    background: var(--fur-base);
+    box-shadow: inset -2px -2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.lbLeft {
+    left: 20px;
+    transform: rotate(-10deg);
+}
+
+.lbRight {
+    right: 20px;
+    transform: rotate(10deg);
+}
+
+.pawBack {
+    position: absolute;
+    bottom: 0px;
+    width: 35px;
+    height: 20px;
+    background: var(--white-base);
+    border-radius: 15px 15px 5px 5px;
+    z-index: 6;
+    box-shadow: inset -1px -1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.pbLeft {
+    left: 10px;
+}
+
+.pbRight {
+    right: 10px;
+}
+
+.legFront {
+    position: absolute;
+    bottom: 10px;
+    width: 30px;
     height: 60px;
-    background: var(--fur-grey);
+    z-index: 12;
+    border-radius: 15px;
 }
 
-.maskLeft {
-    left: 0;
-    border-radius: 0 0 100% 0;
+.lfLeft {
+    left: 60px;
 }
 
-.maskRight {
-    right: 0;
-    border-radius: 0 0 0 100%;
+.lfRight {
+    right: 60px;
 }
 
-.earLeft,
-.earRight {
+.pawFront {
     position: absolute;
-    top: -20px;
+    bottom: 0;
+    left: -5px;
     width: 40px;
+    height: 25px;
+    background: var(--white-base);
+    border-radius: 15px 15px 8px 8px;
+    box-shadow: inset 1px 1px 3px rgba(255, 255, 255, 1), 0 2px 3px rgba(0, 0, 0, 0.1);
+}
+
+.pawFront::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 12px;
+    width: 2px;
+    height: 8px;
+    background: rgba(0, 0, 0, 0.1);
+    box-shadow: 14px 0 0 rgba(0, 0, 0, 0.1);
+}
+
+/* --- HEAD --- */
+.headGroup {
+    position: absolute;
+    top: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 140px;
+    height: 130px;
+    z-index: 20;
+    transition: transform 0.3s ease;
+}
+
+.ear {
+    position: absolute;
+    top: -15px;
+    width: 50px;
     height: 60px;
-    background: var(--fur-grey);
-    border-radius: 5px 5px 0 0;
+    background: var(--fur-base);
+    border-radius: 15px 30px 0 0;
+    z-index: 19;
+    transform-origin: bottom center;
+    transition: transform 0.3s;
+    box-shadow: inset 2px 2px 4px rgba(255, 255, 255, 0.3);
 }
 
 .earLeft {
     left: 10px;
-    transform: rotate(-15deg);
+    transform: rotate(-20deg);
 }
 
 .earRight {
     right: 10px;
-    transform: rotate(15deg);
+    transform: rotate(20deg) scaleX(-1);
 }
 
-.eyeLeft,
-.eyeRight {
+.earInner {
     position: absolute;
-    top: 40px;
-    width: 20px;
-    height: 25px;
-    background: var(--eye-blue);
-    border-radius: 50%;
-    border: 2px solid #546e7a;
+    bottom: 5px;
+    left: 10px;
+    width: 30px;
+    height: 40px;
+    background: #ffccbc;
+    border-radius: 15px 30px 0 0;
+    opacity: 0.8;
+    box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.headBase {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 45% 45% 40% 40%;
+    z-index: 20;
+    overflow: hidden;
+}
+
+.faceMaskWhite {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 65%;
+    background: var(--white-base);
+    border-radius: 40% 40% 40% 40% / 60% 60% 40% 40%;
     z-index: 21;
+    filter: blur(3px);
+    box-shadow: 0 -4px 10px rgba(255, 255, 255, 0.8);
 }
 
-.eyeLeft {
-    left: 35px;
-}
-
-.eyeRight {
-    right: 35px;
-}
-
-.snout {
+.eyePatch {
     position: absolute;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%) translateZ(10px);
+    top: 25px;
     width: 50px;
     height: 40px;
-    background: var(--fur-white);
-    border-radius: 40%;
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+    background: var(--white-base);
+    border-radius: 50%;
+    z-index: 22;
+    opacity: 0.9;
+    filter: blur(3px);
+}
+
+.epLeft {
+    left: 15px;
+    transform: rotate(-20deg);
+}
+
+.epRight {
+    right: 15px;
+    transform: rotate(20deg);
+}
+
+/* SNOUT CONTAINER */
+.snout {
+    position: absolute;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 70px;
+    height: 50px;
+    border-radius: 35px 35px 25px 25px;
+    z-index: 30;
+    overflow: visible;
 }
 
 .nose {
     position: absolute;
-    top: 5px;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 24px;
+    height: 18px;
+    background: var(--nose);
+    border-radius: 40% 40% 50% 50%;
+    box-shadow: inset 2px 2px 3px rgba(255, 255, 255, 0.2);
+    z-index: 6;
+    /* Ensure nose sits above mouth */
+}
+
+.mouthLine {
+    position: absolute;
+    bottom: 12px;
     left: 50%;
     transform: translateX(-50%);
     width: 20px;
-    height: 15px;
-    background: black;
-    border-radius: 40% 40% 50% 50%;
+    height: 10px;
+    border-radius: 0 0 50% 50%;
+    border-bottom: 2px solid #90a4ae;
+    z-index: 5;
+    background: transparent;
+    transition: all 0.3s ease;
 }
 
+/* TONGUE */
 .tongue {
     position: absolute;
-    bottom: -10px;
+    top: 38px;
     left: 50%;
     transform: translateX(-50%);
-    width: 20px;
-    height: 25px;
-    background: pink;
-    border-radius: 0 0 50% 50%;
-    opacity: 0;
-    transition: opacity 0.2s;
+    width: 22px;
+    height: 0px;
+    background: var(--tongue);
+    border-radius: 0 0 15px 15px;
+    z-index: 1;
+    transition: height 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: inset -2px -1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.tail {
+.tongue::after {
+    content: '';
     position: absolute;
-    bottom: 50px;
-    right: 20px;
-    width: 40px;
-    height: 100px;
-    background: var(--fur-grey);
-    border-radius: 50% 50% 0 0;
-    transform: rotate(30deg);
-    z-index: 5;
-    transform-origin: bottom center;
-    animation: wag 0.5s infinite linear;
+    top: 0;
+    left: 50%;
+    width: 2px;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.1);
 }
 
-@keyframes wag {
+/* EYES */
+.eye {
+    position: absolute;
+    top: 50px;
+    width: 32px;
+    height: 32px;
+    background: white;
+    border-radius: 50%;
+    z-index: 25;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.eyeL {
+    left: 28px;
+}
+
+.eyeR {
+    right: 28px;
+}
+
+.iris {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 26px;
+    height: 26px;
+    background: radial-gradient(circle, var(--eye-blue), var(--eye-dark));
+    border-radius: 50%;
+}
+
+.pupil {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 12px;
+    height: 12px;
+    background: #111;
+    border-radius: 50%;
+}
+
+.pupil::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 5px;
+    height: 5px;
+    background: white;
+    border-radius: 50%;
+}
+
+/* EYELID BLINKING */
+.eyelid {
+    position: absolute;
+    top: -100%;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--white-base);
+    z-index: 30;
+    border-bottom: 2px solid #cfd8dc;
+    animation: blink 4s infinite;
+}
+
+/* --- INTERACTIONS --- */
+
+@keyframes idle-breathe {
+
+    0%,
+    100% {
+        transform: scale(0.65);
+    }
+
+    50% {
+        transform: scale(0.665);
+    }
+}
+
+@keyframes tail-wag {
     0% {
-        transform: rotate(20deg);
+        transform: rotate(-10deg);
     }
 
     100% {
-        transform: rotate(40deg);
+        transform: rotate(10deg);
     }
 }
 
-/* Legs */
-.leg {
-    position: absolute;
-    width: 35px;
-    height: 70px;
-    background: var(--fur-grey);
-    border-radius: 20px;
-    z-index: 12;
-}
+@keyframes blink {
 
-.lFrontLeft {
-    bottom: 20px;
-    left: 30px;
-}
+    0%,
+    48% {
+        top: -100%;
+    }
 
-.lFrontRight {
-    bottom: 20px;
-    right: 30px;
-}
+    50% {
+        top: 0;
+    }
 
-.lBackLeft {
-    bottom: 30px;
-    left: 10px;
-    z-index: 5;
-    background: #78909c;
-}
-
-.lBackRight {
-    bottom: 30px;
-    right: 10px;
-    z-index: 5;
-    background: #78909c;
-}
-
-.paw {
-    position: absolute;
-    bottom: 0;
-    width: 40px;
-    height: 20px;
-    background: var(--fur-white);
-    border-radius: 10px;
-    left: -2px;
+    52%,
+    100% {
+        top: -100%;
+    }
 }
 
 /* Hover */
-.huskyScene:hover .tongue {
-    opacity: 1;
-    /* Blep */
+.stage:hover .headGroup {
+    transform: translateX(-50%) rotate(3deg) translateY(-2px);
 }
 
-.huskyScene:hover .earLeft {
-    transform: rotate(-25deg);
+.stage:hover .earLeft {
+    transform: rotate(-30deg);
 }
 
-.huskyScene:hover .earRight {
-    transform: rotate(25deg);
+.stage:hover .earRight {
+    transform: rotate(30deg) scaleX(-1);
+}
+
+.stage:hover .tail {
+    animation-duration: 0.5s;
+}
+
+/* Selected (Click) */
+
+/* 1. Mouth Opens */
+/* 1. Mouth Opens */
+.selected .mouthLine {
+    height: 14px;
+    /* Taller curve */
+    width: 22px;
+    /* Slightly wider */
+    bottom: 8px;
+    /* Shift down to prevent nose overlap */
+    border-bottom: 3px solid #546e7a;
+    /* Thicker/Darker */
+    background: #263238;
+    /* Dark inside mouth */
+    border-radius: 0 0 50% 50%;
+}
+
+/* 2. Extend Tongue */
+.selected .tongue {
+    height: 28px;
+    /* Longer */
+    width: 24px;
+    /* Wider to match mouth */
+}
+
+/* 3. Perk Ears */
+.selected .ear {
+    top: -10px;
+}
+
+/* 4. Body Pulse */
+.selected .huskyRig {
+    animation: none;
+    transform: scale(0.68);
+}
+
+/* Shadow */
+.shadow {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 140px;
+    height: 20px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    filter: blur(5px);
+    z-index: 0;
 }

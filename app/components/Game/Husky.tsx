@@ -7,47 +7,72 @@ import styles from './husky.module.css';
 
 interface HuskyProps {
     className?: string;
+    selected?: boolean;
 }
 
-export function Husky({ className }: HuskyProps) {
+export function Husky({ className, selected = false }: HuskyProps) {
     return (
-        <div className={cn(styles.huskyProxy, className)}>
-            <div className={styles.huskyScene}>
-                <div className={styles.husky}>
-                    <div className={styles.tail}></div>
+        <div className={cn(styles.stage, className, selected && styles.selected)}>
+            <div className={styles.huskyRig}>
 
-                    <div className={styles.body}></div>
-                    <div className={styles.belly}></div>
+                <div className={styles.tail}></div>
 
-                    <div className={styles.head}>
-                        <div className={styles.earLeft}></div>
-                        <div className={styles.earRight}></div>
-                        <div className={styles.face}>
-                            <div className={styles.maskLeft}></div>
-                            <div className={styles.maskRight}></div>
-                            <div className={styles.snout}>
-                                <div className={styles.nose}></div>
-                                <div className={styles.tongue}></div>
-                            </div>
-                            <div className={styles.eyeLeft}></div>
-                            <div className={styles.eyeRight}></div>
+                <div className={cn(styles.legBack, styles.lbLeft, styles.furGrey)}>
+                    <div className={cn(styles.pawBack, styles.pbLeft)}></div>
+                </div>
+                <div className={cn(styles.legBack, styles.lbRight, styles.furGrey)}>
+                    <div className={cn(styles.pawBack, styles.pbRight)}></div>
+                </div>
+
+                <div className={cn(styles.body, styles.furGrey)}>
+                    <div className={styles.bellyPatch}></div>
+                </div>
+
+                <div className={cn(styles.legFront, styles.lfLeft, styles.furGrey)}>
+                    <div className={styles.pawFront}></div>
+                </div>
+                <div className={cn(styles.legFront, styles.lfRight, styles.furGrey)}>
+                    <div className={styles.pawFront}></div>
+                </div>
+
+                <div className={styles.headGroup}>
+                    <div className={cn(styles.ear, styles.earLeft)}>
+                        <div className={styles.earInner}></div>
+                    </div>
+                    <div className={cn(styles.ear, styles.earRight)}>
+                        <div className={styles.earInner}></div>
+                    </div>
+
+                    <div className={cn(styles.headBase, styles.furGrey)}>
+                        <div className={cn(styles.eyePatch, styles.epLeft)}></div>
+                        <div className={cn(styles.eyePatch, styles.epRight)}></div>
+                        <div className={styles.faceMaskWhite}></div>
+                    </div>
+
+                    <div className={cn(styles.eye, styles.eyeL)}>
+                        <div className={styles.eyelid}></div>
+                        <div className={styles.iris}>
+                            <div className={styles.pupil}></div>
+                        </div>
+                    </div>
+                    <div className={cn(styles.eye, styles.eyeR)}>
+                        <div className={styles.eyelid}></div>
+                        <div className={styles.iris}>
+                            <div className={styles.pupil}></div>
                         </div>
                     </div>
 
-                    <div className={cn(styles.leg, styles.lFrontLeft)}>
-                        <div className={styles.paw}></div>
+                    <div className={cn(styles.snout, styles.furWhite)}>
+                        <div className={styles.nose}></div>
+                        <div className={styles.mouthLine}></div>
+                        <div className={styles.tongue}></div>
                     </div>
-                    <div className={cn(styles.leg, styles.lFrontRight)}>
-                        <div className={styles.paw}></div>
-                    </div>
-                    <div className={cn(styles.leg, styles.lBackLeft)}>
-                        <div className={styles.paw}></div>
-                    </div>
-                    <div className={cn(styles.leg, styles.lBackRight)}>
-                        <div className={styles.paw}></div>
-                    </div>
+
                 </div>
+
             </div>
+
+            <div className={styles.shadow}></div>
         </div>
     );
 }

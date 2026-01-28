@@ -135,7 +135,7 @@ export function AnimalCarousel({ selectedId, onSelect, animalStates, className }
                                         </div>
                                     ) : animal.id === 'husky' ? (
                                         <div className="w-[160px] h-[160px] flex items-center justify-center">
-                                            <Husky className="scale-75 origin-center" />
+                                            <Husky className="origin-center" selected={isSelected} />
                                         </div>
                                     ) : animal.id === 'scorpion' ? (
                                         <div className="w-[160px] h-[160px] flex items-center justify-center">
