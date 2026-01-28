@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magic Potions Game</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="game-container">
+        <!-- Title -->
+        <h1 class="game-title">🧪 Magic Potions 🧪</h1>
+
+        <!-- The Sorcerer Area -->
+        <div class="sorcerer-area">
+            <img src="assets/sorcerer.png" class="character sorcerer" alt="Sorcerer">
+        </div>
+
+        <!-- Carousel Viewport (for fade effect) -->
+        <div class="carousel-viewport">
+            <!-- The Animals Window -->
+            <div class="animals-container">
+                <!-- The Moving Track -->
+                <div class="animals-track">
+                    <!-- SET 1 (Originals) -->
+                    <div class="animal-wrapper" id="animal-trex" onclick="selectAnimal('trex')">
+                        <img src="assets/trex.png" class="character animal" alt="T-Rex">
+                        <div class="selection-ring"></div>
+                    </div>
+                    <div class="animal-wrapper" id="animal-monkey" onclick="selectAnimal('monkey')">
+                        <img src="assets/monkey.png" class="character animal" alt="Monkey">
+                        <div class="selection-ring"></div>
+                    </div>
+                    <div class="animal-wrapper" id="animal-santa" onclick="selectAnimal('santa')">
+                        <img src="assets/santa.png" class="character animal" alt="Santa Claus">
+                        <div class="selection-ring"></div>
+                    </div>
+                    <div class="animal-wrapper" id="animal-crocodile" onclick="selectAnimal('crocodile')">
+                        <img src="assets/crocodile.png" class="character animal" alt="Crocodile">
+                        <div class="selection-ring"></div>
+                    </div>
+                    <div class="animal-wrapper" id="animal-reindeer" onclick="selectAnimal('reindeer')">
+                        <img src="assets/reindeer.png" class="character animal" alt="Reindeer">
+                        <div class="selection-ring"></div>
+                    </div>
+                    <div class="animal-wrapper" id="animal-candy" onclick="selectAnimal('candy')">
+                        <img src="assets/candy.png" class="character animal" alt="Candy">
+                        <div class="selection-ring"></div>
+                    </div>
+                    <div class="animal-wrapper" id="animal-husky" onclick="selectAnimal('husky')">
+                        <img src="assets/husky.png" class="character animal" alt="Husky">
+                        <div class="selection-ring"></div>
+                    </div>
+                    <div class="animal-wrapper" id="animal-scorpion" onclick="selectAnimal('scorpion')">
+                        <img src="assets/scorpion.png" class="character animal" alt="Scorpion">
+                        <div class="selection-ring"></div>
+                    </div>
+                    <div class="animal-wrapper" id="animal-rolly" onclick="selectAnimal('rolly')">
+                        <img src="assets/rolly-polly.png" class="character animal" alt="Rolly Polly">
+                        <div class="selection-ring"></div>
+                    </div>
+                    <div class="animal-wrapper" id="animal-tree" onclick="selectAnimal('tree')">
+                        <img src="assets/christmas-tree.png" class="character animal" alt="Christmas Tree">
+                        <div class="selection-ring"></div>
+                    </div>
+                    <div class="animal-wrapper" id="animal-shark" onclick="selectAnimal('shark')">
+                        <img src="assets/shark.png" class="character animal" alt="Shark">
+                        <div class="selection-ring"></div>
+                    </div>
+                    <!-- Flower Family -->
+                    <div class="animal-wrapper" id="animal-ftoddler" onclick="selectAnimal('ftoddler')">
+                        <img src="assets/flower-toddler.png" class="character animal" alt="Flower Toddler">
+                        <div class="selection-ring"></div>
+                    </div>
+                    <div class="animal-wrapper" id="animal-fmommy" onclick="selectAnimal('fmommy')">
+                        <img src="assets/flower-mommy.png" class="character animal" alt="Flower Mommy">
+                        <div class="selection-ring"></div>
+                    </div>
+                    <div class="animal-wrapper" id="animal-fdaddy" onclick="selectAnimal('fdaddy')">
+                        <img src="assets/flower-daddy.png" class="character animal" alt="Flower Daddy">
+                        <div class="selection-ring"></div>
+                    </div>
+                    <div class="animal-wrapper" id="animal-fbigboy" onclick="selectAnimal('fbigboy')">
+                        <img src="assets/flower-bigboy.png" class="character animal" alt="Flower Big Boy">
+                        <div class="selection-ring"></div>
+                    </div>
+                    <div class="animal-wrapper" id="animal-orangutan" onclick="selectAnimal('orangutan')">
+                        <div class="character animal orangutan-proxy">
+                            <div class="orangutan-scene">
+                                <div class="orangutan">
+
+                                    <!-- BODY GROUP (Z = 0) -->
+                                    <div class="body-group">
+                                        <!-- Legs -->
+                                        <div class="leg l-left">
+                                            <div class="foot"></div>
+                                        </div>
+                                        <div class="leg l-right">
+                                            <div class="foot"></div>
+                                        </div>
+
+                                        <div class="torso"></div>
+                                        <div class="belly"></div>
+
+                                        <!-- Arms -->
+                                        <div class="arm a-left">
+                                            <div class="hand"></div>
+                                        </div>
+                                        <div class="arm a-right">
+                                            <div class="hand"></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- HEAD GROUP (Z = 30px) -->
+                                    <!-- Placed after body in DOM for z-index safety, but transform handles depth -->
+                                    <div class="head-group">
+                                        <div class="fluff f-top"></div>
+                                        <div class="fluff f-left"></div>
+                                        <div class="fluff f-right"></div>
+
+                                        <div class="head-shape"></div>
+                                        <div class="face-mask"></div>
+
+                                        <div class="eye e-left"></div>
+                                        <div class="eye e-right"></div>
+
+                                        <div class="muzzle">
+                                            <div class="nostril n-left"></div>
+                                            <div class="nostril n-right"></div>
+                                            <div class="mouth"></div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="selection-ring"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Potions - Now BELOW the carousel -->
+        <div class="inventory-area">
+            <!-- Potions Shelf (Magic) -->
+            <div class="shelf-container">
+                <h3 class="shelf-label">Potions</h3>
+                <div class="potions-shelf">
+                    <div class="potion-item" onclick="usePotion('growth')">
+                        <img src="assets/potion-growth.png" alt="Growth Potion">
+                    </div>
+                    <div class="potion-item" onclick="usePotion('shrink')">
+                        <img src="assets/potion-shrink.png" alt="Shrink Potion">
+                    </div>
+                    <div class="potion-item" onclick="usePotion('red')">
+                        <img src="assets/potion-red.png" alt="Red Potion">
+                    </div>
+                    <div class="potion-item" onclick="usePotion('purple')">
+                        <img src="assets/potion-purple.png" alt="Purple Potion">
+                    </div>
+                    <div class="potion-item" onclick="usePotion('rainbow')">
+                        <img src="assets/potion-rainbow.png" alt="Rainbow Potion">
+                    </div>
+                    <div class="potion-item" onclick="usePotion('sunshine')">
+                        <img src="assets/potion-sunshine.png" alt="Sunshine Potion">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Treats Shelf (Items) -->
+            <div class="shelf-container">
+                <h3 class="shelf-label">Treats</h3>
+                <div class="items-shelf">
+                    <div class="item-icon emoji-item" onclick="giveItem('present')">
+                        🎁
+                    </div>
+                    <div class="item-icon emoji-item" onclick="giveItem('hotdog')">
+                        🌭
+                    </div>
+                    <div class="item-icon emoji-item" onclick="giveItem('banana')">
+                        🍌
+                    </div>
+                    <div class="item-icon emoji-item" onclick="giveItem('pizza')">
+                        🍕
+                    </div>
+                    <div class="item-icon emoji-item" onclick="giveItem('icecream')">
+                        🍦
+                    </div>
+                    <div class="item-icon emoji-item" onclick="giveItem('bone')">
+                        🦴
+                    </div>
+                    <div class="item-icon emoji-item" onclick="giveItem('bouquet')">
+                        💐
+                    </div>
+                    <div class="item-icon emoji-item" onclick="giveItem('sunglasses')">
+                        🕶️
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
