@@ -4,9 +4,7 @@ import { z } from 'zod';
 // --- Enums / Constants ---
 
 export const AnimalIds = [
-    'trex', 'monkey', 'santa', 'crocodile', 'reindeer', 'candy', 'husky',
-    'scorpion', 'rolly', 'tree', 'shark', 'ftoddler', 'fmommy', 'fdaddy',
-    'fbigboy', 'orangutan'
+    'orangutan', 'trex', 'santa', 'crocodile', 'husky', 'scorpion'
 ] as const;
 
 export const PotionTypes = [

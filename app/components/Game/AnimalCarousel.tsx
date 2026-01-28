@@ -8,6 +8,11 @@ import { ANIMALS } from '@/lib/data';
 import { AnimalId } from '@/lib/schemas';
 import { audioEngine } from '@/lib/audio/audioEngine';
 import { Orangutan } from './Orangutan';
+import { Trex } from './Trex';
+import { Santa } from './Santa';
+import { Crocodile } from './Crocodile';
+import { Husky } from './Husky';
+import { Scorpion } from './Scorpion';
 
 
 export interface AnimalState {
@@ -115,6 +120,26 @@ export function AnimalCarousel({ selectedId, onSelect, animalStates, className }
                                     {animal.id === 'orangutan' ? (
                                         <div className="w-[160px] h-[160px] flex items-center justify-center">
                                             <Orangutan className="scale-75 origin-center" />
+                                        </div>
+                                    ) : animal.id === 'trex' ? (
+                                        <div className="w-[160px] h-[160px] flex items-center justify-center">
+                                            <Trex className="scale-75 origin-center" />
+                                        </div>
+                                    ) : animal.id === 'santa' ? (
+                                        <div className="w-[160px] h-[160px] flex items-center justify-center">
+                                            <Santa className="scale-75 origin-center" />
+                                        </div>
+                                    ) : animal.id === 'crocodile' ? (
+                                        <div className="w-[160px] h-[160px] flex items-center justify-center">
+                                            <Crocodile className="scale-75 origin-center" />
+                                        </div>
+                                    ) : animal.id === 'husky' ? (
+                                        <div className="w-[160px] h-[160px] flex items-center justify-center">
+                                            <Husky className="scale-75 origin-center" />
+                                        </div>
+                                    ) : animal.id === 'scorpion' ? (
+                                        <div className="w-[160px] h-[160px] flex items-center justify-center">
+                                            <Scorpion className="scale-75 origin-center" />
                                         </div>
                                     ) : (
                                         <Image

@@ -1,0 +1,223 @@
+/* T-Rex Palette */
+.trexProxy {
+    --skin-base: #4caf50;
+    /* Green */
+    --skin-dark: #388e3c;
+    --skin-light: #81c784;
+    --belly: #c8e6c9;
+
+    width: 160px;
+    height: 160px;
+    position: relative;
+    display: inline-block;
+}
+
+.trexScene {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 300px;
+    height: 400px;
+    cursor: pointer;
+    transform-style: preserve-3d;
+    transform: translateX(-50%) scale(0.5);
+    /* Scale to match */
+    transform-origin: bottom center;
+}
+
+.trex {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    animation: idleRoar 4s ease-in-out infinite;
+}
+
+@keyframes idleRoar {
+
+    0%,
+    100% {
+        transform: rotate(0deg);
+    }
+
+    50% {
+        transform: rotate(2deg);
+    }
+}
+
+/* PARTS */
+
+.body {
+    position: absolute;
+    top: 150px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 140px;
+    height: 180px;
+    background: radial-gradient(circle at 30% 30%, var(--skin-light), var(--skin-base));
+    border-radius: 60% 60% 50% 50%;
+    z-index: 10;
+    box-shadow: inset -10px -10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.belly {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 120px;
+    background: var(--belly);
+    border-radius: 50%;
+    opacity: 0.8;
+}
+
+.tail {
+    position: absolute;
+    bottom: 50px;
+    left: 50%;
+    width: 20px;
+    height: 150px;
+    background: var(--skin-base);
+    transform-origin: top center;
+    transform: rotate(45deg) translateZ(-50px);
+    border-radius: 0 0 50% 50%;
+    z-index: 5;
+}
+
+/* Head Group */
+.head {
+    position: absolute;
+    top: 60px;
+    left: 50%;
+    transform: translateX(-50%) translateZ(20px);
+    width: 150px;
+    height: 120px;
+    background: var(--skin-base);
+    border-radius: 40% 60% 40% 40%;
+    z-index: 20;
+    box-shadow: inset 5px 5px 10px var(--skin-light);
+}
+
+.snout {
+    position: absolute;
+    top: 40px;
+    right: -30px;
+    width: 80px;
+    height: 60px;
+    background: var(--skin-base);
+    border-radius: 30% 50% 50% 30%;
+}
+
+.nostril {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    width: 10px;
+    height: 6px;
+    background: #1b5e20;
+    border-radius: 50%;
+}
+
+.teeth {
+    position: absolute;
+    bottom: 5px;
+    left: 10px;
+    width: 60px;
+    height: 10px;
+    background: repeating-linear-gradient(90deg, #fff 0 5px, transparent 5px 8px);
+    clip-path: polygon(0 0, 100% 0, 100% 80%, 0 80%);
+}
+
+.eye {
+    position: absolute;
+    top: 30px;
+    right: 40px;
+    width: 25px;
+    height: 25px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.eye::after {
+    content: '';
+    position: absolute;
+    top: 8px;
+    right: 5px;
+    width: 10px;
+    height: 10px;
+    background: #000;
+    border-radius: 50%;
+}
+
+/* Limbs */
+.arm {
+    position: absolute;
+    top: 200px;
+    width: 30px;
+    height: 50px;
+    background: var(--skin-dark);
+    border-radius: 15px;
+    z-index: 15;
+    transform-origin: top center;
+}
+
+.aLeft {
+    left: 20px;
+    transform: rotate(30deg);
+}
+
+.aRight {
+    right: 20px;
+    transform: rotate(-30deg);
+}
+
+.claw {
+    width: 6px;
+    height: 10px;
+    background: #fff;
+    display: inline-block;
+    margin: 0 2px;
+    border-radius: 50%;
+}
+
+.leg {
+    position: absolute;
+    bottom: -30px;
+    width: 60px;
+    height: 100px;
+    background: var(--skin-dark);
+    border-radius: 30px;
+    z-index: 5;
+}
+
+.lLeft {
+    left: 40px;
+    transform: rotate(-5deg);
+}
+
+.lRight {
+    right: 40px;
+    transform: rotate(5deg);
+}
+
+.foot {
+    position: absolute;
+    bottom: 0;
+    width: 70px;
+    height: 40px;
+    background: var(--skin-dark);
+    border-radius: 20px;
+    left: -5px;
+}
+
+/* Animations */
+.trexScene:hover .head {
+    transform: translateX(-50%) translateZ(20px) rotate(-10deg);
+}
+
+.trexScene:hover .snout {
+    transform: translateX(10px) rotate(-5deg) open-mouth;
+    /* Just wiggle */
+}

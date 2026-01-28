@@ -1,0 +1,213 @@
+.scorpionProxy {
+    --shell-dark: #3e2723;
+    --shell-light: #5d4037;
+    --stinger: #bf360c;
+
+    width: 160px;
+    height: 160px;
+    position: relative;
+    display: inline-block;
+}
+
+.scorpionScene {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 300px;
+    height: 400px;
+    cursor: pointer;
+    transform-style: preserve-3d;
+    transform: translateX(-50%) scale(0.5);
+    transform-origin: bottom center;
+}
+
+.scorpion {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    animation: hoverFloat 3s ease-in-out infinite;
+}
+
+@keyframes hoverFloat {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+/* PARTS */
+.body {
+    position: absolute;
+    top: 200px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 120px;
+    background: var(--shell-dark);
+    border-radius: 40%;
+    z-index: 10;
+}
+
+.segment {
+    width: 100%;
+    height: 20px;
+    border-bottom: 2px solid var(--shell-light);
+    margin-top: 10px;
+}
+
+.tail {
+    position: absolute;
+    top: 120px;
+    left: 50%;
+    transform-origin: bottom center;
+    transform: translateX(-50%) rotateX(-45deg);
+    /* Arc back */
+    width: 30px;
+    height: 150px;
+    background: var(--shell-light);
+    border-radius: 20px;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.stinger {
+    width: 40px;
+    height: 40px;
+    background: var(--stinger);
+    border-radius: 50% 50% 0 50%;
+    transform: rotate(45deg);
+    margin-top: -20px;
+}
+
+.head {
+    position: absolute;
+    top: 180px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 70px;
+    height: 50px;
+    background: var(--shell-dark);
+    border-radius: 40%;
+    z-index: 15;
+}
+
+.eyeLeft,
+.eyeRight {
+    position: absolute;
+    top: 10px;
+    width: 8px;
+    height: 8px;
+    background: black;
+    border-radius: 50%;
+}
+
+.eyeLeft {
+    left: 15px;
+}
+
+.eyeRight {
+    right: 15px;
+}
+
+/* Claws */
+.claw {
+    position: absolute;
+    top: 150px;
+    width: 100px;
+    height: 20px;
+    background: var(--shell-dark);
+    transform-origin: center right;
+    z-index: 12;
+}
+
+.cLeft {
+    left: -50px;
+    transform: rotate(-30deg);
+    transform-origin: center right;
+}
+
+.cRight {
+    right: -50px;
+    transform: rotate(30deg);
+    transform-origin: center left;
+}
+
+.pincer {
+    position: absolute;
+    width: 40px;
+    height: 60px;
+    background: var(--shell-light);
+    border-radius: 50%;
+    border: 5px solid var(--shell-dark);
+    border-left-color: transparent;
+    /* Open pincer */
+}
+
+.cLeft .pincer {
+    left: 0;
+    transform: rotate(-45deg);
+}
+
+.cRight .pincer {
+    right: 0;
+    transform: rotate(225deg);
+}
+
+/* Legs */
+.leg {
+    position: absolute;
+    width: 60px;
+    height: 5px;
+    background: var(--shell-dark);
+    z-index: 8;
+}
+
+.l1Left {
+    top: 220px;
+    left: -20px;
+    transform: rotate(-10deg);
+}
+
+.l1Right {
+    top: 220px;
+    right: -20px;
+    transform: rotate(10deg);
+}
+
+.l2Left {
+    top: 240px;
+    left: -15px;
+    transform: rotate(-20deg);
+}
+
+.l2Right {
+    top: 240px;
+    right: -15px;
+    transform: rotate(20deg);
+}
+
+.l3Left {
+    top: 260px;
+    left: -10px;
+    transform: rotate(-30deg);
+}
+
+.l3Right {
+    top: 260px;
+    right: -10px;
+    transform: rotate(30deg);
+}
+
+/* Hover */
+.scorpionScene:hover .tail {
+    transform: translateX(-50%) rotateX(0deg);
+    /* Strike! */
+}
