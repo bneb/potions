@@ -1,0 +1,346 @@
+/* High-End Emoji Palette */
+.orangutanProxy {
+    --fur-base: #d35400;
+    /* Vibrant Burnt Orange */
+    --fur-dark: #a04000;
+    /* Shadow */
+    --fur-light: #e67e22;
+    /* Highlight */
+
+    --skin-face: #5d4037;
+    /* Dark Brown (Face Mask) */
+    --skin-muzzle: #fff3e0;
+    /* Creamy White (Snout) */
+    --skin-belly: #ffe0b2;
+    /* Tan Belly */
+
+    --gloss: rgba(255, 255, 255, 0.25);
+
+    width: 135px;
+    height: 180px;
+    position: relative;
+    display: inline-block;
+}
+
+.orangutanScene {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 300px;
+    height: 400px;
+    cursor: pointer;
+    transform-style: preserve-3d;
+    transform: translateX(-50%) scale(0.45);
+    transform-origin: bottom center;
+    margin: 0;
+}
+
+.orangutan {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    animation: idleBreathe 4s ease-in-out infinite;
+}
+
+@keyframes idleBreathe {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.02);
+    }
+}
+
+/* HEAD GROUP */
+.headGroup {
+    position: absolute;
+    top: 40px;
+    left: 50%;
+    transform-origin: center 150px;
+    transform: translateX(-50%) translateZ(30px);
+    width: 210px;
+    height: 190px;
+    z-index: 20;
+    transform-style: preserve-3d;
+    transition: transform 0.5s ease;
+}
+
+.headShape {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 50% 20%, var(--fur-light), var(--fur-base) 60%, var(--fur-dark));
+    border-radius: 48% 48% 45% 45%;
+    box-shadow: inset 0 10px 15px var(--gloss), inset -5px -10px 20px rgba(0, 0, 0, 0.3);
+}
+
+.faceMask {
+    position: absolute;
+    top: 35px;
+    left: 50%;
+    transform: translateX(-50%) translateZ(5px);
+    width: 160px;
+    height: 110px;
+    background: var(--skin-face);
+    border-radius: 45% 45% 42% 42%;
+    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.5);
+}
+
+.eye {
+    position: absolute;
+    top: 55px;
+    width: 20px;
+    height: 26px;
+    background: #111;
+    border-radius: 50%;
+    transform: translateZ(10px);
+    animation: blink 4s infinite;
+}
+
+.eye::after {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: 8px;
+    height: 8px;
+    background: white;
+    border-radius: 50%;
+}
+
+.eLeft {
+    left: 65px;
+}
+
+.eRight {
+    right: 65px;
+}
+
+@keyframes blink {
+
+    0%,
+    96%,
+    100% {
+        transform: scaleY(1) translateZ(10px);
+    }
+
+    98% {
+        transform: scaleY(0.1) translateZ(10px);
+    }
+}
+
+.muzzle {
+    position: absolute;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%) translateZ(20px);
+    width: 100px;
+    height: 70px;
+    background: radial-gradient(circle at 50% 10%, #fff, var(--skin-muzzle));
+    border-radius: 45% 45% 50% 50%;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+}
+
+.nostril {
+    position: absolute;
+    top: 25px;
+    width: 10px;
+    height: 6px;
+    background: rgba(93, 64, 55, 0.3);
+    border-radius: 50%;
+}
+
+.nLeft {
+    left: 25px;
+    transform: rotate(-10deg);
+}
+
+.nRight {
+    right: 25px;
+    transform: rotate(10deg);
+}
+
+.mouth {
+    position: absolute;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 35px;
+    height: 15px;
+    border-bottom: 3px solid #6d4c41;
+    border-radius: 0 0 50% 50%;
+}
+
+.fluff {
+    position: absolute;
+    width: 50px;
+    height: 70px;
+    top: 80px;
+    background: var(--fur-base);
+    border-radius: 50%;
+    z-index: -1;
+}
+
+.fLeft {
+    left: -15px;
+    transform: rotate(15deg) translateZ(-10px);
+    background: linear-gradient(to right, var(--fur-dark), var(--fur-base));
+}
+
+.fRight {
+    right: -15px;
+    transform: rotate(-15deg) translateZ(-10px);
+    background: linear-gradient(to left, var(--fur-dark), var(--fur-base));
+}
+
+.fTop {
+    width: 60px;
+    height: 50px;
+    top: -15px;
+    left: 75px;
+    transform: translateZ(-10px);
+}
+
+/* BODY GROUP */
+.bodyGroup {
+    position: absolute;
+    top: 160px;
+    left: 50%;
+    transform: translateX(-50%) translateZ(0px);
+    width: 170px;
+    height: 150px;
+    z-index: 10;
+    transform-style: preserve-3d;
+}
+
+.torso {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 30% 30%, var(--fur-light), var(--fur-base), var(--fur-dark));
+    border-radius: 45% 45% 50% 50%;
+    box-shadow: inset 0 20px 20px rgba(0, 0, 0, 0.2);
+}
+
+.belly {
+    position: absolute;
+    top: 15px;
+    left: 50%;
+    transform: translateX(-50%) translateZ(5px);
+    width: 110px;
+    height: 115px;
+    background: radial-gradient(circle at 50% 0%, #fff, var(--skin-belly));
+    border-radius: 50% 50% 45% 45%;
+    opacity: 0.95;
+    filter: blur(0.5px);
+}
+
+.arm {
+    position: absolute;
+    top: 15px;
+    width: 45px;
+    height: 130px;
+    background: linear-gradient(90deg, var(--fur-dark), var(--fur-base) 40%, var(--fur-dark));
+    border-radius: 25px;
+    transform-origin: top center;
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 5;
+}
+
+.aLeft {
+    left: -15px;
+    transform: rotate(20deg);
+}
+
+.aRight {
+    right: -15px;
+    transform: rotate(-20deg);
+}
+
+.hand {
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 55px;
+    height: 45px;
+    background: var(--skin-face);
+    border-radius: 40%;
+    box-shadow: inset -2px -2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.leg {
+    position: absolute;
+    bottom: -20px;
+    width: 50px;
+    height: 80px;
+    background: var(--fur-base);
+    border-radius: 30px;
+    z-index: 1;
+}
+
+.lLeft {
+    left: 30px;
+    transform: rotate(-15deg);
+}
+
+.lRight {
+    right: 30px;
+    transform: rotate(15deg);
+}
+
+.foot {
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 40px;
+    background: var(--skin-face);
+    border-radius: 40% 40% 50% 50%;
+    box-shadow: inset -2px -2px 5px rgba(0, 0, 0, 0.3);
+}
+
+/* HOVER INTERACTION */
+.orangutanScene:hover .orangutan {
+    transform: translateY(-40px);
+}
+
+/* Head Tilts Back */
+.orangutanScene:hover .headGroup {
+    transform: translateX(-50%) translateZ(30px) rotateX(-20deg);
+}
+
+/* Arms raise */
+.orangutanScene:hover .aLeft {
+    transform: rotate(150deg) translateZ(20px);
+}
+
+.orangutanScene:hover .aRight {
+    transform: rotate(-150deg) translateZ(20px);
+}
+
+/* Legs kick */
+.orangutanScene:hover .lLeft {
+    transform: rotate(40deg);
+}
+
+.orangutanScene:hover .lRight {
+    transform: rotate(-40deg);
+}
+
+/* Mouth Opens */
+.orangutanScene:hover .mouth {
+    height: 20px;
+    width: 25px;
+    border-bottom: none;
+    background: #4e342e;
+    border: 2px solid #5d4037;
+    border-radius: 50%;
+    bottom: 15px;
+}
