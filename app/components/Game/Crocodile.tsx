@@ -7,36 +7,69 @@ import styles from './crocodile.module.css';
 
 interface CrocodileProps {
     className?: string;
+    selected?: boolean;
 }
 
-export function Crocodile({ className }: CrocodileProps) {
+export function Crocodile({ className, selected = false }: CrocodileProps) {
     return (
-        <div className={cn(styles.crocodileProxy, className)}>
-            <div className={styles.crocodileScene}>
-                <div className={styles.crocodile}>
-                    <div className={styles.tail}></div>
+        <div className={cn(styles.stage, className, selected && styles.selected)}>
+            <div className={styles.crocRig}>
 
-                    <div className={styles.body}>
-                        <div className={styles.scutes}></div>
-                    </div>
+                <div className={styles.shadow}></div>
 
-                    <div className={styles.head}>
-                        <div className={styles.snoutLong}>
-                            <div className={styles.tooth}></div>
-                            <div className={styles.tooth}></div>
-                            <div className={styles.tooth}></div>
-                        </div>
-                        <div className={styles.upperHead}>
-                            <div className={styles.eyeLeft}></div>
-                            <div className={styles.eyeRight}></div>
-                        </div>
-                    </div>
-
-                    <div className={cn(styles.leg, styles.lFrontLeft)}></div>
-                    <div className={cn(styles.leg, styles.lFrontRight)}></div>
-                    <div className={cn(styles.leg, styles.lBackLeft)}></div>
-                    <div className={cn(styles.leg, styles.lBackRight)}></div>
+                {/* TAIL */}
+                <div className={styles.tail}>
+                    <div className={styles.spikesTail}></div>
                 </div>
+
+                {/* LEGS BACK */}
+                <div className={cn(styles.leg, styles.legBackLeft)}></div>
+                <div className={cn(styles.leg, styles.legBackRight)}></div>
+
+                {/* BODY */}
+                <div className={styles.body}>
+                    <div className={styles.belly}></div>
+                    <div className={styles.spikesBody}></div>
+                </div>
+
+                {/* LEGS FRONT */}
+                <div className={cn(styles.leg, styles.legFrontLeft)}></div>
+                <div className={cn(styles.leg, styles.legFrontRight)}></div>
+
+                {/* HEAD */}
+                <div className={styles.headGroup}>
+                    <div className={styles.neck}></div>
+
+                    <div className={styles.headBase}>
+                        <div className={styles.cranium}></div>
+                        {/* EYES */}
+                        <div className={styles.eyeRidgeLeft}>
+                            <div className={styles.eye}><div className={styles.pupil}></div></div>
+                        </div>
+                        <div className={styles.eyeRidgeRight}>
+                            <div className={styles.eye}><div className={styles.pupil}></div></div>
+                        </div>
+                    </div>
+
+                    {/* UPPER JAW */}
+                    <div className={styles.jawUpper}>
+                        <div className={styles.nostrils}></div>
+                        <div className={styles.teethUpper}>
+                            <div className={styles.tooth}></div>
+                            <div className={styles.tooth}></div>
+                            <div className={styles.tooth}></div>
+                        </div>
+                    </div>
+
+                    {/* LOWER JAW */}
+                    <div className={styles.jawLower}>
+                        <div className={styles.teethLower}>
+                            <div className={styles.tooth}></div>
+                            <div className={styles.tooth}></div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     );
