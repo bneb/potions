@@ -127,7 +127,7 @@ export function AnimalCarousel({ selectedId, onSelect, animalStates, className }
                                         </div>
                                     ) : animal.id === 'santa' ? (
                                         <div className="w-[160px] h-[160px] flex items-center justify-center">
-                                            <Santa className="scale-75 origin-center" />
+                                            <Santa className="origin-center" selected={isSelected} />
                                         </div>
                                     ) : animal.id === 'crocodile' ? (
                                         <div className="w-[160px] h-[160px] flex items-center justify-center">

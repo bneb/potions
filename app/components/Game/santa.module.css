@@ -1,80 +1,110 @@
-.santaProxy {
-    --suit-red: #d32f2f;
-    --trim-white: #fafafa;
+/* Scoped Variables */
+.stage {
+    --red-base: #d32f2f;
+    --red-dark: #b71c1c;
+    --red-light: #ef5350;
+
+    --white-soft: #f5f5f5;
+    --white-shadow: #e0e0e0;
+
     --skin: #ffccbc;
-    --belt: #212121;
-    --gold: #ffb300;
+    --skin-shadow: #ffab91;
+    --cheek: #ff8a80;
 
-    width: 160px;
+    --belt: #37474f;
+    --gold: #ffca28;
+    --gold-shine: #ffe082;
+
+    position: relative;
+    width: 200px;
     height: 160px;
-    position: relative;
-    display: inline-block;
-}
-
-.santaScene {
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    width: 300px;
-    height: 400px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    padding-bottom: 5px;
     cursor: pointer;
-    transform-style: preserve-3d;
-    transform: translateX(-50%) scale(0.5);
-    transform-origin: bottom center;
 }
 
-.santa {
+.santaRig {
     position: relative;
-    width: 100%;
-    height: 100%;
-    transform-style: preserve-3d;
-    animation: hohoho 4s ease-in-out infinite;
-}
-
-@keyframes hohoho {
-
-    0%,
-    100% {
-        transform: translateY(0);
-    }
-
-    50% {
-        transform: translateY(-5px);
-    }
-}
-
-/* PARTS */
-.body {
-    position: absolute;
-    top: 150px;
-    left: 50%;
-    transform: translateX(-50%);
     width: 160px;
     height: 180px;
-    background: var(--suit-red);
-    border-radius: 50% 50% 40% 40%;
+    transform-origin: bottom center;
+    animation: idle-hover 3s ease-in-out infinite;
+    transform: scale(0.85);
+    /* Fit container */
+}
+
+/* MATERIALS - Apple Emoji Style */
+.redSuit {
+    background: radial-gradient(circle at 30% 30%, var(--red-light), var(--red-base));
+    box-shadow:
+        inset -5px -5px 15px rgba(0, 0, 0, 0.2),
+        /* Deep shadow */
+        inset 2px 2px 8px rgba(255, 255, 255, 0.2);
+    /* Top highlight */
+}
+
+.whiteFur {
+    background: radial-gradient(circle at 50% 20%, #ffffff, var(--white-soft));
+    box-shadow:
+        inset -2px -2px 6px rgba(0, 0, 0, 0.15),
+        0 2px 4px rgba(0, 0, 0, 0.1);
+    /* Drop shadow from fur */
+}
+
+/* BODY GROUP */
+.bodyGroup {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 90px;
     z-index: 10;
+    filter: drop-shadow(0 5px 5px rgba(0, 0, 0, 0.1));
+}
+
+.coat {
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 40% 40%, var(--red-light), var(--red-base), var(--red-dark));
+    border-radius: 40% 40% 45% 45%;
+    position: relative;
+    box-shadow:
+        inset -8px -8px 20px rgba(0, 0, 0, 0.25),
+        inset 4px 4px 10px rgba(255, 255, 255, 0.2);
 }
 
 .buttons {
     position: absolute;
-    top: 30px;
+    top: 20px;
     left: 50%;
-    width: 10px;
-    height: 100px;
-    border-left: 2px dashed rgba(0, 0, 0, 0.1);
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.button {
+    width: 12px;
+    height: 12px;
+    background: radial-gradient(circle at 30% 30%, var(--gold-shine), var(--gold));
+    border-radius: 50%;
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
 }
 
 .belt {
     position: absolute;
-    top: 250px;
+    bottom: 35px;
     left: 50%;
-    transform: translateX(-50%) translateZ(10px);
-    width: 170px;
-    height: 40px;
-    background: var(--belt);
-    border-radius: 5px;
+    transform: translateX(-50%);
+    width: 106px;
+    height: 18px;
+    background: linear-gradient(to bottom, #455a64, #263238);
+    border-radius: 4px;
     z-index: 11;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
 .buckle {
@@ -82,176 +112,453 @@
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    width: 50px;
-    height: 50px;
-    border: 5px solid var(--gold);
-    border-radius: 5px;
+    width: 24px;
+    height: 24px;
+    background: linear-gradient(135deg, var(--gold-shine), var(--gold));
+    border-radius: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
 }
 
-.head {
+.buckleInner {
+    width: 14px;
+    height: 14px;
+    background: #263238;
+    border-radius: 2px;
+    box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* LEGS */
+.leg {
     position: absolute;
-    top: 50px;
+    bottom: 20px;
+    width: 35px;
+    height: 50px;
+    background: var(--red-base);
+    z-index: 5;
+    border-radius: 0 0 15px 15px;
+    box-shadow: inset -5px 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.lLeft {
+    left: 40px;
+}
+
+.lRight {
+    right: 40px;
+}
+
+.boot {
+    position: absolute;
+    bottom: -10px;
+    left: -2px;
+    width: 40px;
+    height: 25px;
+    background: radial-gradient(circle at 40% 30%, #424242, #212121);
+    border-radius: 12px 12px 10px 10px;
+    box-shadow:
+        inset 2px 2px 5px rgba(255, 255, 255, 0.2),
+        2px 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* ARMS */
+.arm {
+    position: absolute;
+    top: 80px;
+    width: 35px;
+    height: 70px;
+    z-index: 12;
+    transform-origin: top center;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.aLeft {
+    left: 15px;
+    transform: rotate(20deg);
+}
+
+.aRight {
+    right: 15px;
+    transform: rotate(-20deg);
+}
+
+.sleeve {
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 60% 30%, var(--red-light), var(--red-base));
+    border-radius: 20px;
+    position: relative;
+    box-shadow: inset -3px -3px 8px rgba(0, 0, 0, 0.2);
+}
+
+.mitten {
+    position: absolute;
+    bottom: -8px;
+    left: -2px;
+    width: 40px;
+    height: 40px;
+    background: radial-gradient(circle at 30% 30%, #00695c, #004d40);
+    /* 3D Green Mitten */
+    border-radius: 50%;
+    box-shadow:
+        inset 3px 3px 6px rgba(255, 255, 255, 0.2),
+        inset -2px -2px 5px rgba(0, 0, 0, 0.3);
+}
+
+/* HEAD GROUP */
+.headGroup {
+    position: absolute;
+    top: 15px;
     left: 50%;
-    transform: translateX(-50%) translateZ(20px);
+    transform: translateX(-50%);
     width: 120px;
-    height: 120px;
+    height: 140px;
+    z-index: 20;
+    transition: transform 0.3s ease;
+    filter: drop-shadow(0 4px 5px rgba(0, 0, 0, 0.15));
+}
+
+.faceBase {
+    position: absolute;
+    top: 30px;
+    left: 10px;
+    width: 100px;
+    height: 90px;
     z-index: 20;
 }
 
 .face {
     position: absolute;
-    width: 100%;
-    height: 100%;
-    background: var(--skin);
-    border-radius: 50%;
-    box-shadow: inset 0 -10px 20px rgba(0, 0, 0, 0.2);
+    top: 10px;
+    left: 10px;
+    width: 80px;
+    height: 70px;
+    background: radial-gradient(circle at 40% 40%, var(--skin), var(--skin-shadow));
+    border-radius: 40%;
+    z-index: 5;
+    box-shadow: inset -2px -2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .beard {
     position: absolute;
-    top: 60px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 140px;
-    height: 100px;
-    background: var(--trim-white);
-    border-radius: 0 0 50% 50%;
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+    top: 40px;
+    left: 0;
+    width: 100%;
+    height: 70px;
+    background: white;
+    /* Base white */
+    background: radial-gradient(circle at 50% 20%, #ffffff, #f5f5f5);
+    border-radius: 10px 10px 50px 50px;
+    z-index: 4;
+    box-shadow:
+        0 4px 6px rgba(0, 0, 0, 0.1),
+        inset 0 -5px 15px rgba(0, 0, 0, 0.05);
+    /* Volume at bottom */
 }
 
-.hat {
+/* FEATURES */
+.eye {
     position: absolute;
-    top: -40px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 130px;
-    height: 80px;
-    background: var(--suit-red);
-    border-radius: 50% 50% 0 0;
+    top: 25px;
+    width: 10px;
+    height: 10px;
+    background: #3e2723;
+    border-radius: 50%;
+    z-index: 10;
 }
 
-.hat::after {
+.eyeL {
+    left: 22px;
+}
+
+.eyeR {
+    right: 22px;
+}
+
+.pupil::after {
     content: '';
     position: absolute;
-    bottom: 0;
-    width: 140px;
-    left: -5px;
-    height: 30px;
-    background: var(--trim-white);
-    border-radius: 10px;
-}
-
-.pom {
-    position: absolute;
-    top: -10px;
-    right: -10px;
-    width: 40px;
-    height: 40px;
-    background: var(--trim-white);
+    top: 2px;
+    right: 2px;
+    width: 3px;
+    height: 3px;
+    background: white;
     border-radius: 50%;
 }
 
-/* Facial features */
-.eyeLeft,
-.eyeRight {
+.eyelid {
     position: absolute;
-    top: 40px;
-    width: 12px;
-    height: 12px;
-    background: #000;
-    border-radius: 50%;
-}
-
-.eyeLeft {
-    left: 35px;
-}
-
-.eyeRight {
-    right: 35px;
+    top: -100%;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--skin);
+    animation: blink 4s infinite;
 }
 
 .nose {
     position: absolute;
-    top: 55px;
+    top: 32px;
     left: 50%;
     transform: translateX(-50%);
-    width: 20px;
-    height: 15px;
-    background: #ffa726;
+    width: 14px;
+    height: 10px;
+    background: radial-gradient(circle at 40% 30%, var(--skin-shadow), #ff7043);
     border-radius: 50%;
+    z-index: 10;
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
+}
+
+.rosyCheek,
+.rosyCheekRight {
+    position: absolute;
+    top: 34px;
+    width: 14px;
+    height: 8px;
+    background: var(--cheek);
+    border-radius: 50%;
+    opacity: 0.4;
+    filter: blur(2px);
+    z-index: 6;
+}
+
+.rosyCheek {
+    left: 15px;
+}
+
+.rosyCheekRight {
+    right: 15px;
 }
 
 .mustache {
     position: absolute;
-    top: 70px;
+    top: 42px;
+    /* Slightly lower to balance smaller size */
     left: 50%;
     transform: translateX(-50%);
-    width: 80px;
-    height: 30px;
-    background: var(--trim-white);
-    border-radius: 10px;
-}
-
-/* Limbs */
-.arm {
-    position: absolute;
-    top: 180px;
-    width: 40px;
-    height: 100px;
-    background: var(--suit-red);
-    z-index: 15;
-    border-radius: 20px;
-    transform-origin: top center;
-}
-
-.aLeft {
-    left: 10px;
-    transform: rotate(20deg);
-}
-
-.aRight {
-    right: 10px;
-    transform: rotate(-20deg);
-}
-
-.mitten {
-    position: absolute;
-    bottom: -10px;
     width: 50px;
-    height: 50px;
-    background: #212121;
-    border-radius: 50%;
-    left: -5px;
+    /* Reduced from 60px */
+    height: 20px;
+    z-index: 11;
+    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.1));
 }
 
-.leg {
+.stacheLeft,
+.stacheRight {
     position: absolute;
-    bottom: -10px;
-    width: 50px;
-    height: 90px;
-    background: var(--suit-red);
+    top: 0;
+    width: 28px;
+    /* Reduced from 30px */
+    height: 15px;
+    /* Reduced from 18px */
+    background: radial-gradient(circle at 50% 0%, #ffffff, #eeeeee);
+    border-radius: 50% 50% 8px 8px;
+    /* Slightly rounder tips */
+    box-shadow: inset -1px -1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.stacheLeft {
+    left: 0;
+    /* Align to container edge (50px width), so 28px width means overlaps center */
+    transform: rotate(12deg);
+}
+
+.stacheRight {
+    right: 0;
+    transform: rotate(-12deg);
+}
+
+.mouth {
+    position: absolute;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 16px;
+    height: 8px;
+    background: #3e2723;
+    border-radius: 0 0 10px 10px;
     z-index: 5;
+    opacity: 0;
+    transition: opacity 0.2s;
 }
 
-.lLeft {
-    left: 45px;
+/* HAT */
+.hatBase {
+    position: absolute;
+    top: 0;
+    left: 10px;
+    width: 100px;
+    height: 60px;
+    z-index: 25;
+    filter: drop-shadow(2px 2px 3px rgba(0, 0, 0, 0.1));
 }
 
-.lRight {
-    right: 45px;
-}
-
-.boot {
+.hatBand {
     position: absolute;
     bottom: 0;
-    width: 60px;
-    height: 60px;
-    background: #000;
-    border-radius: 10px 10px 30px 30px;
+    width: 100%;
+    height: 25px;
+    background: radial-gradient(circle at 50% 50%, #ffffff, #f5f5f5);
+    border-radius: 15px;
+    box-shadow: inset 0 -2px 5px rgba(0, 0, 0, 0.05);
 }
 
-/* Hover */
-.santaScene:hover .arm {
-    transform: rotate(180deg);
-    /* Hands up! */
+.hatCone {
+    position: absolute;
+    bottom: 15px;
+    left: 10px;
+    width: 80px;
+    height: 60px;
+    background: radial-gradient(circle at 30% 80%, var(--red-light), var(--red-base));
+    border-radius: 50% 50% 0 0;
+    transform: skewX(-10deg);
+}
+
+.hatPom {
+    position: absolute;
+    top: -10px;
+    right: 0;
+    width: 30px;
+    height: 30px;
+    background: radial-gradient(circle at 30% 30%, #ffffff, #eeeeee);
+    border-radius: 50%;
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+
+/* ANIMATIONS */
+@keyframes idle-hover {
+
+    0%,
+    100% {
+        transform: scale(0.85) translateY(0);
+    }
+
+    50% {
+        transform: scale(0.85) translateY(-5px);
+    }
+}
+
+@keyframes blink {
+
+    0%,
+    48% {
+        top: -100%;
+    }
+
+    50% {
+        top: 0;
+    }
+
+    52%,
+    100% {
+        top: -100%;
+    }
+}
+
+@keyframes chuckle {
+
+    0%,
+    100% {
+        transform: scale(0.85) translateY(0);
+    }
+
+    50% {
+        transform: scale(0.85) translateY(3px);
+    }
+}
+
+
+/* Shadow */
+.shadow {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 20px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    filter: blur(5px);
+    z-index: 0;
+    animation: shadow-pulse 3s infinite;
+}
+
+@keyframes shadow-pulse {
+
+    0%,
+    100% {
+        transform: translateX(-50%) scale(1);
+        opacity: 0.2;
+    }
+
+    50% {
+        transform: translateX(-50%) scale(0.9);
+        opacity: 0.1;
+    }
+}
+
+/* INTERACTIONS - SELECTED */
+.selected .santaRig {
+    animation: chuckle 0.5s ease-in-out 3;
+    /* Run 3 times then stop */
+    animation-fill-mode: forwards;
+}
+
+/* Arms shake slightly when chuckling */
+.selected .aLeft {
+    animation: arm-chuckle-left 0.5s ease-in-out 3;
+}
+
+.selected .aRight {
+    animation: arm-chuckle-right 0.5s ease-in-out 3;
+    animation-delay: 0.1s;
+}
+
+@keyframes arm-chuckle-left {
+
+    0%,
+    100% {
+        transform: rotate(20deg);
+    }
+
+    50% {
+        transform: rotate(35deg);
+    }
+
+    /* Raise slightly */
+}
+
+@keyframes arm-chuckle-right {
+
+    0%,
+    100% {
+        transform: rotate(-20deg);
+    }
+
+    /* Maintain negative rotation */
+    50% {
+        transform: rotate(-35deg);
+    }
+
+    /* Raise slightly */
+}
+
+/* Mouth open when selected */
+.selected .mouth {
+    opacity: 1;
+    height: 12px;
+}
+
+/* HOVER */
+.stage:hover .hatPom {
+    transform: rotate(10deg) translateX(2px);
+    transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.stage:hover .mustache {
+    transform: translateX(-50%) scale(1.1);
+    transition: 0.3s;
 }
