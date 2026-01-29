@@ -14,7 +14,7 @@ import { audioEngine } from '@/lib/audio/audioEngine';
 import { cn } from '@/lib/utils';
 
 export function Game() {
-    const [selectedId, setSelectedId] = useState<AnimalId | null>(null);
+    const [selectedIds, setSelectedIds] = useState<AnimalId[]>([]);
     const [isCasting, setIsCasting] = useState(false);
     const [celebrationTrigger, setCelebrationTrigger] = useState(0);
     const [hasInteracted, setHasInteracted] = useState(false);
@@ -25,12 +25,16 @@ export function Game() {
         treats: TreatType[];
     }>>>({});
 
+    const allAnimalIds = ANIMALS.map(a => a.id);
+    const allSelected = selectedIds.length === allAnimalIds.length;
+    const hasSelection = selectedIds.length > 0;
+
     const triggerCelebration = () => {
         setCelebrationTrigger(prev => prev + 1);
     };
 
     const handleUsePotion = (type: PotionType) => {
-        if (!selectedId) {
+        if (selectedIds.length === 0) {
             audioEngine.playError();
             return;
         }
@@ -48,28 +52,32 @@ export function Game() {
         }
 
         setEffects(prev => {
-            const current = prev[selectedId] || { scale: 1, filter: '', classes: [], treats: [] };
-            let next = { ...current };
+            const updated = { ...prev };
+            selectedIds.forEach(id => {
+                const current = updated[id] || { scale: 1, filter: '', classes: [], treats: [] };
+                let next = { ...current };
 
-            next.scale = 1;
-            next.filter = '';
-            next.classes = next.classes.filter(c => c !== 'animate-rainbow');
+                next.scale = 1;
+                next.filter = '';
+                next.classes = next.classes.filter(c => c !== 'animate-rainbow');
 
-            switch (type) {
-                case 'growth': next.scale = 1.3; break;
-                case 'shrink': next.scale = 0.7; break;
-                case 'red': next.filter = 'sepia(1) saturate(5) hue-rotate(-50deg)'; break;
-                case 'purple': next.filter = 'sepia(1) saturate(5) hue-rotate(220deg)'; break;
-                case 'rainbow': next.classes.push('animate-rainbow'); break;
-                case 'sunshine': next.filter = 'sepia(1) saturate(10) hue-rotate(0deg) drop-shadow(0 0 15px gold)'; break;
-            }
+                switch (type) {
+                    case 'growth': next.scale = 1.3; break;
+                    case 'shrink': next.scale = 0.7; break;
+                    case 'red': next.filter = 'sepia(1) saturate(5) hue-rotate(-50deg)'; break;
+                    case 'purple': next.filter = 'sepia(1) saturate(5) hue-rotate(220deg)'; break;
+                    case 'rainbow': next.classes.push('animate-rainbow'); break;
+                    case 'sunshine': next.filter = 'sepia(1) saturate(10) hue-rotate(0deg) drop-shadow(0 0 15px gold)'; break;
+                }
 
-            return { ...prev, [selectedId]: next };
+                updated[id] = next;
+            });
+            return updated;
         });
     };
 
     const handleGiveTreat = (type: TreatType) => {
-        if (!selectedId) {
+        if (selectedIds.length === 0) {
             audioEngine.playError();
             return;
         }
@@ -78,27 +86,56 @@ export function Game() {
         setTimeout(() => setIsCasting(false), 500);
         triggerCelebration();
 
-        const isDog = selectedId === 'husky';
-        const finalType = (type === 'present' && isDog) ? 'bone' : type;
-
-        if (finalType === 'hotdog') audioEngine.playHotdog();
+        if (type === 'hotdog') audioEngine.playHotdog();
         else audioEngine.playPresent();
 
         setEffects(prev => {
-            const current = prev[selectedId] || { scale: 1, filter: '', classes: [], treats: [] };
-            return {
-                ...prev,
-                [selectedId]: {
+            const updated = { ...prev };
+            selectedIds.forEach(id => {
+                const isDog = id === 'husky';
+                const finalType = (type === 'present' && isDog) ? 'bone' : type;
+                const current = updated[id] || { scale: 1, filter: '', classes: [], treats: [] };
+                updated[id] = {
                     ...current,
                     treats: [...current.treats, finalType]
-                }
-            };
+                };
+            });
+            return updated;
         });
     };
 
     const handleSelect = (id: AnimalId) => {
         setHasInteracted(true);
-        setSelectedId(prev => prev === id ? null : id);
+        setSelectedIds(prev =>
+            prev.includes(id)
+                ? prev.filter(x => x !== id)
+                : [...prev, id]
+        );
+    };
+
+    const handleToggleSelectAll = () => {
+        audioEngine.playPop();
+        if (allSelected) {
+            setSelectedIds([]);
+        } else {
+            setSelectedIds([...allAnimalIds]);
+        }
+    };
+
+    const handleReset = () => {
+        if (selectedIds.length === 0) {
+            audioEngine.playError();
+            return;
+        }
+        setEffects(prev => {
+            const updated = { ...prev };
+            selectedIds.forEach(id => {
+                delete updated[id];
+            });
+            return updated;
+        });
+        audioEngine.playMagic();
+        triggerCelebration();
     };
 
     // Compute derived view state for carousel
@@ -163,7 +200,7 @@ export function Game() {
 
             {/* Instructional Prompt */}
             <InstructionalPrompt
-                show={!hasInteracted && !selectedId}
+                show={!hasInteracted && !hasSelection}
                 onDismiss={() => setHasInteracted(true)}
             />
 
@@ -171,20 +208,51 @@ export function Game() {
 
             {/* Header - Friendly Title */}
             <header className="mb-2 pt-6 z-10">
-                <h1 className="text-4xl md:text-6xl font-bold text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.3)] tracking-wide">
+                <h1 className="text-4xl md:text-6xl font-bold text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.3)] tracking-wide text-center">
                     ✨ Magic Potions ✨
                 </h1>
 
+                {/* Control Buttons */}
+                <div className="flex justify-center gap-4 mt-3">
+                    <button
+                        onClick={handleToggleSelectAll}
+                        className={cn(
+                            "px-4 py-2 rounded-full text-sm font-semibold transition-all",
+                            "bg-white/10 backdrop-blur-sm border border-white/20",
+                            "hover:bg-white/20 hover:scale-105 active:scale-95"
+                        )}
+                    >
+                        <span className="text-white/90">
+                            {allSelected ? '🚫 Deselect All' : '✅ Select All'}
+                        </span>
+                    </button>
+                    <button
+                        onClick={handleReset}
+                        disabled={!hasSelection}
+                        className={cn(
+                            "px-4 py-2 rounded-full text-sm font-semibold transition-all",
+                            "bg-white/10 backdrop-blur-sm border border-white/20",
+                            "hover:bg-white/20 hover:scale-105 active:scale-95",
+                            !hasSelection && "opacity-40 cursor-not-allowed"
+                        )}
+                    >
+                        <span className="text-white/90">🔄 Reset</span>
+                    </button>
+                </div>
+
                 {/* Selection Hint */}
-                {!selectedId && hasInteracted && (
+                {!hasSelection && hasInteracted && (
                     <p className="text-center text-white/80 text-lg mt-2 animate-float">
                         Choose a friend below! 👇
                     </p>
                 )}
 
-                {selectedId && (
+                {hasSelection && (
                     <p className="text-center text-yellow-300 text-xl mt-2 font-semibold">
-                        {ANIMALS.find(a => a.id === selectedId)?.name} is ready! 🌟
+                        {selectedIds.length === 1
+                            ? `${ANIMALS.find(a => a.id === selectedIds[0])?.name} is ready! 🌟`
+                            : `${selectedIds.length} friends are ready! 🌟`
+                        }
                     </p>
                 )}
             </header>
@@ -192,7 +260,7 @@ export function Game() {
             {/* Main Stage - Animals */}
             <main className="w-full max-w-6xl flex-grow flex flex-col items-center justify-center relative z-10">
                 <AnimalCarousel
-                    selectedId={selectedId}
+                    selectedIds={selectedIds}
                     onSelect={handleSelect}
                     animalStates={animalStates}
                 />
@@ -202,15 +270,15 @@ export function Game() {
             <footer className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 z-10 px-2">
                 <PotionShelf
                     onUsePotion={handleUsePotion}
-                    disabled={!selectedId}
-                    isReady={!!selectedId}
+                    disabled={!hasSelection}
+                    isReady={hasSelection}
                 />
                 <TreatShelf
                     onGiveTreat={handleGiveTreat}
-                    disabled={!selectedId}
-                    isReady={!!selectedId}
+                    disabled={!hasSelection}
+                    isReady={hasSelection}
                 />
             </footer>
-        </div>
+        </div >
     );
 }

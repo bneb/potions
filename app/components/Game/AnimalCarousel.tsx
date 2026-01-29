@@ -22,13 +22,13 @@ export interface AnimalState {
 }
 
 interface AnimalCarouselProps {
-    selectedId: AnimalId | null;
+    selectedIds: AnimalId[];
     onSelect: (id: AnimalId) => void;
     animalStates: Partial<Record<AnimalId, AnimalState>>;
     className?: string;
 }
 
-export function AnimalCarousel({ selectedId, onSelect, animalStates, className }: AnimalCarouselProps) {
+export function AnimalCarousel({ selectedIds, onSelect, animalStates, className }: AnimalCarouselProps) {
     const scrollRef = useRef<HTMLDivElement>(null);
     const items = [...ANIMALS, ...ANIMALS, ...ANIMALS];
     const middleSetStart = ANIMALS.length;
@@ -86,7 +86,7 @@ export function AnimalCarousel({ selectedId, onSelect, animalStates, className }
             >
                 {items.map((animal, index) => {
                     const uniqueKey = `${animal.id}-${index}`;
-                    const isSelected = selectedId === animal.id;
+                    const isSelected = selectedIds.includes(animal.id);
                     const state = animalStates[animal.id] || { scale: 1, filter: '', classes: [], overlays: [] };
 
                     return (
