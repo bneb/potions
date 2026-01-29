@@ -1,0 +1,251 @@
+/* === INGREDIENT SHELF STYLES === */
+
+.shelf {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
+    padding: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    color: white;
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.ingredientGrid {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* Individual Ingredient */
+.ingredientItem {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 2px solid transparent;
+    cursor: grab;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.ingredientItem:hover {
+    transform: translateY(-4px) scale(1.05);
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.ingredientItem:active {
+    cursor: grabbing;
+    transform: scale(0.95);
+}
+
+.ingredientItem.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.ingredientItem.dragging {
+    opacity: 0.5;
+    transform: scale(1.1) rotate(5deg);
+}
+
+/* Bottle Visual */
+.bottle {
+    position: relative;
+    width: 40px;
+    height: 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.bottleBody {
+    position: absolute;
+    bottom: 0;
+    width: 36px;
+    height: 45px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 8px 8px 12px 12px;
+    overflow: hidden;
+    box-shadow:
+        inset 0 0 10px rgba(0, 0, 0, 0.2),
+        0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.liquidFill {
+    position: absolute;
+    bottom: 0;
+    left: 2px;
+    right: 2px;
+    height: 70%;
+    background: var(--ingredient-color, #6B5B95);
+    border-radius: 0 0 10px 10px;
+    animation: liquid-wobble 3s ease-in-out infinite;
+}
+
+.glassShine {
+    position: absolute;
+    top: 5px;
+    left: 3px;
+    width: 8px;
+    height: 20px;
+    background: linear-gradient(180deg,
+            rgba(255, 255, 255, 0.6) 0%,
+            rgba(255, 255, 255, 0) 100%);
+    border-radius: 4px;
+}
+
+.bottleNeck {
+    position: absolute;
+    bottom: 42px;
+    width: 16px;
+    height: 12px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px 4px 0 0;
+}
+
+.cork {
+    position: absolute;
+    top: 0;
+    width: 20px;
+    height: 10px;
+    background: linear-gradient(180deg, #D7A86E 0%, #A67B5B 100%);
+    border-radius: 4px 4px 2px 2px;
+    box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* Emoji Label */
+.emoji {
+    font-size: 1.5rem;
+    margin-top: 0.25rem;
+}
+
+/* Name Label */
+.name {
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Element Badge */
+.elementBadge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Sparkle Trail */
+.sparkleTrail {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: none;
+    gap: 4px;
+}
+
+.ingredientItem.dragging .sparkleTrail {
+    display: flex;
+}
+
+.sparkleTrail span {
+    font-size: 0.8rem;
+    animation: sparkle-pop 0.5s ease-out infinite;
+}
+
+.sparkleTrail span:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.sparkleTrail span:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.sparkleTrail span:nth-child(3) {
+    animation-delay: 0.2s;
+}
+
+/* Instruction */
+.instruction {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.85rem;
+    margin-top: 1rem;
+    animation: bounce-arrow 1.5s ease-in-out infinite;
+}
+
+/* === ANIMATIONS === */
+
+@keyframes liquid-wobble {
+
+    0%,
+    100% {
+        height: 70%;
+    }
+
+    50% {
+        height: 72%;
+    }
+}
+
+@keyframes sparkle-pop {
+    0% {
+        transform: scale(0) translateY(0);
+        opacity: 0;
+    }
+
+    50% {
+        transform: scale(1.2) translateY(-10px);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(0) translateY(-20px);
+        opacity: 0;
+    }
+}
+
+@keyframes bounce-arrow {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-4px);
+    }
+}

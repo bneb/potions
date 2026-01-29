@@ -1,5 +1,5 @@
 
-import { Animal, Potion, Treat } from './schemas';
+import { Animal, Potion, Treat, Ingredient } from './schemas';
 
 // --- Assets are in /public/assets, so we reference them as /assets/... ---
 
@@ -30,4 +30,57 @@ export const TREATS: Treat[] = [
     { id: 'bone', name: 'Bone', emoji: '🦴' },
     { id: 'bouquet', name: 'Bouquet', emoji: '💐' },
     { id: 'sunglasses', name: 'Sunglasses', emoji: '🕶️' },
+];
+
+// === ALCHEMY INGREDIENTS ===
+
+export const INGREDIENTS: Ingredient[] = [
+    {
+        id: 'blue_root',
+        name: 'Blue Root',
+        element: 'water',
+        color: '#4FC3F7',
+        primaryEffect: 'intensity',
+        emoji: '🫚'
+    },
+    {
+        id: 'sparkle_dust',
+        name: 'Sparkle Dust',
+        element: 'air',
+        color: '#FFD54F',
+        primaryEffect: 'duration',
+        emoji: '✨'
+    },
+    {
+        id: 'fire_bloom',
+        name: 'Fire Bloom',
+        element: 'fire',
+        color: '#FF7043',
+        primaryEffect: 'frequency',
+        emoji: '🌺'
+    },
+    {
+        id: 'moon_moss',
+        name: 'Moon Moss',
+        element: 'earth',
+        color: '#81C784',
+        primaryEffect: 'duration',
+        emoji: '🌿'
+    },
+    {
+        id: 'rainbow_shard',
+        name: 'Rainbow Shard',
+        element: 'aether',
+        color: '#E040FB',
+        primaryEffect: 'intensity',
+        emoji: '💎'
+    },
+    {
+        id: 'shadow_berry',
+        name: 'Shadow Berry',
+        element: 'void',
+        color: '#9575CD',
+        primaryEffect: 'frequency',
+        emoji: '🫐'
+    },
 ];

@@ -15,6 +15,20 @@ export const TreatTypes = [
     'present', 'hotdog', 'banana', 'pizza', 'icecream', 'bone', 'bouquet', 'sunglasses'
 ] as const;
 
+// === ALCHEMY SYSTEM ===
+
+export const IngredientIds = [
+    'blue_root',      // Element: Water    | Primary: Gravity
+    'sparkle_dust',   // Element: Air      | Primary: Time
+    'fire_bloom',     // Element: Fire     | Primary: Intensity  
+    'moon_moss',      // Element: Earth    | Primary: Duration
+    'rainbow_shard',  // Element: Aether   | Primary: Modifier
+    'shadow_berry',   // Element: Void     | Primary: Inversion
+] as const;
+
+export const Elements = ['water', 'air', 'fire', 'earth', 'aether', 'void'] as const;
+export const EffectAxes = ['intensity', 'duration', 'frequency'] as const;
+
 // --- Schemas ---
 
 export const AnimalIdSchema = z.enum(AnimalIds);
@@ -50,8 +64,51 @@ export const TreatSchema = z.object({
 });
 export type Treat = z.infer<typeof TreatSchema>;
 
+// === ALCHEMY SYSTEM SCHEMAS ===
+
+export const IngredientIdSchema = z.enum(IngredientIds);
+export type IngredientId = z.infer<typeof IngredientIdSchema>;
+
+export const ElementSchema = z.enum(Elements);
+export type Element = z.infer<typeof ElementSchema>;
+
+export const EffectAxisSchema = z.enum(EffectAxes);
+export type EffectAxis = z.infer<typeof EffectAxisSchema>;
+
+export const IngredientSchema = z.object({
+    id: IngredientIdSchema,
+    name: z.string(),
+    element: ElementSchema,
+    color: z.string(),
+    primaryEffect: EffectAxisSchema,
+    emoji: z.string(),
+});
+export type Ingredient = z.infer<typeof IngredientSchema>;
+
+// Cauldron state during brewing
+export const CauldronStateSchema = z.object({
+    ingredients: z.array(IngredientIdSchema),
+    heat: z.number().min(1).max(5),
+    intensity: z.number().min(0).max(2),
+    brewTime: z.number().min(0),
+});
+export type CauldronState = z.infer<typeof CauldronStateSchema>;
+
+// Result of brewing a potion
+export const BrewedEffectSchema = z.object({
+    primary: z.string(),
+    intensity: z.number(),
+    duration: z.number(),
+    frequency: z.number(),
+    isVolatile: z.boolean(),
+    color: z.string(),
+    visualModifier: z.string().optional(),
+});
+export type BrewedEffect = z.infer<typeof BrewedEffectSchema>;
+
 // --- Validation Functions (The Gates) ---
 
 export function validateAnimalId(id: unknown): AnimalId {
     return AnimalIdSchema.parse(id);
 }
+

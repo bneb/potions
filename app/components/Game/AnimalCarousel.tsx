@@ -72,7 +72,7 @@ export function AnimalCarousel({ selectedIds, onSelect, animalStates, className 
 
     return (
         <div
-            className={cn("relative w-full h-[340px] flex items-center overflow-hidden", className)}
+            className={cn("relative w-full h-[280px] flex items-center overflow-hidden", className)}
             style={{
                 maskImage: 'linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%)',
                 WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%)',

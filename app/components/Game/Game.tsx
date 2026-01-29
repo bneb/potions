@@ -4,13 +4,15 @@ import React, { useState } from 'react';
 import { AnimalCarousel, AnimalState } from './AnimalCarousel';
 import { PotionShelf } from './PotionShelf';
 import { TreatShelf } from './TreatShelf';
+import { AlchemistLaboratory } from './AlchemistLaboratory';
 import { Sorcerer } from './Sorcerer';
 import { InstructionalPrompt } from './InstructionalPrompt';
 import { CelebrationOverlay } from './CelebrationOverlay';
 import { IridescentBackground } from './IridescentBackground';
-import { AnimalId, PotionType, TreatType } from '@/lib/schemas';
+import { AnimalId, PotionType, TreatType, BrewedEffect } from '@/lib/schemas';
 import { ANIMALS } from '@/lib/data';
 import { audioEngine } from '@/lib/audio/audioEngine';
+import { applyBrewedEffect, EFFECT_VISUALS } from '@/lib/potionLogic';
 import { cn } from '@/lib/utils';
 
 export function Game() {
@@ -18,6 +20,8 @@ export function Game() {
     const [isCasting, setIsCasting] = useState(false);
     const [celebrationTrigger, setCelebrationTrigger] = useState(0);
     const [hasInteracted, setHasInteracted] = useState(false);
+    const [useLabMode, setUseLabMode] = useState(true); // New alchemy mode by default
+    const [overflowLevels, setOverflowLevels] = useState<Partial<Record<AnimalId, number>>>({});
     const [effects, setEffects] = useState<Partial<Record<AnimalId, {
         scale: number;
         filter: string;
@@ -138,6 +142,45 @@ export function Game() {
         triggerCelebration();
     };
 
+    // NEW: Handle brewed potion from AlchemistLaboratory
+    const handleApplyBrewedEffect = (effect: BrewedEffect) => {
+        if (selectedIds.length === 0) {
+            audioEngine.playError();
+            return;
+        }
+
+        setIsCasting(true);
+        setTimeout(() => setIsCasting(false), 500);
+        triggerCelebration();
+
+        // Apply the brewed effect to all selected characters
+        setEffects(prev => {
+            const updated = { ...prev };
+            selectedIds.forEach(id => {
+                const current = updated[id] || { scale: 1, filter: '', classes: [], treats: [] };
+                const effectState = applyBrewedEffect(effect);
+
+                updated[id] = {
+                    ...current,
+                    scale: effectState.scale,
+                    filter: effectState.filter,
+                    classes: [...effectState.classes],
+                };
+            });
+            return updated;
+        });
+
+        // Update overflow levels
+        setOverflowLevels(prev => {
+            const updated = { ...prev };
+            selectedIds.forEach(id => {
+                const effectState = applyBrewedEffect(effect);
+                updated[id] = effectState.overflowLevel;
+            });
+            return updated;
+        });
+    };
+
     // Compute derived view state for carousel
     const animalStates: Partial<Record<AnimalId, AnimalState>> = {};
 
@@ -189,7 +232,7 @@ export function Game() {
     });
 
     return (
-        <div className="w-full h-screen flex flex-col items-center justify-between p-4 relative overflow-hidden"
+        <div className="w-full h-screen flex flex-col items-center justify-between p-2 relative overflow-y-auto"
             style={{ background: 'var(--bg-magical-sky)' }}>
 
             {/* Iridescent Background */}
@@ -207,13 +250,27 @@ export function Game() {
             <Sorcerer isCasting={isCasting} />
 
             {/* Header - Friendly Title */}
-            <header className="mb-2 pt-6 z-10">
-                <h1 className="text-4xl md:text-6xl font-bold text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.3)] tracking-wide text-center">
+            <header className="mb-1 pt-2 z-10 flex-shrink-0">
+                <h1 className="text-3xl md:text-5xl font-bold text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.3)] tracking-wide text-center">
                     ✨ Magic Potions ✨
                 </h1>
 
                 {/* Control Buttons */}
-                <div className="flex justify-center gap-4 mt-3">
+                <div className="flex justify-center gap-3 mt-1">
+                    {/* Mode Toggle */}
+                    <button
+                        onClick={() => setUseLabMode(!useLabMode)}
+                        className={cn(
+                            "px-4 py-2 rounded-full text-sm font-semibold transition-all",
+                            "bg-white/10 backdrop-blur-sm border border-white/20",
+                            "hover:bg-white/20 hover:scale-105 active:scale-95",
+                            useLabMode && "bg-purple-500/30 border-purple-400/50"
+                        )}
+                    >
+                        <span className="text-white/90">
+                            {useLabMode ? '🧪 Lab Mode' : '✨ Classic'}
+                        </span>
+                    </button>
                     <button
                         onClick={handleToggleSelectAll}
                         className={cn(
@@ -267,17 +324,28 @@ export function Game() {
             </main>
 
             {/* Footer - Action Shelves */}
-            <footer className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 z-10 px-2">
-                <PotionShelf
-                    onUsePotion={handleUsePotion}
-                    disabled={!hasSelection}
-                    isReady={hasSelection}
-                />
-                <TreatShelf
-                    onGiveTreat={handleGiveTreat}
-                    disabled={!hasSelection}
-                    isReady={hasSelection}
-                />
+            <footer className="w-full mb-2 z-10 px-2 flex justify-center flex-shrink-0">
+                {useLabMode ? (
+                    /* NEW: Alchemy Laboratory Mode */
+                    <AlchemistLaboratory
+                        onApplyEffect={handleApplyBrewedEffect}
+                        disabled={!hasSelection}
+                    />
+                ) : (
+                    /* Classic Mode: Original shelves */
+                    <div className="max-w-4xl w-full grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <PotionShelf
+                            onUsePotion={handleUsePotion}
+                            disabled={!hasSelection}
+                            isReady={hasSelection}
+                        />
+                        <TreatShelf
+                            onGiveTreat={handleGiveTreat}
+                            disabled={!hasSelection}
+                            isReady={hasSelection}
+                        />
+                    </div>
+                )}
             </footer>
         </div >
     );
