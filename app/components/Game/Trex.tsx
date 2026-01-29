@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 import styles from './trex.module.css';
 
@@ -11,24 +11,32 @@ interface TrexProps {
 }
 
 export function Trex({ className, selected = false }: TrexProps) {
-    // We need to track the "previous" selection state to determine if we should animate the "unselect" (reverse jump)
-    // or if this is just the initial mount.
-    const [hasMounted, setHasMounted] = useState(false);
-    const [wasSelected, setWasSelected] = useState(selected);
+    const [animationState, setAnimationState] = useState<'idle' | 'selecting' | 'deselecting'>('idle');
+    const prevSelectedRef = useRef(selected);
+    const hasMountedRef = useRef(false);
 
     useEffect(() => {
-        setHasMounted(true);
+        hasMountedRef.current = true;
     }, []);
 
     useEffect(() => {
-        if (selected !== wasSelected) {
-            setWasSelected(selected);
-        }
-    }, [selected, wasSelected]);
+        if (!hasMountedRef.current) return;
 
-    const animationClass = selected
-        ? styles.selected
-        : (hasMounted && wasSelected) ? styles.unselected : '';
+        const wasSelected = prevSelectedRef.current;
+        prevSelectedRef.current = selected;
+
+        if (selected && !wasSelected) {
+            // Transitioning to selected
+            setAnimationState('selecting');
+        } else if (!selected && wasSelected) {
+            // Transitioning to deselected
+            setAnimationState('deselecting');
+        }
+    }, [selected]);
+
+    const animationClass =
+        animationState === 'selecting' ? styles.selected :
+            animationState === 'deselecting' ? styles.unselected : '';
 
     return (
         <div className={cn(styles.stage, className)}>
