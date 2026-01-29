@@ -1,0 +1,1380 @@
+/* ============================================
+   MERLIN / DRUID STYLE SORCERER
+   ============================================ */
+
+/* === DESIGN TOKENS === */
+.stage {
+    /* Skin - Weathered wise elder */
+    --skin-highlight: #f5e6d8;
+    --skin-base: #e8d4c4;
+    --skin-mid: #d4c0ae;
+    --skin-shadow: #c0a890;
+
+    /* Robes - Deep Forest Green */
+    --robe-light: #2d4a3e;
+    --robe-primary: #1a3328;
+    --robe-dark: #0f241a;
+    --robe-shadow: #071510;
+
+    /* Druid accents - Bronze/Copper */
+    --accent-light: #cd9b4a;
+    --accent-primary: #b87333;
+    --accent-dark: #8b5a2b;
+
+    /* Hair - Silver/Grey (wise elder) */
+    --hair-base: #9ca3af;
+    --hair-highlight: #d1d5db;
+    --hair-shadow: #6b7280;
+
+    /* Wand - Gnarled wood */
+    --wand-light: #a08060;
+    --wand-base: #6b4423;
+    --wand-dark: #3d2817;
+
+    /* Magic - Earthy/Nature glow */
+    --magic-core: #fef9c3;
+    --magic-glow: #84cc16;
+    --magic-outer: #22c55e;
+
+    position: relative;
+    width: 140px;
+    height: 180px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    filter: drop-shadow(0 8px 20px rgba(15, 36, 26, 0.5));
+}
+
+/* === MAIN RIG === */
+.sorcererRig {
+    position: relative;
+    width: 140px;
+    height: 180px;
+    transform-origin: bottom center;
+    animation: idle-breathe 4s ease-in-out infinite;
+    transition: transform 0.3s ease;
+}
+
+/* ============================================
+   HAT - Classic Wizard Hat
+   ============================================ */
+.hatGroup {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 40;
+    animation: hat-bob 5s ease-in-out infinite;
+    transform-origin: bottom center;
+}
+
+.hatCone {
+    position: relative;
+    width: 50px;
+    height: 55px;
+    transform: rotate(-5deg);
+    transform-origin: bottom center;
+}
+
+.hatConeBase {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    border-left: 25px solid transparent;
+    border-right: 25px solid transparent;
+    border-bottom: 55px solid var(--robe-primary);
+}
+
+.hatConeHighlight {
+    position: absolute;
+    bottom: 5px;
+    left: 6px;
+    width: 0;
+    height: 0;
+    border-left: 12px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 42px solid var(--robe-light);
+    opacity: 0.3;
+}
+
+.hatConeShadow {
+    position: absolute;
+    bottom: 0;
+    right: 3px;
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 16px solid transparent;
+    border-bottom: 50px solid var(--robe-shadow);
+    opacity: 0.5;
+}
+
+.hatTip {
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%) rotate(12deg);
+    width: 6px;
+    height: 10px;
+    background: var(--robe-primary);
+    border-radius: 50% 50% 30% 30%;
+}
+
+.hatStar {
+    position: absolute;
+    color: var(--accent-light);
+    text-shadow: 0 0 4px rgba(211, 166, 37, 0.6);
+    font-size: 8px;
+    opacity: 0.7;
+}
+
+.hatStar:nth-child(5) {
+    top: 20px;
+    left: 10px;
+}
+
+.hatStar:nth-child(6) {
+    top: 35px;
+    right: 8px;
+}
+
+.hatBrimGroup {
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.hatBrimBase {
+    width: 70px;
+    height: 14px;
+    background: linear-gradient(180deg, var(--robe-light) 0%, var(--robe-primary) 50%, var(--robe-dark) 100%);
+    border-radius: 50%;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+}
+
+.hatBrimHighlight {
+    position: absolute;
+    top: 2px;
+    left: 8px;
+    width: 20px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+}
+
+.hatBand {
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 6px;
+    background: linear-gradient(90deg, var(--accent-dark) 0%, var(--accent-primary) 50%, var(--accent-dark) 100%);
+    border-radius: 3px;
+}
+
+.hatBandGem {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px;
+    height: 8px;
+    background: radial-gradient(circle at 30% 30%, var(--magic-glow) 0%, var(--accent-primary) 100%);
+    border-radius: 50%;
+    box-shadow: 0 0 6px var(--magic-glow);
+}
+
+/* ============================================
+   HEAD
+   ============================================ */
+.headGroup {
+    position: absolute;
+    top: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 30;
+    animation: head-tilt 6s ease-in-out infinite;
+    transform-origin: bottom center;
+}
+
+/* Messy Harry Potter Hair */
+.hairBase {
+    position: absolute;
+    top: -4px;
+    left: -6px;
+    right: -6px;
+    height: 18px;
+    background: var(--hair-base);
+    border-radius: 25px 25px 0 0;
+    z-index: -1;
+}
+
+.hairStrand {
+    position: absolute;
+    background: var(--hair-base);
+    border-radius: 50% 50% 30% 30%;
+}
+
+.hairStrand:nth-child(1) {
+    top: -8px;
+    left: 2px;
+    width: 10px;
+    height: 14px;
+    transform: rotate(-15deg);
+    background: var(--hair-shadow);
+}
+
+.hairStrand:nth-child(2) {
+    top: -12px;
+    left: 12px;
+    width: 12px;
+    height: 18px;
+    transform: rotate(5deg);
+}
+
+.hairStrand:nth-child(3) {
+    top: -10px;
+    left: 24px;
+    width: 10px;
+    height: 15px;
+    transform: rotate(-8deg);
+    background: var(--hair-highlight);
+}
+
+.hairStrand:nth-child(4) {
+    top: -14px;
+    right: 12px;
+    width: 11px;
+    height: 16px;
+    transform: rotate(10deg);
+}
+
+.hairStrand:nth-child(5) {
+    top: -6px;
+    right: 0px;
+    width: 9px;
+    height: 12px;
+    transform: rotate(20deg);
+    background: var(--hair-shadow);
+}
+
+/* Face */
+.faceBase {
+    width: 52px;
+    height: 48px;
+    background: radial-gradient(ellipse at 45% 35%, var(--skin-highlight) 0%, var(--skin-base) 40%, var(--skin-mid) 70%, var(--skin-shadow) 100%);
+    border-radius: 46% 46% 44% 44%;
+    position: relative;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.faceHighlight {
+    position: absolute;
+    top: 8px;
+    left: 10px;
+    width: 16px;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    filter: blur(3px);
+}
+
+.faceShadow {
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 44px;
+    height: 12px;
+    background: rgba(180, 140, 120, 0.15);
+    border-radius: 50%;
+    filter: blur(2px);
+}
+
+/* Ears */
+.ear {
+    position: absolute;
+    top: 16px;
+    width: 8px;
+    height: 12px;
+    background: radial-gradient(ellipse at 50% 40%, var(--skin-base) 0%, var(--skin-shadow) 100%);
+    border-radius: 40% 40% 50% 50%;
+}
+
+.ear.left {
+    left: -4px;
+}
+
+.ear.right {
+    right: -4px;
+    transform: scaleX(-1);
+}
+
+.earInner {
+    position: absolute;
+    top: 2px;
+    left: 1px;
+    width: 5px;
+    height: 6px;
+    background: var(--skin-shadow);
+    border-radius: 50%;
+    opacity: 0.3;
+}
+
+/* Eyebrows */
+.eyebrowGroup {
+    position: absolute;
+    top: 10px;
+    left: 0;
+    right: 0;
+}
+
+.eyebrow {
+    position: absolute;
+    width: 12px;
+    height: 3px;
+    background: var(--hair-base);
+    border-radius: 2px;
+}
+
+.eyebrow.left {
+    left: 8px;
+    transform: rotate(-5deg);
+}
+
+.eyebrow.right {
+    right: 8px;
+    transform: rotate(5deg);
+}
+
+/* GLASSES - Harry Potter signature! */
+.glassesGroup {
+    position: absolute;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 38px;
+    height: 14px;
+    z-index: 35;
+}
+
+.glassLens {
+    position: absolute;
+    top: 0;
+    width: 14px;
+    height: 14px;
+    border: 2px solid #1a1a1a;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.2);
+}
+
+.glassLens.left {
+    left: 0;
+}
+
+.glassLens.right {
+    right: 0;
+}
+
+.glassesBridge {
+    position: absolute;
+    top: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 8px;
+    height: 2px;
+    background: #1a1a1a;
+    border-radius: 1px;
+}
+
+.glassesArm {
+    position: absolute;
+    top: 6px;
+    width: 8px;
+    height: 2px;
+    background: #1a1a1a;
+    border-radius: 1px;
+}
+
+.glassesArm.left {
+    left: -6px;
+}
+
+.glassesArm.right {
+    right: -6px;
+}
+
+/* Eyes */
+.eyeGroup {
+    position: absolute;
+    top: 16px;
+    left: 0;
+    right: 0;
+}
+
+.eyeSocket {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+}
+
+.eyeSocket.left {
+    left: 11px;
+}
+
+.eyeSocket.right {
+    right: 11px;
+}
+
+.eyeWhite {
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 50% 45%, #ffffff 0%, #f0f0f0 100%);
+    border-radius: 50%;
+    overflow: hidden;
+    position: relative;
+}
+
+.iris {
+    position: absolute;
+    top: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 7px;
+    height: 7px;
+    background: radial-gradient(circle at 40% 40%, #2e8b57 0%, #1a5c3a 60%, #0d3320 100%);
+    border-radius: 50%;
+}
+
+.pupil {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 3px;
+    height: 3px;
+    background: #0a0a0a;
+    border-radius: 50%;
+}
+
+.eyeHighlight {
+    position: absolute;
+    top: 1px;
+    right: 1px;
+    width: 3px;
+    height: 3px;
+    background: white;
+    border-radius: 50%;
+}
+
+/* Lightning Scar! */
+.lightningScar {
+    position: absolute;
+    top: 4px;
+    right: 10px;
+    width: 8px;
+    height: 10px;
+    background: linear-gradient(135deg,
+            transparent 0%, transparent 40%,
+            #c9a 40%, #c9a 45%,
+            transparent 45%, transparent 55%,
+            #c9a 55%, #c9a 60%,
+            transparent 60%, transparent 100%);
+    opacity: 0.6;
+    transform: rotate(15deg);
+}
+
+/* Nose */
+.noseGroup {
+    position: absolute;
+    top: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.noseBase {
+    width: 8px;
+    height: 8px;
+    background: radial-gradient(ellipse at 40% 30%, var(--skin-base) 0%, var(--skin-shadow) 100%);
+    border-radius: 50%;
+}
+
+.noseHighlight {
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    width: 3px;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+}
+
+/* Mouth */
+.mouthGroup {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.smile {
+    width: 14px;
+    height: 6px;
+    border-bottom: 2px solid var(--skin-shadow);
+    border-radius: 0 0 50% 50%;
+}
+
+/* Cheeks */
+.cheek {
+    position: absolute;
+    top: 26px;
+    width: 10px;
+    height: 6px;
+    background: radial-gradient(ellipse, rgba(255, 180, 180, 0.25) 0%, transparent 70%);
+    border-radius: 50%;
+}
+
+.cheek.left {
+    left: 2px;
+}
+
+.cheek.right {
+    right: 2px;
+}
+
+/* ============================================
+   BODY - Hogwarts Robes
+   ============================================ */
+.bodyGroup {
+    position: absolute;
+    top: 82px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+}
+
+.robeBase {
+    width: 72px;
+    height: 90px;
+    background: linear-gradient(135deg, var(--robe-light) 0%, var(--robe-primary) 30%, var(--robe-dark) 70%, var(--robe-shadow) 100%);
+    border-radius: 30% 30% 45% 45% / 15% 15% 85% 85%;
+    position: relative;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+    animation: robe-sway 4s ease-in-out infinite;
+    transform-origin: top center;
+}
+
+.robeFold {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 50%;
+}
+
+.robeFold:nth-child(1) {
+    top: 20px;
+    left: 10px;
+    width: 4px;
+    height: 50px;
+}
+
+.robeFold:nth-child(2) {
+    top: 25px;
+    right: 12px;
+    width: 3px;
+    height: 45px;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.robeFold:nth-child(3) {
+    top: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 40px;
+}
+
+.robeHighlight {
+    position: absolute;
+    top: 8px;
+    left: 6px;
+    width: 15px;
+    height: 30px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, transparent 100%);
+    border-radius: 50%;
+}
+
+/* Gryffindor Collar */
+.collarGroup {
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.collarBase {
+    width: 50px;
+    height: 14px;
+    background: linear-gradient(180deg, var(--accent-primary) 0%, var(--accent-dark) 100%);
+    border-radius: 25% 25% 50% 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.collarStripe {
+    position: absolute;
+    top: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 3px;
+    background: repeating-linear-gradient(90deg, var(--accent-light) 0px, var(--accent-light) 3px, var(--robe-dark) 3px, var(--robe-dark) 6px);
+    border-radius: 1px;
+}
+
+/* House Crest */
+.crestArea {
+    position: absolute;
+    top: 12px;
+    left: 8px;
+}
+
+.crest {
+    width: 14px;
+    height: 16px;
+    background: linear-gradient(135deg, var(--accent-light) 0%, var(--accent-dark) 100%);
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.robeHem {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 8px;
+    background: var(--robe-shadow);
+    border-radius: 0 0 35px 35px;
+}
+
+/* ============================================
+   WAND ARM - Ergonomic grip with proper bend
+   ============================================ */
+.wandArm {
+    position: absolute;
+    top: 0px;
+    left: -22px;
+    transform-origin: 18px 8px;
+    z-index: 25;
+    animation: arm-wave 3.5s ease-in-out infinite;
+}
+
+.armGroup.right {
+    position: absolute;
+    top: 5px;
+    right: -16px;
+    transform: rotate(-15deg);
+    transform-origin: top left;
+    animation: right-arm-idle 5s ease-in-out infinite;
+}
+
+.sleeveUpper {
+    width: 22px;
+    height: 28px;
+    background: linear-gradient(135deg, var(--robe-light) 0%, var(--robe-primary) 50%, var(--robe-dark) 100%);
+    border-radius: 10px 10px 8px 8px;
+    position: relative;
+    box-shadow: inset 2px 2px 4px rgba(255, 255, 255, 0.1), inset -2px -2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Elbow joint for bend */
+.elbowJoint {
+    position: absolute;
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 14px;
+    height: 10px;
+    background: var(--robe-primary);
+    border-radius: 50%;
+}
+
+.sleeveLower {
+    position: absolute;
+    bottom: -18px;
+    left: 50%;
+    transform: translateX(-50%) rotate(25deg);
+    transform-origin: top center;
+    width: 18px;
+    height: 20px;
+    background: linear-gradient(180deg, var(--robe-primary) 0%, var(--robe-dark) 100%);
+    border-radius: 6px 6px 10px 10px;
+}
+
+.sleeveCuff {
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%) rotate(25deg);
+    width: 20px;
+    height: 6px;
+    background: linear-gradient(180deg, var(--accent-light) 0%, var(--accent-dark) 100%);
+    border-radius: 3px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.hand {
+    position: absolute;
+    bottom: -24px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 14px;
+    height: 14px;
+    background: radial-gradient(ellipse at 40% 30%, var(--skin-highlight) 0%, var(--skin-base) 60%, var(--skin-shadow) 100%);
+    border-radius: 45%;
+}
+
+/* Wand-holding hand with proper grip */
+.handGrip {
+    position: absolute;
+    bottom: -28px;
+    left: 50%;
+    transform: translateX(-50%) rotate(25deg);
+    width: 18px;
+    height: 20px;
+    background: radial-gradient(ellipse at 40% 30%, var(--skin-highlight) 0%, var(--skin-base) 60%, var(--skin-shadow) 100%);
+    border-radius: 40% 40% 50% 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Palm visible from side */
+.palm {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 14px;
+    height: 12px;
+    background: var(--skin-mid);
+    border-radius: 40%;
+    opacity: 0.5;
+}
+
+.thumb {
+    position: absolute;
+    top: 0px;
+    right: -4px;
+    width: 7px;
+    height: 12px;
+    background: linear-gradient(180deg, var(--skin-base) 0%, var(--skin-shadow) 100%);
+    border-radius: 40% 60% 50% 50%;
+    transform: rotate(-20deg);
+    box-shadow: inset 1px 0 2px rgba(0, 0, 0, 0.1);
+}
+
+.fingers {
+    position: absolute;
+    bottom: -2px;
+    left: 2px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.finger {
+    width: 14px;
+    height: 5px;
+    background: linear-gradient(90deg, var(--skin-base) 0%, var(--skin-shadow) 80%, var(--skin-mid) 100%);
+    border-radius: 3px 50% 50% 3px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+}
+
+.finger:nth-child(1) {
+    width: 12px;
+}
+
+.finger:nth-child(2) {
+    width: 14px;
+}
+
+.finger:nth-child(3) {
+    width: 13px;
+}
+
+.finger:nth-child(4) {
+    width: 10px;
+}
+
+/* WAND - Held through grip */
+.wand {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-10deg);
+    width: 6px;
+    height: 55px;
+    z-index: 28;
+    animation: wand-glow-pulse 2s ease-in-out infinite;
+}
+
+.wandHandle {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 6px;
+    height: 15px;
+    background: linear-gradient(90deg, var(--wand-dark) 0%, var(--wand-base) 50%, var(--wand-dark) 100%);
+    border-radius: 3px 3px 4px 4px;
+}
+
+.wandShaft {
+    position: absolute;
+    bottom: 12px;
+    left: 1px;
+    width: 4px;
+    height: 32px;
+    background: linear-gradient(90deg, var(--wand-dark) 0%, var(--wand-light) 30%, var(--wand-base) 70%, var(--wand-dark) 100%);
+    border-radius: 2px;
+}
+
+.wandTip {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 4px;
+    background: var(--wand-light);
+    border-radius: 50%;
+}
+
+.magicGlow {
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30px;
+    height: 30px;
+    background: radial-gradient(circle, var(--magic-core) 0%, var(--magic-glow) 30%, var(--magic-outer) 60%, transparent 80%);
+    border-radius: 50%;
+    animation: glow-pulse 2s ease-in-out infinite;
+    filter: blur(2px);
+}
+
+.sparkle {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 0 4px white;
+}
+
+.sparkle:nth-child(1) {
+    top: 8px;
+    left: 6px;
+    animation: sparkle-float 1.5s ease-in-out infinite 0s;
+}
+
+.sparkle:nth-child(2) {
+    top: 6px;
+    right: 8px;
+    animation: sparkle-float 1.5s ease-in-out infinite 0.5s;
+}
+
+.sparkle:nth-child(3) {
+    bottom: 10px;
+    left: 10px;
+    animation: sparkle-float 1.5s ease-in-out infinite 1s;
+}
+
+/* ============================================
+   SHOES
+   ============================================ */
+.shoesGroup {
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 15;
+}
+
+.shoe {
+    width: 18px;
+    height: 12px;
+    background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 50%, #0a0a0a 100%);
+    border-radius: 6px 6px 4px 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+/* ============================================
+   SHADOW
+   ============================================ */
+.shadow {
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 14px;
+    background: radial-gradient(ellipse, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0.1) 50%, transparent 80%);
+    border-radius: 50%;
+    z-index: 0;
+}
+
+/* ============================================
+   CLICK BURST EFFECT
+   ============================================ */
+.clickBurst {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+.burstRing {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 3px solid var(--magic-glow);
+    border-radius: 50%;
+    animation: burst-expand 0.8s ease-out forwards;
+}
+
+.burstRing:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.burstRing:nth-child(2) {
+    animation-delay: 0.15s;
+    border-color: var(--magic-outer);
+}
+
+.burstRing:nth-child(3) {
+    animation-delay: 0.3s;
+    border-color: var(--accent-light);
+}
+
+/* ============================================
+   ANIMATIONS - Independent Element Movement
+   ============================================ */
+
+/* Main body breathe - subtle */
+@keyframes idle-breathe {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-3px);
+    }
+}
+
+/* Hat bobs independently with slight tilt */
+@keyframes hat-bob {
+
+    0%,
+    100% {
+        transform: translateX(-50%) translateY(0) rotate(0deg);
+    }
+
+    25% {
+        transform: translateX(-50%) translateY(-2px) rotate(1deg);
+    }
+
+    50% {
+        transform: translateX(-50%) translateY(-4px) rotate(-1deg);
+    }
+
+    75% {
+        transform: translateX(-50%) translateY(-2px) rotate(0.5deg);
+    }
+}
+
+/* Head tilts gently side to side */
+@keyframes head-tilt {
+
+    0%,
+    100% {
+        transform: translateX(-50%) rotate(0deg);
+    }
+
+    33% {
+        transform: translateX(-50%) rotate(1.5deg);
+    }
+
+    66% {
+        transform: translateX(-50%) rotate(-1deg);
+    }
+}
+
+/* Robe sways gently */
+@keyframes robe-sway {
+
+    0%,
+    100% {
+        transform: skewX(0deg);
+    }
+
+    25% {
+        transform: skewX(0.5deg);
+    }
+
+    75% {
+        transform: skewX(-0.5deg);
+    }
+}
+
+/* Wand arm waves with more personality */
+@keyframes arm-wave {
+
+    0%,
+    100% {
+        transform: rotate(0deg);
+    }
+
+    20% {
+        transform: rotate(5deg);
+    }
+
+    40% {
+        transform: rotate(-3deg);
+    }
+
+    60% {
+        transform: rotate(8deg);
+    }
+
+    80% {
+        transform: rotate(-2deg);
+    }
+}
+
+/* Right arm subtle idle movement */
+@keyframes right-arm-idle {
+
+    0%,
+    100% {
+        transform: rotate(-15deg);
+    }
+
+    50% {
+        transform: rotate(-18deg);
+    }
+}
+
+/* Wand tip glows with pulsing intensity */
+@keyframes wand-glow-pulse {
+
+    0%,
+    100% {
+        filter: drop-shadow(0 0 3px var(--magic-glow));
+    }
+
+    50% {
+        filter: drop-shadow(0 0 8px var(--magic-glow)) drop-shadow(0 0 12px var(--magic-outer));
+    }
+}
+
+/* Legacy subtle-wave for backwards compat */
+@keyframes subtle-wave {
+
+    0%,
+    100% {
+        transform: rotate(0deg);
+    }
+
+    50% {
+        transform: rotate(8deg);
+    }
+
+    0%,
+    100% {
+        transform: rotate(0deg);
+    }
+
+    50% {
+        transform: rotate(8deg);
+    }
+}
+
+@keyframes glow-pulse {
+
+    0%,
+    100% {
+        opacity: 0.7;
+        transform: translateX(-50%) scale(1);
+    }
+
+    50% {
+        opacity: 1;
+        transform: translateX(-50%) scale(1.3);
+    }
+}
+
+@keyframes sparkle-float {
+
+    0%,
+    100% {
+        opacity: 0.6;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.4) translateY(-3px);
+    }
+}
+
+@keyframes burst-expand {
+    0% {
+        width: 0;
+        height: 0;
+        opacity: 1;
+    }
+
+    100% {
+        width: 120px;
+        height: 120px;
+        opacity: 0;
+    }
+}
+
+/* ============================================
+   5 HOVER ANIMATIONS
+   ============================================ */
+.hoverWiggle {
+    animation: hover-wiggle 0.5s ease-in-out;
+}
+
+.hoverBounce {
+    animation: hover-bounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.hoverSpin {
+    animation: hover-spin 0.6s ease-in-out;
+}
+
+.hoverFloat {
+    animation: hover-float 0.8s ease-in-out;
+}
+
+.hoverGlow {
+    animation: hover-glow 0.6s ease-in-out;
+    filter: drop-shadow(0 0 15px var(--magic-glow));
+}
+
+@keyframes hover-wiggle {
+
+    0%,
+    100% {
+        transform: rotate(0deg);
+    }
+
+    20% {
+        transform: rotate(-8deg);
+    }
+
+    40% {
+        transform: rotate(8deg);
+    }
+
+    60% {
+        transform: rotate(-5deg);
+    }
+
+    80% {
+        transform: rotate(5deg);
+    }
+}
+
+@keyframes hover-bounce {
+    0% {
+        transform: translateY(0) scale(1);
+    }
+
+    30% {
+        transform: translateY(-15px) scale(1.05);
+    }
+
+    50% {
+        transform: translateY(-12px) scale(1.03);
+    }
+
+    70% {
+        transform: translateY(3px) scale(0.98);
+    }
+
+    100% {
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes hover-spin {
+    0% {
+        transform: rotateY(0deg);
+    }
+
+    50% {
+        transform: rotateY(180deg);
+    }
+
+    100% {
+        transform: rotateY(360deg);
+    }
+}
+
+@keyframes hover-float {
+
+    0%,
+    100% {
+        transform: translateY(0) rotate(0deg);
+    }
+
+    25% {
+        transform: translateY(-10px) rotate(-3deg);
+    }
+
+    50% {
+        transform: translateY(-15px) rotate(0deg);
+    }
+
+    75% {
+        transform: translateY(-10px) rotate(3deg);
+    }
+}
+
+@keyframes hover-glow {
+
+    0%,
+    100% {
+        filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.4));
+    }
+
+    50% {
+        filter: drop-shadow(0 0 25px var(--magic-glow)) drop-shadow(0 0 40px var(--magic-outer));
+    }
+}
+
+/* ============================================
+   CASTING STATE
+   ============================================ */
+.casting {
+    animation: casting-power 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.casting .magicGlow {
+    animation: magic-burst 0.6s ease-out forwards;
+}
+
+.casting .wandArm {
+    animation: wand-flick 0.3s ease-in-out 3;
+}
+
+@keyframes casting-power {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1) rotate(2deg);
+    }
+}
+
+@keyframes magic-burst {
+    0% {
+        transform: translateX(-50%) scale(1);
+        opacity: 0.7;
+    }
+
+    50% {
+        transform: translateX(-50%) scale(2.5);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateX(-50%) scale(2);
+        opacity: 0.9;
+    }
+}
+
+@keyframes wand-flick {
+
+    0%,
+    100% {
+        transform: rotate(0deg);
+    }
+
+    50% {
+        transform: rotate(25deg);
+    }
+}
+
+/* ============================================
+   CLICK STATE
+   ============================================ */
+.clicked {
+    animation: click-jolt 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.clicked .magicGlow {
+    animation: magic-explosion 0.8s ease-out forwards;
+}
+
+@keyframes click-jolt {
+    0% {
+        transform: scale(1) rotate(0deg);
+    }
+
+    20% {
+        transform: scale(1.15) rotate(-5deg);
+    }
+
+    40% {
+        transform: scale(0.95) rotate(3deg);
+    }
+
+    60% {
+        transform: scale(1.05) rotate(-2deg);
+    }
+
+    80% {
+        transform: scale(0.98) rotate(1deg);
+    }
+
+    100% {
+        transform: scale(1) rotate(0deg);
+    }
+}
+
+@keyframes magic-explosion {
+    0% {
+        transform: translateX(-50%) scale(1);
+        opacity: 1;
+    }
+
+    30% {
+        transform: translateX(-50%) scale(3);
+        opacity: 1;
+    }
+
+    60% {
+        transform: translateX(-50%) scale(4);
+        opacity: 0.6;
+    }
+
+    100% {
+        transform: translateX(-50%) scale(5);
+        opacity: 0;
+    }
+}
