@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState } from 'react';
@@ -6,6 +5,9 @@ import { AnimalCarousel, AnimalState } from './AnimalCarousel';
 import { PotionShelf } from './PotionShelf';
 import { TreatShelf } from './TreatShelf';
 import { Sorcerer } from './Sorcerer';
+import { InstructionalPrompt } from './InstructionalPrompt';
+import { CelebrationOverlay } from './CelebrationOverlay';
+import { IridescentBackground } from './IridescentBackground';
 import { AnimalId, PotionType, TreatType } from '@/lib/schemas';
 import { ANIMALS } from '@/lib/data';
 import { audioEngine } from '@/lib/audio/audioEngine';
@@ -14,6 +16,8 @@ import { cn } from '@/lib/utils';
 export function Game() {
     const [selectedId, setSelectedId] = useState<AnimalId | null>(null);
     const [isCasting, setIsCasting] = useState(false);
+    const [celebrationTrigger, setCelebrationTrigger] = useState(0);
+    const [hasInteracted, setHasInteracted] = useState(false);
     const [effects, setEffects] = useState<Partial<Record<AnimalId, {
         scale: number;
         filter: string;
@@ -21,17 +25,20 @@ export function Game() {
         treats: TreatType[];
     }>>>({});
 
+    const triggerCelebration = () => {
+        setCelebrationTrigger(prev => prev + 1);
+    };
+
     const handleUsePotion = (type: PotionType) => {
         if (!selectedId) {
             audioEngine.playError();
-            // Shake feedback logic here (via global UI state or transient class)
             return;
         }
 
         setIsCasting(true);
         setTimeout(() => setIsCasting(false), 500);
+        triggerCelebration();
 
-        // Audio calculation
         switch (type) {
             case 'growth': audioEngine.playGrowth(); break;
             case 'shrink': audioEngine.playShrink(); break;
@@ -44,7 +51,6 @@ export function Game() {
             const current = prev[selectedId] || { scale: 1, filter: '', classes: [], treats: [] };
             let next = { ...current };
 
-            // Reset mutually exclusive transformations
             next.scale = 1;
             next.filter = '';
             next.classes = next.classes.filter(c => c !== 'animate-rainbow');
@@ -58,10 +64,7 @@ export function Game() {
                 case 'sunshine': next.filter = 'sepia(1) saturate(10) hue-rotate(0deg) drop-shadow(0 0 15px gold)'; break;
             }
 
-            return {
-                ...prev,
-                [selectedId]: next
-            };
+            return { ...prev, [selectedId]: next };
         });
     };
 
@@ -73,6 +76,7 @@ export function Game() {
 
         setIsCasting(true);
         setTimeout(() => setIsCasting(false), 500);
+        triggerCelebration();
 
         const isDog = selectedId === 'husky';
         const finalType = (type === 'present' && isDog) ? 'bone' : type;
@@ -82,7 +86,6 @@ export function Game() {
 
         setEffects(prev => {
             const current = prev[selectedId] || { scale: 1, filter: '', classes: [], treats: [] };
-            // Limit treats to prevent overflow? Nah, let them stack.
             return {
                 ...prev,
                 [selectedId]: {
@@ -93,18 +96,20 @@ export function Game() {
         });
     };
 
+    const handleSelect = (id: AnimalId) => {
+        setHasInteracted(true);
+        setSelectedId(prev => prev === id ? null : id);
+    };
+
     // Compute derived view state for carousel
     const animalStates: Partial<Record<AnimalId, AnimalState>> = {};
 
-    // Default init
     ANIMALS.forEach(a => {
         const data = effects[a.id];
         if (!data) {
             animalStates[a.id] = { scale: 1, filter: '', classes: [], overlays: [] };
         } else {
-            // Map treats to overlays
             const overlays = data.treats.map((t, i) => {
-                // Position logic similar to legacy
                 const isSunglasses = t === 'sunglasses';
                 return (
                     <div
@@ -115,12 +120,9 @@ export function Game() {
                         )}
                         style={{
                             transitionDelay: `${i * 0.1}s`,
-                            // Random jitter for pileup
                             marginLeft: isSunglasses ? 0 : `${(i % 3 - 1) * 10}px`
                         }}
                     >
-                        {/* We can map type to emoji again or use data */}
-                        {/* Simplified lookup */}
                         {t === 'hotdog' ? '🌭' :
                             t === 'present' ? '🎁' :
                                 t === 'banana' ? '🍌' :
@@ -133,7 +135,6 @@ export function Game() {
                 );
             });
 
-            // Sunshine overlay
             const isSunshine = data.filter.includes('gold');
             if (isSunshine) {
                 overlays.unshift(
@@ -151,29 +152,65 @@ export function Game() {
     });
 
     return (
-        <div className="w-full h-screen flex flex-col items-center justify-between p-4 relative overflow-hidden bg-gradient-to-b from-sky-300 to-green-200">
+        <div className="w-full h-screen flex flex-col items-center justify-between p-4 relative overflow-hidden"
+            style={{ background: 'var(--bg-magical-sky)' }}>
+
+            {/* Iridescent Background */}
+            <IridescentBackground />
+
+            {/* Celebration Overlay */}
+            <CelebrationOverlay trigger={celebrationTrigger} />
+
+            {/* Instructional Prompt */}
+            <InstructionalPrompt
+                show={!hasInteracted && !selectedId}
+                onDismiss={() => setHasInteracted(true)}
+            />
+
             <Sorcerer isCasting={isCasting} />
 
-            <header className="mb-4 pt-8 z-10">
-                <h1 className="text-4xl md:text-6xl font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)] font-serif tracking-widest uppercase">
-                    Magic Potions
+            {/* Header - Friendly Title */}
+            <header className="mb-2 pt-6 z-10">
+                <h1 className="text-4xl md:text-6xl font-bold text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.3)] tracking-wide">
+                    ✨ Magic Potions ✨
                 </h1>
+
+                {/* Selection Hint */}
+                {!selectedId && hasInteracted && (
+                    <p className="text-center text-white/80 text-lg mt-2 animate-float">
+                        Choose a friend below! 👇
+                    </p>
+                )}
+
+                {selectedId && (
+                    <p className="text-center text-yellow-300 text-xl mt-2 font-semibold">
+                        {ANIMALS.find(a => a.id === selectedId)?.name} is ready! 🌟
+                    </p>
+                )}
             </header>
 
+            {/* Main Stage - Animals */}
             <main className="w-full max-w-6xl flex-grow flex flex-col items-center justify-center relative z-10">
                 <AnimalCarousel
                     selectedId={selectedId}
-                    onSelect={(id) => setSelectedId(prev => prev === id ? null : id)}
+                    onSelect={handleSelect}
                     animalStates={animalStates}
                 />
             </main>
 
-            <footer className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8 mb-8 z-10">
-                <PotionShelf onUsePotion={handleUsePotion} disabled={!selectedId} />
-                <TreatShelf onGiveTreat={handleGiveTreat} disabled={!selectedId} />
+            {/* Footer - Action Shelves */}
+            <footer className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 z-10 px-2">
+                <PotionShelf
+                    onUsePotion={handleUsePotion}
+                    disabled={!selectedId}
+                    isReady={!!selectedId}
+                />
+                <TreatShelf
+                    onGiveTreat={handleGiveTreat}
+                    disabled={!selectedId}
+                    isReady={!!selectedId}
+                />
             </footer>
-
-            {/* Ambient Particles Layer could go here */}
         </div>
     );
 }
