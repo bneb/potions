@@ -1,0 +1,709 @@
+/* ============================================
+   PROCEDURAL POTION SYSTEM
+   Tier 1 Graphics - Apple Emoji / Bungie Quality
+   ============================================ */
+
+/* === DESIGN TOKENS === */
+.potionStage {
+    /* Glass properties */
+    --glass-highlight: rgba(255, 255, 255, 0.8);
+    --glass-base: rgba(255, 255, 255, 0.15);
+    --glass-edge: rgba(255, 255, 255, 0.05);
+    --glass-refraction: rgba(255, 255, 255, 0.25);
+
+    /* Cork/stopper */
+    --cork-light: #d4a574;
+    --cork-base: #b8956e;
+    --cork-dark: #8b7355;
+    --cork-grain: #a67c52;
+
+    /* Liquid colors - set by variant */
+    --liquid-highlight: #ffffff;
+    --liquid-primary: #4ade80;
+    --liquid-mid: #22c55e;
+    --liquid-dark: #16a34a;
+    --liquid-glow: rgba(74, 222, 128, 0.6);
+
+    /* Bubble properties */
+    --bubble-opacity: 0.6;
+
+    position: relative;
+    width: 64px;
+    height: 80px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.potionStage:hover {
+    transform: scale(1.1);
+}
+
+.potionStage:active {
+    transform: scale(0.95);
+}
+
+/* === POTION RIG === */
+.potionRig {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    animation: potion-idle 3s ease-in-out infinite;
+    transform-origin: bottom center;
+}
+
+/* ============================================
+   BOTTLE SHAPES - Procedural Templates
+   ============================================ */
+
+/* --- ROUND FLASK (Default) --- */
+.bottleRound {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 48px;
+    height: 52px;
+}
+
+.bottleRound .bottleBody {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 44px;
+    height: 40px;
+    background: linear-gradient(135deg,
+            var(--glass-highlight) 0%,
+            var(--glass-base) 20%,
+            var(--glass-edge) 80%,
+            var(--glass-refraction) 100%);
+    border-radius: 50% 50% 45% 45%;
+    box-shadow:
+        inset 3px 3px 10px var(--glass-highlight),
+        inset -3px -3px 10px rgba(0, 0, 0, 0.1),
+        0 4px 12px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+.bottleRound .bottleNeck {
+    position: absolute;
+    bottom: 36px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 16px;
+    height: 18px;
+    background: linear-gradient(90deg,
+            var(--glass-refraction) 0%,
+            var(--glass-base) 30%,
+            var(--glass-base) 70%,
+            var(--glass-refraction) 100%);
+    border-radius: 4px 4px 0 0;
+    box-shadow: inset 2px 0 4px var(--glass-highlight);
+}
+
+.bottleRound .bottleLip {
+    position: absolute;
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 22px;
+    height: 6px;
+    background: linear-gradient(180deg,
+            var(--glass-highlight) 0%,
+            var(--glass-base) 50%,
+            var(--glass-refraction) 100%);
+    border-radius: 4px 4px 2px 2px;
+    box-shadow: 0 -1px 2px rgba(255, 255, 255, 0.5);
+}
+
+/* --- TALL FLASK --- */
+.bottleTall .bottleBody {
+    width: 32px;
+    height: 50px;
+    border-radius: 30% 30% 45% 45%;
+}
+
+.bottleTall .bottleNeck {
+    bottom: 46px;
+    width: 14px;
+    height: 16px;
+}
+
+.bottleTall .bottleLip {
+    bottom: 58px;
+    width: 18px;
+}
+
+/* --- POTION VIAL --- */
+.bottleVial .bottleBody {
+    width: 28px;
+    height: 45px;
+    border-radius: 20% 20% 50% 50%;
+}
+
+.bottleVial .bottleNeck {
+    bottom: 42px;
+    width: 12px;
+    height: 14px;
+}
+
+.bottleVial .bottleLip {
+    bottom: 52px;
+    width: 16px;
+}
+
+/* --- SQUARE FLASK --- */
+.bottleSquare .bottleBody {
+    width: 40px;
+    height: 38px;
+    border-radius: 8px 8px 12px 12px;
+}
+
+.bottleSquare .bottleNeck {
+    bottom: 34px;
+    width: 14px;
+    height: 14px;
+    border-radius: 3px 3px 0 0;
+}
+
+/* ============================================
+   LIQUID FILL - Animated
+   ============================================ */
+.liquidContainer {
+    position: absolute;
+    bottom: 4px;
+    left: 4px;
+    right: 4px;
+    top: 30%;
+    overflow: hidden;
+    border-radius: 0 0 50% 50%;
+}
+
+.bottleSquare .liquidContainer {
+    border-radius: 0 0 8px 8px;
+}
+
+.liquidFill {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 85%;
+    background: linear-gradient(180deg,
+            var(--liquid-highlight) 0%,
+            var(--liquid-primary) 10%,
+            var(--liquid-mid) 50%,
+            var(--liquid-dark) 100%);
+    border-radius: inherit;
+    animation: liquid-wobble 2.5s ease-in-out infinite;
+}
+
+.liquidSurface {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(180deg,
+            rgba(255, 255, 255, 0.5) 0%,
+            var(--liquid-primary) 100%);
+    border-radius: 50%;
+    animation: surface-wave 2s ease-in-out infinite;
+}
+
+.liquidGlow {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    height: 60%;
+    background: radial-gradient(ellipse at center,
+            var(--liquid-glow) 0%,
+            transparent 70%);
+    animation: glow-pulse 2s ease-in-out infinite;
+    filter: blur(4px);
+}
+
+/* ============================================
+   BUBBLES - Animated particles
+   ============================================ */
+.bubblesContainer {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    right: 8px;
+    height: 50%;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.bubble {
+    position: absolute;
+    background: radial-gradient(circle at 30% 30%,
+            rgba(255, 255, 255, 0.9) 0%,
+            rgba(255, 255, 255, 0.3) 50%,
+            transparent 100%);
+    border-radius: 50%;
+    opacity: var(--bubble-opacity);
+}
+
+.bubble:nth-child(1) {
+    width: 6px;
+    height: 6px;
+    left: 20%;
+    animation: bubble-rise 2.5s ease-in infinite 0s;
+}
+
+.bubble:nth-child(2) {
+    width: 4px;
+    height: 4px;
+    left: 50%;
+    animation: bubble-rise 3s ease-in infinite 0.5s;
+}
+
+.bubble:nth-child(3) {
+    width: 5px;
+    height: 5px;
+    left: 70%;
+    animation: bubble-rise 2.8s ease-in infinite 1s;
+}
+
+.bubble:nth-child(4) {
+    width: 3px;
+    height: 3px;
+    left: 35%;
+    animation: bubble-rise 3.2s ease-in infinite 1.5s;
+}
+
+.bubble:nth-child(5) {
+    width: 4px;
+    height: 4px;
+    left: 60%;
+    animation: bubble-rise 2.6s ease-in infinite 2s;
+}
+
+/* ============================================
+   CORK / STOPPER
+   ============================================ */
+.corkGroup {
+    position: absolute;
+    bottom: 52px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    animation: cork-bob 4s ease-in-out infinite;
+}
+
+.corkBody {
+    width: 18px;
+    height: 14px;
+    background: linear-gradient(135deg,
+            var(--cork-light) 0%,
+            var(--cork-base) 40%,
+            var(--cork-dark) 100%);
+    border-radius: 4px 4px 6px 6px;
+    box-shadow:
+        inset 2px 2px 4px rgba(255, 255, 255, 0.3),
+        inset -2px -2px 4px rgba(0, 0, 0, 0.2),
+        0 2px 4px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
+.corkGrain {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(90deg,
+            transparent 0px,
+            transparent 2px,
+            var(--cork-grain) 2px,
+            var(--cork-grain) 3px);
+    opacity: 0.3;
+    border-radius: inherit;
+}
+
+.corkTop {
+    position: absolute;
+    top: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 22px;
+    height: 6px;
+    background: linear-gradient(180deg,
+            var(--cork-light) 0%,
+            var(--cork-base) 100%);
+    border-radius: 4px;
+    box-shadow: 0 -1px 2px rgba(255, 255, 255, 0.3);
+}
+
+/* Metal cap variant */
+.metalCap .corkBody {
+    background: linear-gradient(135deg,
+            #e8e8e8 0%,
+            #c0c0c0 30%,
+            #a0a0a0 70%,
+            #808080 100%);
+    border-radius: 2px 2px 4px 4px;
+}
+
+.metalCap .corkTop {
+    background: linear-gradient(180deg,
+            #f0f0f0 0%,
+            #d0d0d0 50%,
+            #b0b0b0 100%);
+}
+
+.metalCap .corkGrain {
+    display: none;
+}
+
+/* ============================================
+   GLASS HIGHLIGHTS & REFLECTIONS
+   ============================================ */
+.glassHighlight {
+    position: absolute;
+    background: linear-gradient(180deg,
+            rgba(255, 255, 255, 0.6) 0%,
+            rgba(255, 255, 255, 0.1) 100%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.glassHighlight.primary {
+    top: 25%;
+    left: 8%;
+    width: 8px;
+    height: 16px;
+    transform: rotate(-15deg);
+}
+
+.glassHighlight.secondary {
+    top: 35%;
+    right: 12%;
+    width: 4px;
+    height: 8px;
+    opacity: 0.5;
+}
+
+.glassReflection {
+    position: absolute;
+    bottom: 10%;
+    right: 5%;
+    width: 40%;
+    height: 30%;
+    background: linear-gradient(135deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.1) 50%,
+            transparent 100%);
+    border-radius: 50%;
+}
+
+/* ============================================
+   LABEL / TAG
+   ============================================ */
+.labelTag {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 2px 6px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 3px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    z-index: 5;
+}
+
+.labelText {
+    font-size: 6px;
+    font-weight: bold;
+    color: var(--liquid-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* ============================================
+   SHADOW
+   ============================================ */
+.potionShadow {
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 10px;
+    background: radial-gradient(ellipse,
+            rgba(0, 0, 0, 0.25) 0%,
+            transparent 70%);
+    border-radius: 50%;
+}
+
+/* ============================================
+   COLOR VARIANTS
+   ============================================ */
+
+/* Growth - Vibrant Green */
+.variantGrowth {
+    --liquid-highlight: #bbf7d0;
+    --liquid-primary: #4ade80;
+    --liquid-mid: #22c55e;
+    --liquid-dark: #16a34a;
+    --liquid-glow: rgba(74, 222, 128, 0.6);
+}
+
+/* Shrink - Electric Red */
+.variantShrink {
+    --liquid-highlight: #fecaca;
+    --liquid-primary: #f87171;
+    --liquid-mid: #ef4444;
+    --liquid-dark: #dc2626;
+    --liquid-glow: rgba(248, 113, 113, 0.6);
+}
+
+/* Red - Deep Crimson */
+.variantRed {
+    --liquid-highlight: #fda4af;
+    --liquid-primary: #fb7185;
+    --liquid-mid: #e11d48;
+    --liquid-dark: #be123c;
+    --liquid-glow: rgba(225, 29, 72, 0.6);
+}
+
+/* Purple - Mystical Violet */
+.variantPurple {
+    --liquid-highlight: #e9d5ff;
+    --liquid-primary: #c084fc;
+    --liquid-mid: #a855f7;
+    --liquid-dark: #9333ea;
+    --liquid-glow: rgba(192, 132, 252, 0.6);
+}
+
+/* Rainbow - Animated gradient */
+.variantRainbow .liquidFill {
+    background: linear-gradient(180deg,
+            #fef08a 0%,
+            #fb923c 15%,
+            #f87171 30%,
+            #f472b6 45%,
+            #c084fc 60%,
+            #60a5fa 75%,
+            #4ade80 90%,
+            #22d3ee 100%);
+    background-size: 100% 200%;
+    animation: rainbow-shift 3s ease-in-out infinite, liquid-wobble 2.5s ease-in-out infinite;
+}
+
+.variantRainbow {
+    --liquid-glow: rgba(251, 146, 60, 0.4);
+}
+
+/* Sunshine - Warm Golden */
+.variantSunshine {
+    --liquid-highlight: #fef9c3;
+    --liquid-primary: #fde047;
+    --liquid-mid: #facc15;
+    --liquid-dark: #eab308;
+    --liquid-glow: rgba(253, 224, 71, 0.7);
+}
+
+.variantSunshine .liquidFill {
+    animation: liquid-wobble 2.5s ease-in-out infinite, sunshine-shimmer 1.5s ease-in-out infinite;
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+@keyframes potion-idle {
+
+    0%,
+    100% {
+        transform: translateY(0) rotate(0deg);
+    }
+
+    25% {
+        transform: translateY(-2px) rotate(1deg);
+    }
+
+    75% {
+        transform: translateY(-1px) rotate(-1deg);
+    }
+}
+
+@keyframes liquid-wobble {
+
+    0%,
+    100% {
+        transform: scaleX(1) translateY(0);
+    }
+
+    25% {
+        transform: scaleX(1.02) translateY(-1px);
+    }
+
+    75% {
+        transform: scaleX(0.98) translateY(1px);
+    }
+}
+
+@keyframes surface-wave {
+
+    0%,
+    100% {
+        transform: scaleX(1);
+    }
+
+    50% {
+        transform: scaleX(1.05);
+    }
+}
+
+@keyframes glow-pulse {
+
+    0%,
+    100% {
+        opacity: 0.6;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+@keyframes bubble-rise {
+    0% {
+        bottom: 0;
+        opacity: 0;
+        transform: translateX(0) scale(0.5);
+    }
+
+    20% {
+        opacity: var(--bubble-opacity);
+        transform: translateX(-2px) scale(1);
+    }
+
+    80% {
+        opacity: var(--bubble-opacity);
+        transform: translateX(2px) scale(0.8);
+    }
+
+    100% {
+        bottom: 100%;
+        opacity: 0;
+        transform: translateX(0) scale(0.3);
+    }
+}
+
+@keyframes cork-bob {
+
+    0%,
+    100% {
+        transform: translateX(-50%) translateY(0);
+    }
+
+    50% {
+        transform: translateX(-50%) translateY(-2px);
+    }
+}
+
+@keyframes rainbow-shift {
+
+    0%,
+    100% {
+        background-position: 0% 0%;
+    }
+
+    50% {
+        background-position: 0% 100%;
+    }
+}
+
+@keyframes sunshine-shimmer {
+
+    0%,
+    100% {
+        filter: brightness(1);
+    }
+
+    50% {
+        filter: brightness(1.15);
+    }
+}
+
+/* ============================================
+   HOVER & INTERACTION STATES
+   ============================================ */
+.potionStage:hover .liquidFill {
+    animation-duration: 1s;
+}
+
+.potionStage:hover .bubble {
+    animation-duration: 1.5s;
+}
+
+.potionStage:hover .corkGroup {
+    animation: cork-pop 0.3s ease-out;
+}
+
+@keyframes cork-pop {
+    0% {
+        transform: translateX(-50%) translateY(0);
+    }
+
+    50% {
+        transform: translateX(-50%) translateY(-8px) rotate(5deg);
+    }
+
+    100% {
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+/* Click burst effect */
+.potionStage:active .liquidGlow {
+    animation: liquid-burst 0.3s ease-out;
+}
+
+@keyframes liquid-burst {
+    0% {
+        opacity: 0.6;
+        transform: translateX(-50%) scale(1);
+    }
+
+    50% {
+        opacity: 1;
+        transform: translateX(-50%) scale(1.5);
+    }
+
+    100% {
+        opacity: 0.6;
+        transform: translateX(-50%) scale(1);
+    }
+}
+
+/* Disabled state */
+.potionStage.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    filter: grayscale(0.5);
+}
+
+.potionStage.disabled:hover {
+    transform: none;
+}
+
+/* Ready state - pulsing invitation */
+.potionStage.ready {
+    animation: potion-idle 3s ease-in-out infinite, ready-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes ready-pulse {
+
+    0%,
+    100% {
+        filter: drop-shadow(0 0 0 transparent);
+    }
+
+    50% {
+        filter: drop-shadow(0 0 12px var(--liquid-glow));
+    }
+}

@@ -1,10 +1,10 @@
 "use client";
 
 import React from 'react';
-import Image from 'next/image';
 import { POTIONS } from '@/lib/data';
 import { PotionType } from '@/lib/schemas';
 import { cn } from '@/lib/utils';
+import { Potion } from './Potion';
 
 interface PotionShelfProps {
     onUsePotion: (type: PotionType) => void;
@@ -23,39 +23,28 @@ export function PotionShelf({ onUsePotion, disabled, isReady }: PotionShelfProps
                 <span>Magic Potions</span>
                 <span>✨</span>
             </h3>
-            <div className="flex gap-4 justify-center flex-wrap">
+            <div className="flex gap-5 justify-center flex-wrap">
                 {POTIONS.map((potion) => (
-                    <button
+                    <div
                         key={potion.id}
-                        disabled={disabled}
-                        onClick={() => onUsePotion(potion.id)}
-                        className={cn(
-                            "touch-target-lg btn-magic relative group",
-                            "bg-white/10 rounded-2xl p-2",
-                            disabled && "opacity-40 cursor-not-allowed grayscale"
-                        )}
-                        title={potion.name}
-                        aria-label={potion.name}
+                        className="flex flex-col items-center gap-2"
                     >
-                        {/* Hover Glow */}
-                        <div className="absolute inset-0 bg-white/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
-
-                        {/* Potion Image */}
-                        <Image
-                            src={potion.imageSrc}
-                            alt={potion.name}
-                            width={56}
-                            height={56}
-                            className="drop-shadow-lg object-contain relative z-10"
+                        <Potion
+                            type={potion.id}
+                            disabled={disabled}
+                            isReady={isReady}
+                            onClick={() => onUsePotion(potion.id)}
+                            size="md"
+                            showLabel={false}
                         />
-
-                        {/* Label */}
-                        <p className="text-xs text-white/80 mt-1 text-center font-medium">
+                        {/* Label below potion */}
+                        <p className="text-xs text-white/80 text-center font-medium">
                             {potion.name.split(' ')[0]}
                         </p>
-                    </button>
+                    </div>
                 ))}
             </div>
         </div>
     );
 }
+
