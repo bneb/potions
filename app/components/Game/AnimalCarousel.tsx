@@ -12,6 +12,8 @@ import { Santa } from './Santa';
 import { Crocodile } from './Crocodile';
 import { Husky } from './Husky';
 import { Scorpion } from './Scorpion';
+import { Elephant } from './Elephant';
+import { Dragon } from './Dragon';
 
 
 export interface AnimalState {
@@ -66,6 +68,8 @@ export function AnimalCarousel({ selectedIds, onSelect, animalStates, className 
             'crocodile': <Crocodile className="origin-center" selected={isSelected} />,
             'husky': <Husky className="origin-center" selected={isSelected} />,
             'scorpion': <Scorpion className="origin-center" selected={isSelected} />,
+            'elephant': <Elephant className="origin-center" selected={isSelected} />,
+            'dragon': <Dragon className="origin-center" selected={isSelected} />,
         };
         return componentMap[animalId] || null;
     };

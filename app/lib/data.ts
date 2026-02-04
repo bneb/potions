@@ -10,6 +10,8 @@ export const ANIMALS: Animal[] = [
     { id: 'crocodile', name: 'Crocodile', imageSrc: '/assets/crocodile.png' },
     { id: 'husky', name: 'Husky', imageSrc: '/assets/husky.png' },
     { id: 'scorpion', name: 'Scorpion', imageSrc: '/assets/scorpion.png' },
+    { id: 'elephant', name: 'Elephant', imageSrc: '/assets/elephant.png' },
+    { id: 'dragon', name: 'Dragon', imageSrc: '/assets/dragon.png' },
 ];
 
 export const POTIONS: Potion[] = [

@@ -1,0 +1,505 @@
+/* Elephant Component Styles - Smooth Animated Baby Elephant */
+
+/* Palette - Soft Apple Style */
+.elephant {
+    --skin-base: #aab5c0;
+    --skin-light: #dbe2e8;
+    --skin-dark: #8b96a1;
+
+    --pink-soft: #ffeff1;
+    --pink-deep: #eeaeca;
+
+    --nail-white: #f0f4f8;
+
+    --trunk-grad: linear-gradient(90deg, #8b96a1 0%, #aab5c0 20%, #cbd2d8 50%, #aab5c0 80%, #8b96a1 100%);
+}
+
+.scene {
+    position: relative;
+    width: 180px;
+    height: 180px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Main Container */
+.elephant {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    z-index: 2;
+    animation: float 3.5s ease-in-out infinite;
+    transform-origin: center center;
+    transition: transform 0.4s ease-out;
+}
+
+/* --- LEGS --- */
+.leg {
+    position: absolute;
+    width: 20px;
+    height: 35px;
+    border-radius: 8px;
+    z-index: 1;
+}
+
+.legUpper {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 60%;
+    background: linear-gradient(to bottom, var(--skin-dark), var(--skin-base));
+    border-radius: 8px 8px 3px 3px;
+}
+
+.legFoot {
+    position: absolute;
+    bottom: 0;
+    width: 104%;
+    left: -2%;
+    height: 45%;
+    background: linear-gradient(to bottom, var(--skin-base), var(--skin-dark));
+    border-radius: 3px 3px 10px 10px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.toenails {
+    position: absolute;
+    bottom: 3px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.nail {
+    width: 4px;
+    height: 4px;
+    background-color: var(--nail-white);
+    border-radius: 50% 50% 2px 2px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.backLeft {
+    bottom: 16px;
+    left: 38px;
+    z-index: 1;
+    filter: brightness(0.85);
+    transform: scale(0.95);
+}
+
+.backRight {
+    bottom: 16px;
+    right: 38px;
+    z-index: 1;
+    filter: brightness(0.85);
+    transform: scale(0.95);
+}
+
+.frontLeft {
+    bottom: 10px;
+    left: 32px;
+    z-index: 3;
+}
+
+.frontRight {
+    bottom: 10px;
+    right: 32px;
+    z-index: 3;
+}
+
+/* --- BODY --- */
+.bodyGroup {
+    position: absolute;
+    bottom: 26px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 76px;
+    height: 64px;
+    z-index: 2;
+}
+
+.bodyShape {
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 40% 30%, var(--skin-light), var(--skin-base), var(--skin-dark));
+    border-radius: 32px;
+    box-shadow:
+        inset 0 5px 15px rgba(255, 255, 255, 0.6),
+        inset 0 -10px 20px rgba(0, 0, 0, 0.15),
+        0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.bodyHighlight {
+    position: absolute;
+    top: 13px;
+    left: 13px;
+    width: 26px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    filter: blur(5px);
+    transform: rotate(-15deg);
+}
+
+/* --- EARS --- */
+.earGroup {
+    position: absolute;
+    top: 26px;
+    width: 57px;
+    height: 64px;
+    z-index: 1;
+    transform-origin: center center;
+}
+
+.earOuter {
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 20% 20%, var(--skin-light), var(--skin-base));
+    border-radius: 50%;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.earInner {
+    position: absolute;
+    top: 10px;
+    width: 42px;
+    height: 48px;
+    background: radial-gradient(circle at 50% 20%, var(--pink-soft), var(--pink-deep));
+    border-radius: 50%;
+    box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.earLeft {
+    left: -10px;
+    transform: rotate(-20deg);
+    animation: flapLeft 3.5s ease-in-out infinite;
+}
+
+.earLeft .earInner {
+    right: 5px;
+}
+
+.earRight {
+    right: -10px;
+    transform: rotate(20deg);
+    animation: flapRight 3.5s ease-in-out infinite;
+}
+
+.earRight .earInner {
+    left: 5px;
+}
+
+/* --- HEAD --- */
+.headGroup {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90px;
+    height: 76px;
+    z-index: 4;
+}
+
+.headShape {
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 40% 30%, var(--skin-light), var(--skin-base), var(--skin-dark));
+    border-radius: 48%;
+    box-shadow:
+        0 10px 25px rgba(0, 0, 0, 0.2),
+        inset 0 10px 20px rgba(255, 255, 255, 0.7),
+        inset 0 -10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.hairTuft {
+    position: absolute;
+    top: -3px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 13px;
+    height: 10px;
+    background: var(--skin-base);
+    border-radius: 50% 50% 0 0;
+    box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.5);
+}
+
+.headGloss {
+    position: absolute;
+    top: 6px;
+    left: 25%;
+    width: 50%;
+    height: 30%;
+    background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.4) 0%, transparent 70%);
+    border-radius: 50%;
+}
+
+/* Eyes */
+.eye {
+    position: absolute;
+    top: 32px;
+    width: 10px;
+    height: 10px;
+    background-color: #2c3e50;
+    border-radius: 50%;
+    animation: blink 4s infinite;
+    z-index: 10;
+}
+
+.eye::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 3px;
+    height: 3px;
+    background-color: white;
+    border-radius: 50%;
+}
+
+.eye::before {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    left: 2px;
+    width: 1.5px;
+    height: 1.5px;
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+}
+
+.eyeLeft {
+    left: 26px;
+}
+
+.eyeRight {
+    right: 26px;
+}
+
+.cheek {
+    position: absolute;
+    top: 44px;
+    width: 15px;
+    height: 9px;
+    background: radial-gradient(circle, var(--pink-deep), transparent);
+    border-radius: 50%;
+    opacity: 0.4;
+    filter: blur(2px);
+    z-index: 9;
+}
+
+.cheekLeft {
+    left: 16px;
+}
+
+.cheekRight {
+    right: 16px;
+}
+
+/* --- SMOOTH TRUNK (20 Segments) --- */
+.trunkSpine {
+    position: absolute;
+    top: 45px;
+    left: 50%;
+    width: 0;
+    height: 0;
+    z-index: 11;
+}
+
+.trunkSlice {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(24px - (var(--i) * 0.9px));
+    height: 9px;
+    top: calc(var(--i) * 2px);
+    z-index: calc(50 - var(--i));
+    border-radius: 8px;
+    background: var(--trunk-grad);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+
+    /* Physics Parameters */
+    --sway-amp: calc(0.3px + (var(--i) * 1.1px));
+
+    animation: trunkWave 2.8s ease-in-out infinite alternate;
+    animation-delay: calc((var(--i) * 0.09s) - 5s);
+}
+
+/* The Trunk Tip */
+.trunkTip {
+    background: #4a5568 !important;
+    height: 5px !important;
+    width: 8px !important;
+    box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.6) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.shadow {
+    position: absolute;
+    bottom: 26px;
+    width: 100px;
+    height: 15px;
+    background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.15) 0%, transparent 70%);
+    border-radius: 50%;
+    z-index: 0;
+    animation: shadowPulse 3.5s ease-in-out infinite;
+}
+
+/* --- ANIMATIONS --- */
+
+@keyframes trunkWave {
+    0% {
+        transform: translateX(calc(-50% - var(--sway-amp)));
+    }
+
+    100% {
+        transform: translateX(calc(-50% + var(--sway-amp)));
+    }
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-6px);
+    }
+}
+
+@keyframes shadowPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(0.85);
+        opacity: 0.7;
+    }
+}
+
+@keyframes flapLeft {
+
+    0%,
+    100% {
+        transform: rotate(-20deg);
+    }
+
+    50% {
+        transform: rotate(-30deg);
+    }
+}
+
+@keyframes flapRight {
+
+    0%,
+    100% {
+        transform: rotate(20deg);
+    }
+
+    50% {
+        transform: rotate(30deg);
+    }
+}
+
+@keyframes blink {
+
+    0%,
+    48%,
+    52%,
+    100% {
+        transform: scaleY(1);
+    }
+
+    50% {
+        transform: scaleY(0.1);
+    }
+}
+
+/* --- INTERACTIONS --- */
+
+/* HOVER: Gentle */
+.scene:hover .elephant {
+    transform: scale(1.02) translateY(-2px);
+}
+
+.scene:hover .earGroup {
+    animation-duration: 1s;
+}
+
+.scene:hover .trunkSlice {
+    animation-duration: 1.2s;
+}
+
+/* SELECTED: Twirl animation */
+.selected .elephant {
+    animation: twirlJump 0.8s ease-in-out forwards;
+}
+
+.selected .eye {
+    height: 3px;
+    border-radius: 2px;
+    transform: scaleY(1);
+    animation: none;
+    background-color: #333;
+}
+
+.selected .eye::after,
+.selected .eye::before {
+    display: none;
+}
+
+.selected .shadow {
+    animation: shadowTwirl 0.8s ease-in-out forwards;
+}
+
+.selected .trunkSlice {
+    animation: none;
+    transition: transform 0.5s;
+    transform: translateX(-50%) translateX(calc(var(--i) * 1.3px)) rotate(calc(var(--i) * -1.3deg));
+}
+
+@keyframes twirlJump {
+    0% {
+        transform: translateY(0) scale(1) rotate(0deg);
+    }
+
+    20% {
+        transform: translateY(13px) scale(0.9) rotate(-10deg);
+    }
+
+    50% {
+        transform: translateY(-65px) scale(1.1) rotate(180deg);
+    }
+
+    100% {
+        transform: translateY(0) scale(1) rotate(360deg);
+    }
+}
+
+@keyframes shadowTwirl {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(0.4);
+        opacity: 0.3;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Unselected return animation */
+.unselected .elephant {
+    animation: float 3.5s ease-in-out infinite;
+}

@@ -1,0 +1,773 @@
+/* Dragon Component Styles - Emerald Baby Dragon */
+
+.dragon {
+    /* Palette: Emerald Dragon */
+    --skin-base: #2ecc71;
+    --skin-light: #58d68d;
+    --skin-dark: #27ae60;
+    --skin-shadow: #1e8449;
+
+    --belly-light: #fef9e7;
+    --belly-shadow: #f7dc6f;
+
+    --horn-base: #f39c12;
+    --horn-light: #fcd077;
+
+    --wing-membrane: #e67e22;
+    --wing-bone: #27ae60;
+}
+
+.scene {
+    position: relative;
+    width: 180px;
+    height: 180px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Main Container */
+.dragon {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    z-index: 2;
+    animation: hoverFloat 3s ease-in-out infinite;
+    transform-origin: center center;
+    transition: transform 0.3s ease-out;
+}
+
+/* --- TAIL --- */
+.tailGroup {
+    position: absolute;
+    bottom: 25px;
+    left: 95px;
+    /* Body right edge is at ~116px, tail connects here */
+    z-index: 0;
+    transform-origin: 0% 50%;
+    animation: tailWag 2s ease-in-out infinite alternate;
+}
+
+.tailSegment {
+    position: absolute;
+    width: 25px;
+    height: 22px;
+    background: radial-gradient(circle at 30% 30%, var(--skin-light), var(--skin-dark));
+    border-radius: 50%;
+    left: 0;
+    top: 0;
+}
+
+.spike {
+    position: absolute;
+    top: -6px;
+    left: 6px;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 10px solid var(--horn-base);
+    border-radius: 2px;
+}
+
+.t1 {
+    transform: translate(0, 0) scale(1.0);
+}
+
+.t2 {
+    transform: translate(16px, -6px) scale(0.9);
+}
+
+.t3 {
+    transform: translate(32px, -10px) scale(0.8);
+}
+
+.t4 {
+    transform: translate(45px, -6px) scale(0.7);
+}
+
+.t5 {
+    transform: translate(54px, 0px) scale(0.6);
+}
+
+/* --- WINGS --- */
+.wing {
+    position: absolute;
+    top: 38px;
+    width: 56px;
+    height: 44px;
+    transform-origin: 90% 90%;
+}
+
+.wingShape {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--wing-membrane), #d35400);
+    border-radius: 6px 50px 6px 50px;
+    border: 3px solid var(--wing-bone);
+    box-shadow: inset 3px 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.wingLeft {
+    left: -18px;
+    z-index: 0;
+    animation: flapLeft 1.5s ease-in-out infinite;
+    filter: brightness(0.8);
+}
+
+.wingRight {
+    left: 60px;
+    /* Position to overlap with body's right side */
+    top: 40px;
+    z-index: 3;
+    animation: flapRight 1.5s ease-in-out infinite;
+    transform: scaleX(-1);
+}
+
+/* --- LEGS --- */
+.leg {
+    position: absolute;
+    width: 25px;
+    height: 32px;
+    background: linear-gradient(to bottom, var(--skin-base), var(--skin-dark));
+    border-radius: 12px;
+    z-index: 2;
+}
+
+.legFoot {
+    position: absolute;
+    bottom: 0;
+    left: -3px;
+    width: 32px;
+    height: 12px;
+    background: var(--skin-dark);
+    border-radius: 10px 10px 3px 3px;
+}
+
+.claw {
+    position: absolute;
+    bottom: -1px;
+    width: 5px;
+    height: 5px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.backLeft {
+    bottom: 18px;
+    left: 32px;
+    z-index: 1;
+    transform: scale(0.9);
+    filter: brightness(0.8);
+}
+
+.backRight {
+    bottom: 18px;
+    left: 88px;
+    z-index: 1;
+    transform: scale(0.9);
+    filter: brightness(0.8);
+}
+
+.frontLeft {
+    bottom: 10px;
+    left: 25px;
+    z-index: 3;
+}
+
+.frontRight {
+    bottom: 10px;
+    left: 95px;
+    z-index: 3;
+}
+
+/* --- BODY --- */
+.body {
+    position: absolute;
+    bottom: 22px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 82px;
+    height: 70px;
+    background: radial-gradient(circle at 40% 40%, var(--skin-light), var(--skin-base), var(--skin-dark));
+    border-radius: 35px 35px 25px 25px;
+    z-index: 2;
+    box-shadow: inset 0 -6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.belly {
+    position: absolute;
+    bottom: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50px;
+    height: 44px;
+    background: linear-gradient(to bottom, var(--belly-light), var(--belly-shadow));
+    border-radius: 25px 25px 18px 18px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.bellyStripe {
+    border: 0;
+    height: 1.5px;
+    background: rgba(243, 156, 18, 0.3);
+    width: 60%;
+    margin: 5px auto;
+    border-radius: 2px;
+}
+
+/* --- HEAD --- */
+.headGroup {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 94px;
+    height: 82px;
+    z-index: 4;
+    transform-origin: bottom center;
+    animation: headBob 3s ease-in-out infinite;
+}
+
+.headShape {
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 30% 30%, var(--skin-light), var(--skin-base), var(--skin-dark));
+    border-radius: 45%;
+    box-shadow:
+        0 6px 12px rgba(0, 0, 0, 0.2),
+        inset 0 6px 12px rgba(255, 255, 255, 0.5);
+}
+
+/* Snout */
+.snout {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 62px;
+    height: 32px;
+    background: radial-gradient(circle at 50% 20%, var(--skin-light), var(--skin-base));
+    border-radius: 18px;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    z-index: 5;
+}
+
+.nostril {
+    position: absolute;
+    top: 10px;
+    width: 8px;
+    height: 5px;
+    background: #145a32;
+    border-radius: 50%;
+    animation: breathe 3s infinite;
+}
+
+.nostrilLeft {
+    left: 16px;
+}
+
+.nostrilRight {
+    right: 16px;
+}
+
+/* Smoke Particles */
+.smoke {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 50%;
+    opacity: 0;
+    top: 10px;
+}
+
+.smoke1 {
+    animation: smokePuff 4s infinite 1s;
+    left: 16px;
+}
+
+.smoke2 {
+    animation: smokePuff 4s infinite 2.5s;
+    right: 16px;
+}
+
+/* Eyes */
+.eye {
+    position: absolute;
+    top: 28px;
+    width: 12px;
+    height: 12px;
+    background-color: #2c3e50;
+    border-radius: 50%;
+    animation: blink 4s infinite;
+    z-index: 10;
+}
+
+.eye::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 4px;
+    height: 4px;
+    background-color: white;
+    border-radius: 50%;
+}
+
+.eyeLeft {
+    left: 18px;
+}
+
+.eyeRight {
+    right: 18px;
+}
+
+/* Horns */
+.horn {
+    position: absolute;
+    top: -6px;
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-bottom: 25px solid var(--horn-base);
+    border-radius: 3px;
+    z-index: 1;
+}
+
+.hornLeft {
+    left: 18px;
+    transform: rotate(-20deg);
+}
+
+.hornRight {
+    right: 18px;
+    transform: rotate(20deg);
+}
+
+/* Tiger Stripes */
+.stripe {
+    position: absolute;
+    top: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 3px solid transparent;
+    border-right: 3px solid transparent;
+    border-top: 10px solid rgba(20, 90, 50, 0.3);
+}
+
+.stripe2 {
+    top: 16px;
+    border-top-width: 6px;
+}
+
+/* Ear Frills */
+.earFrill {
+    position: absolute;
+    top: 25px;
+    width: 18px;
+    height: 25px;
+    background: var(--wing-membrane);
+    border-radius: 0 12px 12px 0;
+    border: 2px solid var(--wing-bone);
+    z-index: 0;
+}
+
+.earFrillLeft {
+    left: -9px;
+    transform: scaleX(-1) rotate(-10deg);
+}
+
+.earFrillRight {
+    right: -9px;
+    transform: rotate(10deg);
+}
+
+/* --- SHADOW --- */
+.shadow {
+    position: absolute;
+    bottom: 25px;
+    width: 100px;
+    height: 15px;
+    background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.15) 0%, transparent 70%);
+    border-radius: 50%;
+    z-index: 0;
+    animation: shadowPulse 3s ease-in-out infinite;
+}
+
+/* === FIRE BREATHING EFFECT === */
+.fireContainer {
+    position: absolute;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 60px;
+    z-index: 20;
+    pointer-events: none;
+    opacity: 0;
+}
+
+.flame {
+    position: absolute;
+    bottom: 0;
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    transform-origin: center bottom;
+}
+
+.flameCore {
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 45px;
+    background: linear-gradient(to top, #fff 0%, #ffe066 30%, #ff9500 60%, #ff5722 100%);
+    animation: flameFlicker 0.15s ease-in-out infinite alternate;
+}
+
+.flameOuter {
+    left: 50%;
+    transform: translateX(-50%);
+    width: 35px;
+    height: 55px;
+    background: linear-gradient(to top, #ffcc00 0%, #ff9800 40%, #ff5722 70%, #e64a19 100%);
+    opacity: 0.8;
+    animation: flameFlicker 0.12s ease-in-out infinite alternate-reverse;
+    z-index: -1;
+}
+
+.flameGlow {
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50px;
+    height: 60px;
+    background: radial-gradient(ellipse at center bottom, rgba(255, 100, 0, 0.6) 0%, transparent 70%);
+    filter: blur(5px);
+    z-index: -2;
+}
+
+/* Ember Particles */
+.ember {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: #ffcc00;
+    border-radius: 50%;
+    opacity: 0;
+    box-shadow: 0 0 4px 2px rgba(255, 150, 0, 0.8);
+}
+
+.ember1 {
+    left: 35%;
+    animation: emberFloat 0.6s ease-out infinite;
+}
+
+.ember2 {
+    left: 50%;
+    animation: emberFloat 0.6s ease-out 0.1s infinite;
+}
+
+.ember3 {
+    left: 65%;
+    animation: emberFloat 0.6s ease-out 0.2s infinite;
+}
+
+.ember4 {
+    left: 40%;
+    animation: emberFloat 0.6s ease-out 0.3s infinite;
+}
+
+.ember5 {
+    left: 60%;
+    animation: emberFloat 0.6s ease-out 0.15s infinite;
+}
+
+/* --- ANIMATIONS --- */
+
+@keyframes hoverFloat {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+@keyframes shadowPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(0.8);
+        opacity: 0.6;
+    }
+}
+
+@keyframes flapLeft {
+
+    0%,
+    100% {
+        transform: rotate(0deg);
+    }
+
+    50% {
+        transform: rotate(-20deg) scaleY(0.9);
+    }
+}
+
+@keyframes flapRight {
+
+    0%,
+    100% {
+        transform: scaleX(-1) rotate(0deg);
+    }
+
+    50% {
+        transform: scaleX(-1) rotate(-20deg) scaleY(0.9);
+    }
+}
+
+@keyframes tailWag {
+    0% {
+        transform: rotate(5deg);
+    }
+
+    100% {
+        transform: rotate(-15deg);
+    }
+}
+
+@keyframes headBob {
+
+    0%,
+    100% {
+        transform: translateX(-50%) rotate(0deg);
+    }
+
+    50% {
+        transform: translateX(-50%) rotate(2deg);
+    }
+}
+
+@keyframes blink {
+
+    0%,
+    48%,
+    52%,
+    100% {
+        transform: scaleY(1);
+    }
+
+    50% {
+        transform: scaleY(0.1);
+    }
+}
+
+@keyframes breathe {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.2);
+    }
+}
+
+@keyframes smokePuff {
+    0% {
+        transform: translateY(0) scale(1);
+        opacity: 0;
+    }
+
+    20% {
+        opacity: 0.6;
+    }
+
+    100% {
+        transform: translateY(-25px) scale(2);
+        opacity: 0;
+    }
+}
+
+@keyframes flameFlicker {
+    0% {
+        transform: translateX(-50%) scaleX(1) scaleY(1);
+    }
+
+    100% {
+        transform: translateX(-50%) scaleX(1.1) scaleY(1.05);
+    }
+}
+
+@keyframes emberFloat {
+    0% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(-50px) translateX(var(--drift, 10px)) scale(0.3);
+        opacity: 0;
+    }
+}
+
+/* --- SELECTED STATE: FIRE BREATHING --- */
+.selected .dragon {
+    animation: fireBreathPose 1s ease-in-out forwards;
+}
+
+.selected .fireContainer {
+    opacity: 1;
+    animation: fireAppear 1s ease-out forwards;
+}
+
+.selected .flameCore,
+.selected .flameOuter {
+    animation-duration: 0.08s;
+}
+
+.selected .ember {
+    opacity: 1;
+}
+
+.selected .eye {
+    transform: scaleY(0.6);
+    animation: none;
+}
+
+.selected .eye::after {
+    background: #ff6600;
+}
+
+.selected .nostril {
+    transform: scale(1.5);
+    background: #ff4400;
+    box-shadow: 0 0 8px rgba(255, 100, 0, 0.8);
+}
+
+.selected .smoke {
+    display: none;
+}
+
+.selected .headGroup {
+    animation: headFireBreath 1s ease-in-out forwards;
+}
+
+.selected .wing {
+    animation-duration: 0.3s;
+}
+
+.selected .shadow {
+    animation: shadowFire 1s ease-in-out forwards;
+    background: radial-gradient(ellipse at center, rgba(255, 100, 0, 0.3) 0%, transparent 70%);
+}
+
+@keyframes fireBreathPose {
+    0% {
+        transform: translateY(0) scale(1);
+    }
+
+    20% {
+        transform: translateY(-5px) scale(1.05);
+    }
+
+    40%,
+    80% {
+        transform: translateY(-8px) scale(1.08);
+    }
+
+    100% {
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes fireAppear {
+    0% {
+        opacity: 0;
+        transform: translateX(-50%) scale(0.3);
+    }
+
+    20% {
+        opacity: 1;
+        transform: translateX(-50%) scale(1.2);
+    }
+
+    40%,
+    70% {
+        opacity: 1;
+        transform: translateX(-50%) scale(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateX(-50%) scale(0.5);
+    }
+}
+
+@keyframes headFireBreath {
+    0% {
+        transform: translateX(-50%) rotate(0deg);
+    }
+
+    20% {
+        transform: translateX(-50%) rotate(-5deg) translateY(-3px);
+    }
+
+    40%,
+    70% {
+        transform: translateX(-50%) rotate(-8deg) translateY(-5px);
+    }
+
+    100% {
+        transform: translateX(-50%) rotate(0deg) translateY(0);
+    }
+}
+
+@keyframes shadowFire {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    40%,
+    70% {
+        transform: scale(1.3);
+    }
+}
+
+/* Unselected return animation */
+.unselected .dragon {
+    animation: hoverFloat 3s ease-in-out infinite;
+}
+
+.unselected .fireContainer {
+    opacity: 0;
+}
+
+/* Hover enhancement */
+.scene:hover .dragon {
+    transform: scale(1.03) translateY(-3px);
+}
+
+.scene:hover .wing {
+    animation-duration: 0.5s;
+}
+
+.scene:hover .nostril {
+    transform: scale(1.3);
+    transition: 0.2s;
+}
