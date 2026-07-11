@@ -164,7 +164,7 @@ export function MixingCauldron({
                     {ingredients.length === 0 && !isDragOver && (
                         <div className={styles.emptyState}>
                             <span className={styles.emptyEmoji}>🧪</span>
-                            <span className={styles.emptyText}>Drag ingredients here!</span>
+                            <span className={styles.emptyText}>Tap ingredients to add!</span>
                         </div>
                     )}
                 </div>

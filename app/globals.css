@@ -311,6 +311,117 @@ h6 {
   animation: glowPulse 1.5s ease-in-out infinite;
 }
 
+/* === BREWED-EFFECT ANIMATIONS ===
+   The Alchemy Lab applies these via a dynamic `animate-${name}` string, which
+   Tailwind's JIT cannot see — so they are declared as plain CSS to guarantee
+   they ship. All motion uses the individual translate/rotate/scale properties
+   (never the transform shorthand) so it composes with the inline
+   `transform: scale()` the animal already carries instead of clobbering it. */
+.animate-pulse-grow { animation: pulseGrow 1.4s ease-in-out infinite; }
+.animate-grow-large { animation: growLarge 2s ease-in-out infinite; }
+.animate-shrink-bounce { animation: shrinkBounce 1.2s ease-in-out infinite; }
+.animate-vibrate { animation: vibrate 0.18s linear infinite; }
+.animate-flex { animation: flex 0.7s ease-in-out infinite; }
+.animate-flip-float { animation: flipFloat 3.5s ease-in-out infinite; }
+.animate-flash-teleport { animation: flashTeleport 0.6s ease-in-out infinite; }
+.animate-stomp-shake { animation: stompShake 0.5s ease-in-out infinite; }
+.animate-gentle-fall { animation: gentleFall 3s ease-in-out infinite; }
+.animate-eternal-float { animation: eternalFloat 4s ease-in-out infinite; }
+.animate-rainbow-cycle { animation: rainbowCycle 2.5s linear infinite; }
+.animate-sparkle { animation: sparkle 1.3s ease-in-out infinite; }
+.animate-shimmer { animation: shimmer 2s ease-in-out infinite; }
+.animate-explode { animation: explode 0.6s ease-out infinite; }
+
+/* Modifiers applied by literal class name from applyBrewedEffect() */
+.rainbow-shimmer { animation: rainbowCycle 2.5s linear infinite; }
+.overflow-shake { animation: overflowShake 0.25s linear infinite; }
+
+@keyframes pulseGrow {
+  0%, 100% { scale: 1; }
+  50% { scale: 1.08; }
+}
+
+@keyframes growLarge {
+  0%, 100% { scale: 1; }
+  50% { scale: 1.12; }
+}
+
+@keyframes shrinkBounce {
+  0%, 100% { scale: 1; }
+  50% { scale: 0.88; }
+}
+
+@keyframes vibrate {
+  0%, 100% { translate: 0 0; }
+  25% { translate: 2px -1px; }
+  50% { translate: -2px 1px; }
+  75% { translate: 1px 2px; }
+}
+
+@keyframes flex {
+  0%, 100% { scale: 1; rotate: -4deg; }
+  50% { scale: 1.08; rotate: 4deg; }
+}
+
+@keyframes flipFloat {
+  0%, 100% { translate: 0 0; rotate: 0deg; }
+  50% { translate: 0 -12px; rotate: 360deg; }
+}
+
+@keyframes flashTeleport {
+  0%, 100% { opacity: 1; translate: 0 0; }
+  40% { opacity: 0.25; }
+  50% { opacity: 0.25; translate: 6px 0; }
+  60% { opacity: 1; translate: 0 0; }
+}
+
+@keyframes stompShake {
+  0%, 100% { translate: 0 0; }
+  20% { translate: 0 6px; }
+  40% { translate: -3px 0; }
+  60% { translate: 3px 0; }
+  80% { translate: 0 3px; }
+}
+
+@keyframes gentleFall {
+  0% { translate: 0 -6px; rotate: -6deg; }
+  50% { translate: 0 6px; rotate: 6deg; }
+  100% { translate: 0 -6px; rotate: -6deg; }
+}
+
+@keyframes eternalFloat {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -14px; }
+}
+
+@keyframes rainbowCycle {
+  0% { filter: hue-rotate(0deg) saturate(1.4); }
+  100% { filter: hue-rotate(360deg) saturate(1.4); }
+}
+
+@keyframes sparkle {
+  0%, 100% { scale: 1; filter: brightness(1) drop-shadow(0 0 4px gold); }
+  50% { scale: 1.06; filter: brightness(1.4) drop-shadow(0 0 14px gold); }
+}
+
+@keyframes shimmer {
+  0%, 100% { opacity: 0.7; filter: brightness(1); }
+  50% { opacity: 1; filter: brightness(1.3); }
+}
+
+@keyframes explode {
+  0% { scale: 1; rotate: 0deg; }
+  30% { scale: 1.3; rotate: -8deg; }
+  60% { scale: 0.9; rotate: 8deg; }
+  100% { scale: 1; rotate: 0deg; }
+}
+
+@keyframes overflowShake {
+  0%, 100% { translate: 0 0; }
+  25% { translate: -3px 0; }
+  75% { translate: 3px 0; }
+}
+
 /* === FRIENDLY LABELS === */
 .label-friendly {
   font-size: 1.1rem;

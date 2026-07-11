@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { AnimalCarousel, AnimalState } from './AnimalCarousel';
 import { PotionShelf } from './PotionShelf';
 import { TreatShelf } from './TreatShelf';
@@ -13,6 +13,7 @@ import { AnimalId, PotionType, TreatType, BrewedEffect } from '@/lib/schemas';
 import { ANIMALS } from '@/lib/data';
 import { audioEngine } from '@/lib/audio/audioEngine';
 import { applyBrewedEffect, EFFECT_VISUALS } from '@/lib/potionLogic';
+import { walkFx, FX_VISUALS } from '@/lib/markov';
 import { cn } from '@/lib/utils';
 
 export function Game() {
@@ -20,7 +21,7 @@ export function Game() {
     const [isCasting, setIsCasting] = useState(false);
     const [celebrationTrigger, setCelebrationTrigger] = useState(0);
     const [hasInteracted, setHasInteracted] = useState(false);
-    const [useLabMode, setUseLabMode] = useState(true); // New alchemy mode by default
+    const [useLabMode, setUseLabMode] = useState(false); // Simple tap-based mode by default
     const [overflowLevels, setOverflowLevels] = useState<Partial<Record<AnimalId, number>>>({});
     const [effects, setEffects] = useState<Partial<Record<AnimalId, {
         scale: number;
@@ -28,6 +29,9 @@ export function Game() {
         classes: string[];
         treats: TreatType[];
     }>>>({});
+
+    const surpriseTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
+    useEffect(() => () => surpriseTimers.current.forEach(clearTimeout), []);
 
     const allAnimalIds = ANIMALS.map(a => a.id);
     const allSelected = selectedIds.length === allAnimalIds.length;
@@ -140,6 +144,50 @@ export function Game() {
         });
         audioEngine.playMagic();
         triggerCelebration();
+    };
+
+    // Surprise: walk a Markov chain of visual effects across the selected animals.
+    const handleSurprise = () => {
+        if (selectedIds.length === 0) {
+            audioEngine.playError();
+            return;
+        }
+        setHasInteracted(true);
+        surpriseTimers.current.forEach(clearTimeout);
+        surpriseTimers.current = [];
+        setIsCasting(true);
+
+        const path = walkFx(4);
+        path.forEach((fx, i) => {
+            const timer = setTimeout(() => {
+                const v = FX_VISUALS[fx];
+                switch (v.sound) {
+                    case 'growth': audioEngine.playGrowth(); break;
+                    case 'shrink': audioEngine.playShrink(); break;
+                    case 'rainbow': audioEngine.playRainbow(); break;
+                    case 'sunshine': audioEngine.playSunshine(); break;
+                    default: audioEngine.playMagic();
+                }
+                triggerCelebration();
+                setEffects(prev => {
+                    const updated = { ...prev };
+                    selectedIds.forEach(id => {
+                        const current = updated[id] || { scale: 1, filter: '', classes: [], treats: [] };
+                        updated[id] = {
+                            ...current,
+                            scale: v.scale,
+                            filter: v.filter,
+                            classes: [...v.classes],
+                        };
+                    });
+                    return updated;
+                });
+            }, i * 700);
+            surpriseTimers.current.push(timer);
+        });
+
+        const done = setTimeout(() => setIsCasting(false), path.length * 700);
+        surpriseTimers.current.push(done);
     };
 
     // NEW: Handle brewed potion from AlchemistLaboratory
@@ -256,7 +304,7 @@ export function Game() {
                 </h1>
 
                 {/* Control Buttons */}
-                <div className="flex justify-center gap-3 mt-1">
+                <div className="flex flex-wrap justify-center gap-3 mt-1">
                     {/* Mode Toggle */}
                     <button
                         onClick={() => setUseLabMode(!useLabMode)}
@@ -294,6 +342,19 @@ export function Game() {
                         )}
                     >
                         <span className="text-white/90">🔄 Reset</span>
+                    </button>
+                    <button
+                        onClick={handleSurprise}
+                        disabled={!hasSelection}
+                        className={cn(
+                            "px-4 py-2 rounded-full text-sm font-semibold transition-all",
+                            "bg-gradient-to-r from-pink-500/40 to-purple-500/40 backdrop-blur-sm border border-pink-300/40",
+                            "hover:scale-105 active:scale-95",
+                            hasSelection && "ready-glow",
+                            !hasSelection && "opacity-40 cursor-not-allowed"
+                        )}
+                    >
+                        <span className="text-white">🎲 Surprise!</span>
                     </button>
                 </div>
 

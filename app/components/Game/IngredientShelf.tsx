@@ -7,10 +7,11 @@ import { cn } from '@/lib/utils';
 import styles from './ingredientShelf.module.css';
 
 interface IngredientShelfProps {
+    onAdd: (ingredientId: IngredientId) => void;
     disabled?: boolean;
 }
 
-export function IngredientShelf({ disabled = false }: IngredientShelfProps) {
+export function IngredientShelf({ onAdd, disabled = false }: IngredientShelfProps) {
     const handleDragStart = useCallback((e: React.DragEvent, ingredientId: IngredientId) => {
         e.dataTransfer.setData('ingredient', ingredientId);
         e.dataTransfer.effectAllowed = 'copy';
@@ -40,13 +41,20 @@ export function IngredientShelf({ disabled = false }: IngredientShelfProps) {
                             styles.ingredientItem,
                             disabled && styles.disabled
                         )}
+                        onClick={() => !disabled && onAdd(ingredient.id)}
                         draggable={!disabled}
                         onDragStart={(e) => handleDragStart(e, ingredient.id)}
                         onDragEnd={handleDragEnd}
                         title={ingredient.name}
                         role="button"
                         tabIndex={disabled ? -1 : 0}
-                        aria-label={`Drag ${ingredient.name} to cauldron`}
+                        onKeyDown={(e) => {
+                            if (!disabled && (e.key === 'Enter' || e.key === ' ')) {
+                                e.preventDefault();
+                                onAdd(ingredient.id);
+                            }
+                        }}
+                        aria-label={`Add ${ingredient.name} to cauldron`}
                     >
                         {/* Ingredient Bottle */}
                         <div
@@ -92,7 +100,7 @@ export function IngredientShelf({ disabled = false }: IngredientShelfProps) {
 
             {/* Instruction */}
             <p className={styles.instruction}>
-                ↑ Drag ingredients into the cauldron! ↑
+                👆 Tap an ingredient to add it! 👆
             </p>
         </div>
     );

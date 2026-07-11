@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { IngredientId, CauldronState, BrewedEffect } from '@/lib/schemas';
 import { INGREDIENTS } from '@/lib/data';
 import { brewPotion, isNewDiscovery } from '@/lib/potionLogic';
 import { audioEngine } from '@/lib/audio/audioEngine';
-import { cn } from '@/lib/utils';
 import { MixingCauldron } from './MixingCauldron';
 import { IngredientShelf } from './IngredientShelf';
 import { AlchemyControls } from './AlchemyControls';
@@ -17,6 +16,10 @@ interface AlchemistLaboratoryProps {
     disabled?: boolean;
 }
 
+// Power is fixed now that the drag-slider is gone — keeps brewing gentle
+// (never volatile) and one-tap simple for small kids.
+const FIXED_INTENSITY = 1.0;
+
 export function AlchemistLaboratory({
     onApplyEffect,
     disabled = false,
@@ -24,15 +27,9 @@ export function AlchemistLaboratory({
     // Cauldron state
     const [ingredients, setIngredients] = useState<IngredientId[]>([]);
     const [heat, setHeat] = useState(1);
-    const [intensity, setIntensity] = useState(0.5);
-    const [brewTime, setBrewTime] = useState(0);
-    const [isBrewing, setIsBrewing] = useState(false);
 
     // Discovery tracking
     const [discoveries, setDiscoveries] = useState<string[]>([]);
-
-    // Brew timer ref
-    const brewTimerRef = useRef<NodeJS.Timeout | null>(null);
 
     // Calculate blended color from ingredients
     const blendedColor = useMemo(() => {
@@ -72,9 +69,9 @@ export function AlchemistLaboratory({
     const cauldronState: CauldronState = useMemo(() => ({
         ingredients,
         heat,
-        intensity,
-        brewTime,
-    }), [ingredients, heat, intensity, brewTime]);
+        intensity: FIXED_INTENSITY,
+        brewTime: 0,
+    }), [ingredients, heat]);
 
     const brewedEffect = useMemo(() => {
         if (ingredients.length === 0) return null;
@@ -87,7 +84,7 @@ export function AlchemistLaboratory({
     }, [brewedEffect, discoveries]);
 
     // Handlers
-    const handleIngredientDrop = useCallback((ingredientId: IngredientId) => {
+    const handleIngredientAdd = useCallback((ingredientId: IngredientId) => {
         setIngredients(prev => {
             if (prev.length >= 5) return prev; // Max 5 ingredients
             audioEngine.playPop();
@@ -109,49 +106,6 @@ export function AlchemistLaboratory({
         audioEngine.playPop();
     }, []);
 
-    const handleIntensityChange = useCallback((newIntensity: number) => {
-        setIntensity(newIntensity);
-    }, []);
-
-    const handleStartBrew = useCallback(() => {
-        if (ingredients.length === 0) {
-            audioEngine.playError();
-            return;
-        }
-        setIsBrewing(true);
-        setBrewTime(0);
-        audioEngine.playMagic();
-    }, [ingredients.length]);
-
-    const handleStopBrew = useCallback(() => {
-        setIsBrewing(false);
-        if (brewTimerRef.current) {
-            clearInterval(brewTimerRef.current);
-            brewTimerRef.current = null;
-        }
-    }, []);
-
-    // Brew timer effect
-    useEffect(() => {
-        if (isBrewing) {
-            brewTimerRef.current = setInterval(() => {
-                setBrewTime(prev => {
-                    if (prev >= 10) {
-                        setIsBrewing(false);
-                        return 10;
-                    }
-                    return prev + 0.1;
-                });
-            }, 100);
-
-            return () => {
-                if (brewTimerRef.current) {
-                    clearInterval(brewTimerRef.current);
-                }
-            };
-        }
-    }, [isBrewing]);
-
     const handleApply = useCallback(() => {
         if (!brewedEffect) return;
 
@@ -160,27 +114,18 @@ export function AlchemistLaboratory({
             setDiscoveries(prev => [...prev, brewedEffect.primary]);
         }
 
-        // Play appropriate sound
-        if (brewedEffect.isVolatile) {
-            audioEngine.playError();
-        } else {
-            audioEngine.playRainbow();
-        }
+        audioEngine.playRainbow();
 
         // Apply the effect
         onApplyEffect(brewedEffect);
 
         // Reset cauldron
         setIngredients([]);
-        setBrewTime(0);
-        setIsBrewing(false);
     }, [brewedEffect, isNew, onApplyEffect]);
 
     const handleClearCauldron = useCallback(() => {
         setIngredients([]);
-        setBrewTime(0);
         setHeat(1);
-        setIntensity(0.5);
         audioEngine.playPop();
     }, []);
 
@@ -205,7 +150,7 @@ export function AlchemistLaboratory({
             </div>
 
             {/* Ingredient Shelf */}
-            <IngredientShelf disabled={disabled} />
+            <IngredientShelf onAdd={handleIngredientAdd} disabled={disabled} />
 
             {/* Main Work Area */}
             <div className={styles.workArea}>
@@ -213,13 +158,7 @@ export function AlchemistLaboratory({
                 <div className={styles.controlsSection}>
                     <AlchemyControls
                         heat={heat}
-                        intensity={intensity}
-                        brewTime={brewTime}
-                        isBrewing={isBrewing}
                         onHeatChange={handleHeatChange}
-                        onIntensityChange={handleIntensityChange}
-                        onStartBrew={handleStartBrew}
-                        onStopBrew={handleStopBrew}
                         disabled={disabled || ingredients.length === 0}
                     />
                 </div>
@@ -229,10 +168,10 @@ export function AlchemistLaboratory({
                     <MixingCauldron
                         ingredients={ingredients}
                         heat={heat}
-                        onIngredientDrop={handleIngredientDrop}
+                        onIngredientDrop={handleIngredientAdd}
                         onIngredientRemove={handleIngredientRemove}
                         blendedColor={blendedColor}
-                        isBrewing={isBrewing}
+                        isBrewing={false}
                     />
                 </div>
 
