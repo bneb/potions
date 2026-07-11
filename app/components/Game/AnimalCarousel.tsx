@@ -76,7 +76,7 @@ export function AnimalCarousel({ selectedIds, onSelect, animalStates, className 
 
     return (
         <div
-            className={cn("relative w-full h-[280px] flex items-center overflow-hidden", className)}
+            className={cn("relative w-full h-[200px] md:h-[280px] flex items-center overflow-hidden", className)}
             style={{
                 maskImage: 'linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%)',
                 WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%)',
@@ -101,7 +101,7 @@ export function AnimalCarousel({ selectedIds, onSelect, animalStates, className 
                                 onSelect(animal.id);
                             }}
                             className={cn(
-                                "flex-shrink-0 w-56 h-56 relative cursor-pointer transition-all duration-300 snap-center",
+                                "flex-shrink-0 w-36 h-36 md:w-56 md:h-56 relative cursor-pointer transition-all duration-300 snap-center",
                                 "flex flex-col items-center justify-center group/animal touch-target",
                                 isSelected ? "scale-105 z-10" : "scale-90 opacity-80 hover:opacity-100 hover:scale-95"
                             )}
@@ -120,7 +120,7 @@ export function AnimalCarousel({ selectedIds, onSelect, animalStates, className 
                             )} />
 
                             {/* Animal Container */}
-                            <div className="relative w-44 h-44 animal-wrapper flex items-center justify-center">
+                            <div className="relative w-28 h-28 md:w-44 md:h-44 animal-wrapper flex items-center justify-center scale-75 md:scale-100 origin-center">
                                 {/* Overlays */}
                                 {state.overlays.map((ov, i) => <React.Fragment key={i}>{ov}</React.Fragment>)}
 

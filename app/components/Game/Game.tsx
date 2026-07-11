@@ -304,7 +304,7 @@ export function Game() {
                 </h1>
 
                 {/* Control Buttons */}
-                <div className="flex flex-wrap justify-center gap-3 mt-1">
+                <div className="flex flex-wrap justify-center gap-2 md:gap-3 mt-1">
                     {/* Mode Toggle */}
                     <button
                         onClick={() => setUseLabMode(!useLabMode)}
