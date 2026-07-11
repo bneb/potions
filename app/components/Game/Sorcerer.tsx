@@ -42,7 +42,7 @@ export function Sorcerer({ isCasting }: SorcererProps) {
 
     return (
         <div
-            className="fixed bottom-24 left-6 z-30 cursor-pointer"
+            className="fixed bottom-24 left-6 z-30 cursor-pointer hidden md:block"
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             onClick={handleClick}
