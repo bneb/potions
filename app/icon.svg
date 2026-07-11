@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="40%" r="75%">
+      <stop offset="0%" stop-color="#8a45b3"/>
+      <stop offset="55%" stop-color="#5e2185"/>
+      <stop offset="100%" stop-color="#3c1460"/>
+    </radialGradient>
+    <linearGradient id="liquid" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#9dffd8"/>
+      <stop offset="50%" stop-color="#31d6a6"/>
+      <stop offset="100%" stop-color="#12a1c6"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.28"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.06"/>
+    </linearGradient>
+    <linearGradient id="cork" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#e6bd85"/>
+      <stop offset="100%" stop-color="#b07a44"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#7dffcf" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#7dffcf" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="bottleClip">
+      <path d="M224 156 L224 214 C224 250 132 250 126 330 C120 400 180 452 256 452 C332 452 392 400 386 330 C380 250 288 250 288 214 L288 156 Z"/>
+    </clipPath>
+  </defs>
+
+  <!-- background -->
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+
+  <!-- potion glow -->
+  <ellipse cx="256" cy="340" rx="210" ry="200" fill="url(#glow)"/>
+
+  <!-- bottle glass base -->
+  <path d="M224 156 L224 214 C224 250 132 250 126 330 C120 400 180 452 256 452 C332 452 392 400 386 330 C380 250 288 250 288 214 L288 156 Z" fill="url(#glass)"/>
+
+  <!-- liquid -->
+  <g clip-path="url(#bottleClip)">
+    <path d="M96 286 C150 266 202 266 256 284 C310 302 362 284 416 272 L416 470 L96 470 Z" fill="url(#liquid)"/>
+    <path d="M96 286 C150 266 202 266 256 284 C310 302 362 284 416 272" fill="none" stroke="#ffffff" stroke-opacity="0.55" stroke-width="6"/>
+    <circle cx="212" cy="366" r="15" fill="#ffffff" fill-opacity="0.5"/>
+    <circle cx="298" cy="332" r="10" fill="#ffffff" fill-opacity="0.45"/>
+    <circle cx="252" cy="416" r="9" fill="#ffffff" fill-opacity="0.4"/>
+  </g>
+
+  <!-- glass outline -->
+  <path d="M224 156 L224 214 C224 250 132 250 126 330 C120 400 180 452 256 452 C332 452 392 400 386 330 C380 250 288 250 288 214 L288 156 Z" fill="none" stroke="#f2e9ff" stroke-width="12" stroke-linejoin="round"/>
+
+  <!-- glass shine -->
+  <path d="M196 210 C168 262 162 322 182 384" fill="none" stroke="#ffffff" stroke-opacity="0.6" stroke-width="12" stroke-linecap="round"/>
+
+  <!-- bottle rim -->
+  <rect x="210" y="146" width="92" height="22" rx="11" fill="#f2e9ff"/>
+
+  <!-- cork -->
+  <rect x="216" y="98" width="80" height="56" rx="16" fill="url(#cork)" stroke="#8f5f30" stroke-width="4"/>
+  <rect x="216" y="112" width="80" height="12" fill="#000000" fill-opacity="0.13"/>
+
+  <!-- sparkles -->
+  <path d="M372 150 L384 178 L412 190 L384 202 L372 230 L360 202 L332 190 L360 178 Z" fill="#ffe873"/>
+  <path d="M150 214 L158 232 L176 240 L158 248 L150 266 L142 248 L124 240 L142 232 Z" fill="#fff3b0"/>
+</svg>
