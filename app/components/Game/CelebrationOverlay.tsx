@@ -113,7 +113,10 @@ export function CelebrationOverlay({ burst }: CelebrationOverlayProps) {
                         top: '55%',
                         color: p.color,
                         fontSize: `${p.size}px`,
-                        textShadow: `0 0 10px ${p.color}`,
+                        // No text-shadow glow: a glowing paint per particle
+                        // spikes fill-rate exactly during the marquee moment,
+                        // and at party scale the emoji are loud enough already
+                        // (perf-audit #4).
                         animationDelay: `${p.delay}s`,
                         animationDuration: reducedMotion ? '0.4s' : `${p.duration}s`,
                     }}

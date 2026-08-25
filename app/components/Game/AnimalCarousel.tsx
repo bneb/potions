@@ -55,7 +55,37 @@ interface AnimalCardProps {
 
 const DEFAULT_STATE: AnimalState = { scale: 1, filter: '', classes: [], overlays: [] };
 
-function AnimalCard({
+/**
+ * Static animal renderers, hoisted to module level: building eight JSX
+ * factories once beats rebuilding an eight-entry element record for EACH of
+ * the 24 strip items on EVERY render (a measurable reconciliation tax on
+ * old tablets — see docs/perf-audit.md finding #3).
+ */
+const ANIMAL_RENDERERS: Record<AnimalId, (isSelected: boolean, pulse: 'in' | 'out' | null) => React.ReactNode> = {
+    orangutan: () => <Orangutan className="scale-75 origin-center" />,
+    trex: (_isSelected, pulse) => <Trex className="origin-center" pulse={pulse} />,
+    santa: (isSelected) => <Santa className="origin-center" selected={isSelected} />,
+    crocodile: (isSelected) => <Crocodile className="origin-center" selected={isSelected} />,
+    husky: (isSelected) => <Husky className="origin-center" selected={isSelected} />,
+    scorpion: (isSelected) => <Scorpion className="origin-center" selected={isSelected} />,
+    elephant: (_isSelected, pulse) => <Elephant className="origin-center" pulse={pulse} />,
+    dragon: (_isSelected, pulse) => <Dragon className="origin-center" pulse={pulse} />,
+};
+
+function renderAnimalComponent(
+    animalId: AnimalId,
+    isSelected: boolean,
+    pulse: 'in' | 'out' | null,
+): React.ReactNode {
+    return ANIMAL_RENDERERS[animalId]?.(isSelected, pulse) ?? null;
+}
+
+/**
+ * One strip card. Memoized: with stable inputs from Game (memoized view
+ * objects + stable callbacks), tapping one friend no longer reconciles the
+ * other 23 cards' SVG subtrees.
+ */
+const AnimalCard = React.memo(function AnimalCard({
     animal,
     isSelected,
     state,
@@ -165,25 +195,7 @@ function AnimalCard({
             </p>
         </button>
     );
-}
-
-function renderAnimalComponent(
-    animalId: AnimalId,
-    isSelected: boolean,
-    pulse: 'in' | 'out' | null,
-): React.ReactNode {
-    const componentMap: Record<string, React.ReactNode> = {
-        'orangutan': <Orangutan className="scale-75 origin-center" />,
-        'trex': <Trex className="origin-center" pulse={pulse} />,
-        'santa': <Santa className="origin-center" selected={isSelected} />,
-        'crocodile': <Crocodile className="origin-center" selected={isSelected} />,
-        'husky': <Husky className="origin-center" selected={isSelected} />,
-        'scorpion': <Scorpion className="origin-center" selected={isSelected} />,
-        'elephant': <Elephant className="origin-center" pulse={pulse} />,
-        'dragon': <Dragon className="origin-center" pulse={pulse} />,
-    };
-    return componentMap[animalId] || null;
-}
+});
 
 export function AnimalCarousel({
     selectedIds,
@@ -211,20 +223,33 @@ export function AnimalCarousel({
         return undefined;
     }, [reducedMotion]);
 
-    const handleScroll = () => {
+    // Infinite-strip wrap-around, rAF-throttled and attached as a passive
+    // listener: layout reads/writes happen at most once per frame instead of
+    // on every scroll event, and the listener is removed on unmount.
+    useEffect(() => {
         const container = scrollRef.current;
-        if (!container) return;
+        if (!container) return undefined;
 
-        const scrollLeft = container.scrollLeft;
-        const scrollWidth = container.scrollWidth;
-        const oneSetWidth = scrollWidth / 3;
-
-        if (scrollLeft >= oneSetWidth * 2) {
-            container.scrollLeft = scrollLeft - oneSetWidth;
-        } else if (scrollLeft <= 5) {
-            container.scrollLeft = scrollLeft + oneSetWidth;
-        }
-    };
+        let frame: number | null = null;
+        const handleScroll = () => {
+            if (frame !== null) return;
+            frame = requestAnimationFrame(() => {
+                frame = null;
+                const scrollLeft = container.scrollLeft;
+                const oneSetWidth = container.scrollWidth / 3;
+                if (scrollLeft >= oneSetWidth * 2) {
+                    container.scrollLeft = scrollLeft - oneSetWidth;
+                } else if (scrollLeft <= 5) {
+                    container.scrollLeft = scrollLeft + oneSetWidth;
+                }
+            });
+        };
+        container.addEventListener('scroll', handleScroll, { passive: true });
+        return () => {
+            container.removeEventListener('scroll', handleScroll);
+            if (frame !== null) cancelAnimationFrame(frame);
+        };
+    }, []);
 
     return (
         <div
@@ -238,7 +263,6 @@ export function AnimalCarousel({
                 ref={scrollRef}
                 className="flex gap-6 overflow-x-auto no-scrollbar w-full h-full items-center px-[50vw] snap-x snap-mandatory"
                 style={{ scrollBehavior: 'auto' }}
-                onScroll={handleScroll}
             >
                 {items.map((animal, index) => (
                     <AnimalCard

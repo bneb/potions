@@ -293,10 +293,13 @@ h6 {
   border-radius: 24px;
 }
 
-/* === GLASS MORPHISM SHELF - SOFT EDGES === */
+/* === GLASS MORPHISM SHELF - SOFT EDGES ===
+   PERF (docs/perf-audit.md #7): backdrop blur is one of the most expensive
+   effects on old GPUs and these panels are large + always visible, so the
+   radius stays modest; a slightly denser tint preserves readability. */
 .glass-shelf {
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(20px);
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 32px;
   box-shadow:

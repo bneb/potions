@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState, useReducer } from 'react';
 import { AnimalCarousel, AnimalState } from './AnimalCarousel';
 import { PotionShelf } from './PotionShelf';
 import { TreatShelf } from './TreatShelf';
@@ -12,21 +12,18 @@ import { IridescentBackground } from './IridescentBackground';
 import { AnimalId, PotionType, TreatType, BrewedEffect } from '@/lib/schemas';
 import { ANIMALS } from '@/lib/data';
 import { audioEngine } from '@/lib/audio/audioEngine';
-import { applyBrewedEffect } from '@/lib/potionLogic';
+import {
+    gameReducer,
+    createInitialGameState,
+    deriveAnimalViews,
+    hasSelection as selectHasSelection,
+    isAllSelected,
+} from '@/lib/gameState';
 import { walkFx, FX_VISUALS } from '@/lib/markov';
 import { cn } from '@/lib/utils';
 
 const ALL_ANIMAL_IDS: AnimalId[] = ANIMALS.map(a => a.id);
 const MUTED_STORAGE_KEY = 'potions-muted';
-/** Emoji overlays per animal — enough for a pile, small enough to stay fast. */
-const MAX_TREATS_PER_ANIMAL = 6;
-
-interface AnimalEffectState {
-    scale: number;
-    filter: string;
-    classes: string[];
-    treats: TreatType[];
-}
 
 /** One-shot select/deselect animation info, fanned out to animal cards. */
 interface SelectionPulse {
@@ -40,14 +37,16 @@ const NO_PULSE: SelectionPulse = { epoch: 0, added: [], removed: [] };
 const MAGNITUDE = { small: 0.6, normal: 1, big: 1.4 } as const;
 
 export function Game() {
-    const [selectedIds, setSelectedIds] = useState<AnimalId[]>([]);
+    // The game's brain lives in the pure, unit-tested reducer (app/lib/gameState.ts).
+    // This component is now a thin policy + presentation layer on top of it.
+    const [state, dispatch] = useReducer(gameReducer, undefined, createInitialGameState);
+    const selectedIds = state.selectedIds;
     const [isCasting, setIsCasting] = useState(false);
     const [celebration, setCelebration] = useState<{ epoch: number; magnitude: number }>({ epoch: 0, magnitude: 1 });
     const [hasInteracted, setHasInteracted] = useState(false);
     const [useLabMode, setUseLabMode] = useState(false); // Simple tap-based mode by default
     const [selectionPulse, setSelectionPulse] = useState<SelectionPulse>(NO_PULSE);
     const [muted, setMuted] = useState(false);
-    const [effects, setEffects] = useState<Partial<Record<AnimalId, AnimalEffectState>>>({});
 
     const surpriseTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
     const castingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -81,143 +80,111 @@ export function Game() {
         if (castingTimer.current) clearTimeout(castingTimer.current);
     }, []);
 
-    const allSelected = selectedIds.length === ALL_ANIMAL_IDS.length && selectedIds.length > 0;
-    const hasSelection = selectedIds.length > 0;
+    const allSelected = isAllSelected(state);
+    const hasSelection = selectHasSelection(state);
 
     /** Play a sound unless the parent muted the game. */
     const play = (makeSound: () => void) => {
         if (!muted) makeSound();
     };
 
-    const triggerCelebration = (magnitude: number = MAGNITUDE.normal) => {
+    const triggerCelebration = useCallback((magnitude: number = MAGNITUDE.normal) => {
         setCelebration(prev => ({ epoch: prev.epoch + 1, magnitude }));
-    };
+    }, []);
+
+    /** One-shot card animations derived from a selection change, pre-dispatch.
+     *  Defined first: the handlers below capture it at event time. */
+    const emitPulse = useCallback((diff: { added: readonly AnimalId[]; removed: readonly AnimalId[] }) => {
+        if (diff.added.length > 0 || diff.removed.length > 0) {
+            setSelectionPulse(prev => ({ epoch: prev.epoch + 1, ...diff }));
+        }
+    }, []);
 
     /**
      * ZERO DEAD ENDS: actions are never refused. With no friend chosen yet,
      * pick ALL friends with a happy magic flourish, then let the action apply.
+     * (Component-level policy: the reducer itself stays policy-free.)
      */
-    const resolveTargets = (): AnimalId[] => {
+    const resolveTargets = useCallback((): AnimalId[] => {
         if (selectedIds.length > 0) return selectedIds;
-        changeSelection(ALL_ANIMAL_IDS);
+        dispatch({ type: 'SELECT_ALL_ANIMALS' });
+        emitPulse({ added: ALL_ANIMAL_IDS, removed: [] });
         setHasInteracted(true);
-        play(() => audioEngine.playMagic());
+        if (!muted) audioEngine.playMagic();
         return ALL_ANIMAL_IDS;
-    };
+    }, [selectedIds, muted, emitPulse]);
 
-    /** Central selection changer that also emits one-shot card animations. */
-    const changeSelection = (next: AnimalId[]) => {
-        const added = next.filter(id => !selectedIds.includes(id));
-        const removed = selectedIds.filter(id => !next.includes(id));
-        setSelectedIds(next);
-        if (added.length > 0 || removed.length > 0) {
-            setSelectionPulse(prev => ({ epoch: prev.epoch + 1, added, removed }));
-        }
-    };
-
-    const beginCast = () => {
+    const beginCast = useCallback(() => {
         setIsCasting(true);
         if (castingTimer.current) clearTimeout(castingTimer.current);
         castingTimer.current = setTimeout(() => setIsCasting(false), 500);
-    };
+    }, []);
 
-    const handleUsePotion = (type: PotionType) => {
-        const targets = resolveTargets();
+    const handleUsePotion = useCallback((type: PotionType) => {
+        resolveTargets();
         beginCast();
         triggerCelebration();
 
-        switch (type) {
-            case 'growth': play(() => audioEngine.playGrowth()); break;
-            case 'shrink': play(() => audioEngine.playShrink()); break;
-            case 'red': case 'purple': play(() => audioEngine.playMagic()); break;
-            case 'rainbow': play(() => audioEngine.playRainbow()); break;
-            case 'sunshine': play(() => audioEngine.playSunshine()); break;
+        // Inline muted guard (NOT a `play` closure): these callbacks are
+        // memoized, so any value they read must be in their dependency list.
+        if (!muted) {
+            switch (type) {
+                case 'growth': audioEngine.playGrowth(); break;
+                case 'shrink': audioEngine.playShrink(); break;
+                case 'red': case 'purple': audioEngine.playMagic(); break;
+                case 'rainbow': audioEngine.playRainbow(); break;
+                case 'sunshine': audioEngine.playSunshine(); break;
+            }
         }
 
-        setEffects(prev => {
-            const updated = { ...prev };
-            targets.forEach(id => {
-                const current = updated[id] || { scale: 1, filter: '', classes: [], treats: [] };
-                const next = { ...current };
+        dispatch({ type: 'APPLY_POTION', potionType: type });
+    }, [resolveTargets, beginCast, triggerCelebration, muted]);
 
-                next.scale = 1;
-                next.filter = '';
-                next.classes = next.classes.filter(c => c !== 'animate-rainbow');
-
-                switch (type) {
-                    case 'growth': next.scale = 1.3; break;
-                    case 'shrink': next.scale = 0.7; break;
-                    case 'red': next.filter = 'sepia(1) saturate(5) hue-rotate(-50deg)'; break;
-                    case 'purple': next.filter = 'sepia(1) saturate(5) hue-rotate(220deg)'; break;
-                    case 'rainbow': next.classes.push('animate-rainbow'); break;
-                    case 'sunshine': next.filter = 'sepia(1) saturate(10) hue-rotate(0deg) drop-shadow(0 0 15px gold)'; break;
-                }
-
-                updated[id] = next;
-            });
-            return updated;
-        });
-    };
-
-    const handleGiveTreat = (type: TreatType) => {
-        const targets = resolveTargets();
+    const handleGiveTreat = useCallback((type: TreatType) => {
+        resolveTargets();
         beginCast();
         triggerCelebration();
 
-        if (type === 'hotdog') play(() => audioEngine.playHotdog());
-        else play(() => audioEngine.playPresent());
+        // The husky-always-gets-a-bone swap lives in the reducer.
+        dispatch({ type: 'GIVE_TREAT', treatType: type });
+        if (!muted) {
+            if (type === 'hotdog') audioEngine.playHotdog();
+            else audioEngine.playPresent();
+        }
+    }, [resolveTargets, beginCast, triggerCelebration, muted]);
 
-        setEffects(prev => {
-            const updated = { ...prev };
-            targets.forEach(id => {
-                const isDog = id === 'husky';
-                const finalType = (type === 'present' && isDog) ? 'bone' : type;
-                const current = updated[id] || { scale: 1, filter: '', classes: [], treats: [] };
-                updated[id] = {
-                    ...current,
-                    // Cap the emoji pile so treat-spam can't grow the DOM forever.
-                    treats: [...current.treats, finalType].slice(-MAX_TREATS_PER_ANIMAL)
-                };
-            });
-            return updated;
-        });
-    };
-
-    const handleSelect = (id: AnimalId) => {
+    const handleSelect = useCallback((id: AnimalId) => {
         setHasInteracted(true);
-        changeSelection(
-            selectedIds.includes(id)
-                ? selectedIds.filter(x => x !== id)
-                : [...selectedIds, id]
-        );
-    };
+        const isSelected = selectedIds.includes(id);
+        emitPulse(isSelected ? { added: [], removed: [id] } : { added: [id], removed: [] });
+        dispatch({ type: 'TOGGLE_SELECT_ANIMAL', id });
+    }, [selectedIds, emitPulse]);
 
-    const handleToggleSelectAll = () => {
-        play(() => audioEngine.playPop());
-        changeSelection(allSelected ? [] : [...ALL_ANIMAL_IDS]);
-    };
+    const handleToggleSelectAll = useCallback(() => {
+        if (!muted) audioEngine.playPop();
+        if (allSelected) {
+            emitPulse({ added: [], removed: [...selectedIds] });
+            dispatch({ type: 'CLEAR_SELECTION' });
+        } else {
+            emitPulse({ added: ALL_ANIMAL_IDS, removed: [] });
+            dispatch({ type: 'SELECT_ALL_ANIMALS' });
+        }
+    }, [allSelected, selectedIds, emitPulse, muted]);
 
-    const handleReset = () => {
+    const handleReset = useCallback(() => {
         if (!hasSelection) {
             // Nothing to reset — keep it cheerful, never scolding.
-            play(() => audioEngine.playPop());
+            if (!muted) audioEngine.playPop();
             return;
         }
-        const targets = selectedIds;
-        setEffects(prev => {
-            const updated = { ...prev };
-            targets.forEach(id => {
-                delete updated[id];
-            });
-            return updated;
-        });
-        play(() => audioEngine.playMagic());
+        dispatch({ type: 'RESET_SELECTED' });
+        if (!muted) audioEngine.playMagic();
         triggerCelebration(MAGNITUDE.small);
-    };
+    }, [hasSelection, triggerCelebration, muted]);
 
     // Surprise: walk a Markov chain of visual effects across the selected animals.
     const handleSurprise = () => {
-        const targets = resolveTargets();
+        resolveTargets();
         setHasInteracted(true);
         surpriseTimers.current.forEach(clearTimeout);
         surpriseTimers.current = [];
@@ -235,18 +202,14 @@ export function Game() {
                     default: play(() => audioEngine.playMagic());
                 }
                 triggerCelebration(MAGNITUDE.big);
-                setEffects(prev => {
-                    const updated = { ...prev };
-                    targets.forEach(id => {
-                        const current = updated[id] || { scale: 1, filter: '', classes: [], treats: [] };
-                        updated[id] = {
-                            ...current,
-                            scale: v.scale,
-                            filter: v.filter,
-                            classes: [...v.classes],
-                        };
-                    });
-                    return updated;
+                // Applies to whoever is selected at step time — if the kid
+                // re-chooses friends mid-cascade, they join the magic; an
+                // empty selection no-ops quietly inside the reducer.
+                dispatch({
+                    type: 'APPLY_SURPRISE_STEP',
+                    scale: v.scale,
+                    filter: v.filter,
+                    classes: [...v.classes],
                 });
             }, i * 700);
             surpriseTimers.current.push(timer);
@@ -257,28 +220,19 @@ export function Game() {
     };
 
     // Handle brewed potion from AlchemistLaboratory
-    const handleApplyBrewedEffect = (effect: BrewedEffect) => {
-        const targets = resolveTargets();
+    const handleApplyBrewedEffect = useCallback((effect: BrewedEffect) => {
+        resolveTargets();
         beginCast();
         triggerCelebration(MAGNITUDE.big);
 
-        // Apply the effect to all selected characters
-        setEffects(prev => {
-            const updated = { ...prev };
-            targets.forEach(id => {
-                const current = updated[id] || { scale: 1, filter: '', classes: [], treats: [] };
-                const effectState = applyBrewedEffect(effect);
-
-                updated[id] = {
-                    ...current,
-                    scale: effectState.scale,
-                    filter: effectState.filter,
-                    classes: [...effectState.classes],
-                };
-            });
-            return updated;
+        // Effect math (scale/filter/classes) lives in potionLogic via the reducer.
+        dispatch({
+            type: 'APPLY_BREWED_EFFECT',
+            primary: effect.primary,
+            intensity: effect.intensity,
+            visualModifier: effect.visualModifier,
         });
-    };
+    }, [resolveTargets, beginCast, triggerCelebration]);
 
     const toggleMuted = () => {
         const next = !muted;
@@ -290,16 +244,18 @@ export function Game() {
         }
     };
 
-    // Compute derived view state for carousel
-    const animalStates: Partial<Record<AnimalId, AnimalState>> = {};
-
-    ANIMALS.forEach(a => {
-        const data = effects[a.id];
-        if (!data) {
-            animalStates[a.id] = { scale: 1, filter: '', classes: [], overlays: [] };
-        } else {
-            const overlays = data.treats.map((t, i) => {
-                const isSunglasses = t === 'sunglasses';
+    // Compute derived view state for carousel — memoized on the reducer state,
+    // so unrelated re-renders (mute flips, celebration bursts, casting glow)
+    // reuse the same objects and never rebuild the 24 strip items. The reducer's
+    // structural sharing means `state` only changes identity when game data does.
+    const animalStates = useMemo<Partial<Record<AnimalId, AnimalState>>>(() => {
+        const views = deriveAnimalViews(state);
+        const result: Partial<Record<AnimalId, AnimalState>> = {};
+        ANIMALS.forEach(a => {
+            const view = views[a.id];
+            // Views arrive pre-capped at MAX_VISIBLE_TREATS emojis.
+            const overlays = view.overlayEmojis.map((emoji, i) => {
+                const isSunglasses = view.overlayKinds[i] === 'sunglasses';
                 return (
                     <div
                         key={i}
@@ -312,33 +268,26 @@ export function Game() {
                             marginLeft: isSunglasses ? 0 : `${(i % 3 - 1) * 10}px`
                         }}
                     >
-                        {t === 'hotdog' ? '🌭' :
-                            t === 'present' ? '🎁' :
-                                t === 'banana' ? '🍌' :
-                                    t === 'pizza' ? '🍕' :
-                                        t === 'icecream' ? '🍦' :
-                                            t === 'bone' ? '🦴' :
-                                                t === 'bouquet' ? '💐' :
-                                                    t === 'sunglasses' ? '🕶️' : '🎁'}
+                        {emoji}
                     </div>
                 );
             });
 
-            const isSunshine = data.filter.includes('gold');
-            if (isSunshine) {
+            if (view.isSunshineGlow) {
                 overlays.unshift(
                     <div key="sun" className="absolute inset-0 bg-yellow-400/20 blur-xl rounded-full animate-pulse z-0" />
                 );
             }
 
-            animalStates[a.id] = {
-                scale: data.scale,
-                filter: data.filter,
-                classes: data.classes,
+            result[a.id] = {
+                scale: view.scale,
+                filter: view.filter,
+                classes: view.classes,
                 overlays
             };
-        }
-    });
+        });
+        return result;
+    }, [state]);
 
     return (
         <div

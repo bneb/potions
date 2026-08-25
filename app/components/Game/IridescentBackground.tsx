@@ -30,7 +30,12 @@ export function IridescentBackground() {
                 prefers reduced motion. */}
             {!reducedMotion && (
                 <>
-                    {/* Soft wave layer 1 - deep purple */}
+                    {/* Soft wave layer 1 - deep purple
+                        PERF NOTE (docs/perf-audit.md #1): no CSS blur() here.
+                        A full-screen animated blur layer costs ~12-16MB of
+                        rasterized texture per layer on a Retina iPad (~150MB+
+                        across this component). Softness comes free from the
+                        gradient's extended multi-stop falloff instead. */}
                     <div
                         data-testid="ambient-animated-layer"
                         className="absolute inset-0"
@@ -38,9 +43,10 @@ export function IridescentBackground() {
                             background: `radial-gradient(
                                 ellipse 200% 100% at 30% 100%, 
                                 rgba(75, 0, 130, 0.5) 0%, 
-                                transparent 60%
+                                rgba(75, 0, 130, 0.28) 25%,
+                                rgba(75, 0, 130, 0.10) 45%,
+                                transparent 68%
                             )`,
-                            filter: 'blur(60px)',
                             animation: 'softWave1 25s ease-in-out infinite',
                         }}
                     />
@@ -53,9 +59,10 @@ export function IridescentBackground() {
                             background: `radial-gradient(
                                 ellipse 180% 120% at 70% 80%, 
                                 rgba(255, 20, 147, 0.3) 0%, 
-                                transparent 50%
+                                rgba(255, 20, 147, 0.16) 22%,
+                                rgba(255, 20, 147, 0.06) 38%,
+                                transparent 55%
                             )`,
-                            filter: 'blur(80px)',
                             animation: 'softWave2 30s ease-in-out infinite',
                         }}
                     />
@@ -68,9 +75,10 @@ export function IridescentBackground() {
                             background: `radial-gradient(
                                 ellipse 150% 80% at 20% 30%, 
                                 rgba(0, 255, 255, 0.2) 0%, 
-                                transparent 45%
+                                rgba(0, 255, 255, 0.10) 18%,
+                                rgba(0, 255, 255, 0.04) 32%,
+                                transparent 50%
                             )`,
-                            filter: 'blur(100px)',
                             animation: 'softWave3 20s ease-in-out infinite',
                         }}
                     />
@@ -83,9 +91,10 @@ export function IridescentBackground() {
                             background: `radial-gradient(
                                 ellipse 120% 100% at 80% 60%, 
                                 rgba(255, 100, 50, 0.15) 0%, 
-                                transparent 40%
+                                rgba(255, 100, 50, 0.07) 20%,
+                                rgba(255, 100, 50, 0.03) 30%,
+                                transparent 45%
                             )`,
-                            filter: 'blur(70px)',
                             animation: 'softWave4 22s ease-in-out infinite',
                         }}
                     />
@@ -103,9 +112,9 @@ export function IridescentBackground() {
                                 top: `${(i * 17) % 80}%`,
                                 background: `radial-gradient(circle, 
                                     ${i % 2 === 0 ? 'rgba(255, 100, 200, 0.15)' : 'rgba(100, 200, 255, 0.12)'} 0%, 
-                                    transparent 70%
+                                    ${i % 2 === 0 ? 'rgba(255, 100, 200, 0.06)' : 'rgba(100, 200, 255, 0.05)'} 40%,
+                                    transparent 75%
                                 )`,
-                                filter: 'blur(30px)',
                                 animation: `floatOrb ${15 + i * 3}s ease-in-out infinite`,
                                 animationDelay: `${i * 2}s`,
                             }}
@@ -120,9 +129,9 @@ export function IridescentBackground() {
                             background: `radial-gradient(
                                 ellipse 100% 50% at 50% 50%,
                                 rgba(255, 255, 255, 0.03) 0%,
+                                rgba(255, 255, 255, 0.015) 40%,
                                 transparent 70%
                             )`,
-                            filter: 'blur(40px)',
                             animation: 'gentleShimmer 15s ease-in-out infinite',
                         }}
                     />

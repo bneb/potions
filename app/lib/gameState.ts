@@ -39,6 +39,14 @@ export interface GamePhaseState {
 /** A animal friend never holds more than this many treats (FIFO overflow). */
 export const MAX_TREATS_PER_ANIMAL = 8;
 
+/**
+ * How many treat emojis the VIEW renders per animal. The state may hold up to
+ * MAX_TREATS_PER_ANIMAL, but the screen shows only the newest
+ * MAX_VISIBLE_TREATS — a pile big enough to feel rewarding, small enough to
+ * stay uncluttered (and cheap to paint) on a kid's tablet.
+ */
+export const MAX_VISIBLE_TREATS = 6;
+
 // === ACTIONS ===
 
 export type GameAction =
@@ -284,7 +292,10 @@ export function deriveAnimalViews(state: GamePhaseState): Record<AnimalId, Anima
         const overlayEmojis: string[] = [];
         const overlayKinds: OverlayKind[] = [];
         let hasSunglasses = false;
-        for (const t of data.treats) {
+        // View cap: only the newest MAX_VISIBLE_TREATS emojis reach the screen
+        // (state may retain more — see MAX_VISIBLE_TREATS).
+        const visibleTreats = data.treats.slice(-MAX_VISIBLE_TREATS);
+        for (const t of visibleTreats) {
             overlayEmojis.push(TREAT_EMOJIS[t] ?? FALLBACK_TREAT_EMOJI);
             const isSunglasses = t === 'sunglasses';
             overlayKinds.push(isSunglasses ? 'sunglasses' : 'treat');

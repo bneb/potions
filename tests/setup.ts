@@ -39,6 +39,24 @@ class MockAudioContext {
 if (typeof window !== 'undefined') {
     (window as unknown as { AudioContext: unknown }).AudioContext = MockAudioContext;
 
+    // This jsdom build does not wire localStorage onto window. Install a tiny
+    // in-memory shim so persistence behaviour is exercisable end-to-end
+    // (shared here so every suite gets identical semantics).
+    if (typeof window.localStorage === 'undefined') {
+        const store = new Map<string, string>();
+        const shim: Storage = {
+            get length() {
+                return store.size;
+            },
+            clear: () => store.clear(),
+            getItem: (k: string) => (store.has(k) ? (store.get(k) as string) : null),
+            key: (i: number) => Array.from(store.keys())[i] ?? null,
+            removeItem: (k: string) => void store.delete(k),
+            setItem: (k: string, v: string) => void store.set(k, String(v)),
+        };
+        Object.defineProperty(window, 'localStorage', { value: shim, configurable: true });
+    }
+
     // Respect-matchMedia is used for reduced-motion support.
     if (!window.matchMedia) {
         window.matchMedia = ((query: string) => ({
