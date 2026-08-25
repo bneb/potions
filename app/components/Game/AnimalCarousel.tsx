@@ -57,15 +57,20 @@ interface AnimalCardProps {
 const DEFAULT_STATE: AnimalState = { scale: 1, filter: '', classes: [], overlays: [] };
 
 /**
- * The animal's own species cry, with a hard safety net: a device-specific
- * synth failure must never abort the tap before onSelect — selection IS the
- * game. Header/select-all utility actions intentionally keep the plain pop.
+ * The animal's own species cry, with a hard safety net: NO audio failure of
+ * any kind may abort the tap before onSelect — selection IS the game. Even
+ * the fallback pop is guarded (compound device failures are real; the
+ * verifier proved the unguarded version ate taps).
  */
 function playVoiceOrPop(animalId: AnimalId): void {
     try {
         audioEngine.playAnimalVoice(animalId);
     } catch {
-        audioEngine.playPop();
+        try {
+            audioEngine.playPop();
+        } catch {
+            // Silence is the final fallback. The tap continues regardless.
+        }
     }
 }
 

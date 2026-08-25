@@ -299,6 +299,23 @@ describe('juice/voices: per-animal voice replaces the generic pop on cards', () 
         expect(trex).toHaveAttribute('aria-pressed', 'true'); // selection completed
         expect(playPopSpy).toHaveBeenCalled(); // degraded to the classic pop
     });
+
+    it('COMPOUND failure: even a throwing FALLBACK pop can never eat the tap (verifier MAJOR)', async () => {
+        // Shared synth plumbing is broken, so BOTH the voice and the fallback
+        // pop throw. Selection is the game — it must still land and the
+        // handler must never surface an error.
+        playAnimalVoice.mockImplementation(() => {
+            throw new Error('gain.gain.setValueAtTime is not a function');
+        });
+        playPopSpy.mockImplementation(() => {
+            throw new Error('audio route dead too');
+        });
+        const user = userEvent.setup();
+        render(<Game />);
+        const trex = screen.getAllByRole('button', { name: /t-rex/i })[0];
+        await user.click(trex); // must not throw out of the handler
+        expect(trex).toHaveAttribute('aria-pressed', 'true'); // selection completed
+    });
 });
 
 describe('juice/haptics: component-level wiring', () => {
@@ -364,6 +381,9 @@ describe('juice/haptics: component-level wiring', () => {
 
     it('haptics still fire under prefers-reduced-motion (tactile is not motion)', async () => {
         const vibrate = installVibrate();
+        // Capture the ORIGINAL matchMedia BEFORE overwriting (the verifier
+        // caught the previous version restoring its own stub here).
+        const realMatchMedia = window.matchMedia;
         const listeners = new Set<(e: { matches: boolean }) => void>();
         const current = true;
         window.matchMedia = ((query: string) => ({
@@ -386,9 +406,7 @@ describe('juice/haptics: component-level wiring', () => {
             // feedback channel that replaces it.
             expect(vibrate.mock.calls.map((c) => c[0])).toEqual([LIGHT_TICK_MS]);
         } finally {
-            const real = window.matchMedia;
-            delete (window as unknown as { matchMedia?: unknown }).matchMedia;
-            window.matchMedia = real; // restore (setup.ts shim semantics)
+            window.matchMedia = realMatchMedia; // restore the true original
         }
     });
 

@@ -343,6 +343,11 @@ class AudioEngine {
      * short glide segments (freqStart → freqEnd over durationMs) separated
      * by gapMs, each through the shared envelope plumbing. Mute-gated with
      * zero node construction; unknown ids degrade to a silent no-op.
+     *
+     * Note on the calm-switch: muting gates NEW cries only — a cry that
+     * already started rings out naturally for at most ~1.3 s (Web Audio has
+     * no cancel for scheduled envelopes), the same graceful-tail contract as
+     * the music loop.
      */
     public playAnimalVoice(id: AnimalId): void {
         if (this.muted) return;
@@ -405,6 +410,11 @@ class AudioEngine {
      * muted constructs zero nodes and never builds a context. SSR/no-window
      * and missing audio are silent no-ops. Gesture-gating (calling
      * startMusic from a user gesture / after init()) is the component's job.
+     *
+     * Hidden tabs: each tick polls document.visibilityState and schedules
+     * nothing while hidden (the timer chain stays armed; browsers throttle
+     * it, and the drift-snap on the next visible tick prevents catch-up
+     * bursts). Prompt wake-up is the component's visibilitychange nudge.
      */
     public startMusic(rng?: () => number): void {
         if (this.musicPlaying) return; // idempotent: never arm a second timer chain
@@ -497,7 +507,12 @@ class AudioEngine {
                     const n = this.melodyIndex + d;
                     if (n >= 0 && n < MUSIC_BOX_SCALE_HZ.length) candidates.push(n);
                 }
-                this.melodyIndex = candidates[Math.floor(rng() * candidates.length)];
+                // Clamp against out-of-contract injected RNGs: rng() ≥ 1 would
+                // otherwise index undefined → NaN pitch. Math.random and any
+                // sane generator stay in [0,1), so this is pure armor.
+                this.melodyIndex = candidates[
+                    Math.min(candidates.length - 1, Math.max(0, Math.floor(rng() * candidates.length)))
+                ];
                 const freq = MUSIC_BOX_SCALE_HZ[this.melodyIndex];
                 const wave: OscillatorType = rng() < MUSIC_TRIANGLE_PROB ? 'triangle' : 'sine';
                 const peak = Math.min(0.03 + rng() * 0.02, MUSIC_MAX_NOTE_GAIN);
