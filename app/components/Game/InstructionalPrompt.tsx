@@ -33,8 +33,10 @@ export function InstructionalPrompt({ show, onDismiss }: InstructionalPromptProp
                 !reducedMotion && "animate-in fade-in duration-500"
             )}
             style={{
-                background: 'radial-gradient(ellipse at center, rgba(26, 10, 46, 0.7) 0%, rgba(26, 10, 46, 0.4) 60%, transparent 100%)',
-                backdropFilter: 'blur(8px)',
+                // Tint-only scrim (no backdrop blur — perf-audit #7): the
+                // gradient alone reads as "gentle pause" and keeps the kid's
+                // first tap cheap to paint.
+                background: 'radial-gradient(ellipse at center, rgba(26, 10, 46, 0.75) 0%, rgba(26, 10, 46, 0.5) 60%, rgba(26, 10, 46, 0.25) 100%)',
                 // Pass taps through to the game — a kid aiming at a friend
                 // should never lose their tap to the hint itself.
                 pointerEvents: 'none',

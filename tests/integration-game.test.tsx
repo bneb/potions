@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, within, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Game } from '@/components/Game/Game';
@@ -8,12 +8,27 @@ import { Game } from '@/components/Game/Game';
  * the DOM. These run against the real Game component tree.
  */
 
+/** Point the SSR-safe reduced-motion hook at a controllable double. */
+function setReducedMotion(reduced: boolean) {
+    (window as unknown as { matchMedia: unknown }).matchMedia = (query: string) => ({
+        matches: reduced && query.includes('reduce'),
+        media: query,
+        onchange: null,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        dispatchEvent: vi.fn(() => false),
+    });
+}
+
 beforeEach(() => {
     window.localStorage.clear();
 });
 
 afterEach(() => {
     cleanup();
+    setReducedMotion(false);
 });
 
 describe('integration: treats survive potions on screen', () => {
@@ -55,5 +70,23 @@ describe('integration: treats survive potions on screen', () => {
                 .some(d => d.style.transform === 'scale(0.7)')
         );
         expect(shrunk.length).toBe(cards.length);
+    });
+});
+
+describe('integration: reduced motion still shows magic', () => {
+    it('rainbow potion produces a visible static hue shift (never a silent no-op)', async () => {
+        setReducedMotion(true);
+        const user = userEvent.setup();
+        render(<Game />);
+
+        await user.click(screen.getAllByRole('button', { name: /t-rex/i })[0]);
+        await user.click(screen.getByRole('button', { name: /rainbow/i }));
+
+        const card = screen.getAllByRole('button', { name: /t-rex/i })[0];
+        // Animations are dead under reduced motion — the potion must land as
+        // a static filter change instead of doing literally nothing.
+        const hueShifted = Array.from(card.querySelectorAll<HTMLElement>('div'))
+            .some(d => d.style.filter.includes('hue-rotate'));
+        expect(hueShifted).toBe(true);
     });
 });

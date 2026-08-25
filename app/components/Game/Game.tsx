@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useRef, useState, useReducer } from 'react';
-import { AnimalCarousel, AnimalState } from './AnimalCarousel';
+import { AnimalCarousel, AnimalState, SelectionPulse } from './AnimalCarousel';
 import { PotionShelf } from './PotionShelf';
 import { TreatShelf } from './TreatShelf';
 import { AlchemistLaboratory } from './AlchemistLaboratory';
@@ -24,13 +24,6 @@ import { cn } from '@/lib/utils';
 
 const ALL_ANIMAL_IDS: AnimalId[] = ANIMALS.map(a => a.id);
 const MUTED_STORAGE_KEY = 'potions-muted';
-
-/** One-shot select/deselect animation info, fanned out to animal cards. */
-interface SelectionPulse {
-    epoch: number;
-    added: readonly AnimalId[];
-    removed: readonly AnimalId[];
-}
 const NO_PULSE: SelectionPulse = { epoch: 0, added: [], removed: [] };
 
 /** How big the celebration burst should feel, per kind of action. */
@@ -70,9 +63,8 @@ export function Game() {
     // Mirror the preference onto the audio engine. The engine owns the final
     // gate (it checks muted inside every play method), so this silences sounds
     // triggered anywhere — shelves, sorcerer, lab — not just the calls below.
-    // The optional-call keeps us decoupled from the engine's exact API shape.
     useEffect(() => {
-        (audioEngine as unknown as { setMuted?: (m: boolean) => void }).setMuted?.(muted);
+        audioEngine.setMuted(muted);
     }, [muted]);
 
     useEffect(() => () => {
@@ -184,7 +176,10 @@ export function Game() {
 
     // Surprise: walk a Markov chain of visual effects across the selected animals.
     const handleSurprise = () => {
-        resolveTargets();
+        // FREEZE THE CAST at tap time (legacy semantics): mid-cascade taps must
+        // never strand a dancing friend or kill the remaining steps — the kid
+        // gets their full 2.8 seconds of magic no matter what they poke.
+        const cast = resolveTargets();
         setHasInteracted(true);
         surpriseTimers.current.forEach(clearTimeout);
         surpriseTimers.current = [];
@@ -202,14 +197,12 @@ export function Game() {
                     default: play(() => audioEngine.playMagic());
                 }
                 triggerCelebration(MAGNITUDE.big);
-                // Applies to whoever is selected at step time — if the kid
-                // re-chooses friends mid-cascade, they join the magic; an
-                // empty selection no-ops quietly inside the reducer.
                 dispatch({
                     type: 'APPLY_SURPRISE_STEP',
                     scale: v.scale,
                     filter: v.filter,
                     classes: [...v.classes],
+                    targetIds: cast,
                 });
             }, i * 700);
             surpriseTimers.current.push(timer);

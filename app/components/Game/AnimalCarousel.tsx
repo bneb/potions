@@ -163,7 +163,16 @@ const AnimalCard = React.memo(function AnimalCard({
                 <div
                     style={{
                         transform: `scale(${state.scale})`,
-                        filter: state.filter
+                        // Under reduced motion, class-driven keyframes are
+                        // dead — so the rainbow potion lands as a STATIC hue
+                        // shift instead of being a silent no-op (sound and
+                        // confetti with zero visual change was the one gap in
+                        // the reduced-motion story).
+                        filter:
+                            state.filter ||
+                            (reducedMotion && state.classes.includes('animate-rainbow')
+                                ? 'hue-rotate(180deg) saturate(1.5)'
+                                : ''),
                     }}
                     className={cn(
                         "transition-all duration-500 will-change-transform relative",

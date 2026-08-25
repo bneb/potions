@@ -341,12 +341,12 @@ describe('gameState: RESET_SELECTED (Game.tsx handleReset)', () => {
         expect(s.selectedIds).toEqual(['elephant']);
     });
 
-    it('also clears accumulated treats of selected animals', () => {
+    it('SPARES accumulated treats (deliberate spec change vs legacy wipe: one tap must never destroy a toddler\'s snack pile — gameState.ts header deviation 4)', () => {
         let s = createInitialGameState();
         s = select(['crocodile'])(s);
         s = gameReducer(s, { type: 'GIVE_TREAT', treatType: 'pizza' });
         s = gameReducer(s, { type: 'RESET_SELECTED' });
-        expect(s.effects.crocodile.treats).toEqual([]);
+        expect(s.effects.crocodile.treats).toEqual(['pizza']);
     });
 
     it('empty selection => no-op without throwing', () => {
@@ -465,16 +465,19 @@ describe('gameState: kid rule — MAX_TREATS_PER_ANIMAL FIFO cap', () => {
         expect(s.effects.husky.treats.every(t => t === 'bone')).toBe(true);
     });
 
-    it('reset wipes the queue so the cap starts fresh', () => {
+    it('reset keeps the queue (spec change: treats survive reset), so feeding continues from the pile', () => {
         let s = createInitialGameState();
         s = select(['dragon'])(s);
         for (let i = 0; i < MAX_TREATS_PER_ANIMAL; i++) {
             s = gameReducer(s, { type: 'GIVE_TREAT', treatType: 'banana' });
         }
         s = gameReducer(s, { type: 'RESET_SELECTED' });
-        expect(s.effects.dragon.treats).toEqual([]);
+        expect(s.effects.dragon.treats).toHaveLength(MAX_TREATS_PER_ANIMAL);
+        // The FIFO cap still applies to NEW treats on top of the kept pile.
         s = gameReducer(s, { type: 'GIVE_TREAT', treatType: 'pizza' });
-        expect(s.effects.dragon.treats).toEqual(['pizza']);
+        expect(s.effects.dragon.treats).toHaveLength(MAX_TREATS_PER_ANIMAL);
+        expect(s.effects.dragon.treats[s.effects.dragon.treats.length - 1]).toBe('pizza');
+        expect(s.effects.dragon.treats[0]).toBe('banana'); // oldest banana slid off
     });
 });
 

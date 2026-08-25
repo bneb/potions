@@ -9,7 +9,8 @@ import { applyBrewedEffect } from './potionLogic';
  * extraction of app/components/Game/Game.tsx's state-update logic so it can
  * be exhaustively unit-tested (and benchmarked) without a browser.
  *
- * Two documented, intentional deviations from a byte-level component port:
+ * Two documented, intentional deviations from a byte-level component port,
+ * plus two deliberate product improvements over legacy (test-pinned):
  *  1. EMPTY SELECTION = QUIET NO-OP for every applying action. The reducer is
  *     a policy-free brain: whether tapping an action with no friend selected
  *     should auto-select everyone first ("zero dead ends") is a COMPONENT
@@ -18,6 +19,13 @@ import { applyBrewedEffect } from './potionLogic';
  *     NEUTRAL_EFFECT() instead of deleting keys (legacy `delete updated[id]`).
  *     Views are identical either way via deriveAnimalViews' missing-entry
  *     fallback; total records keep the public type honest.
+ *  3. TREATS FIFO-CAP at MAX_TREATS_PER_ANIMAL (legacy piles grew unbounded).
+ *     Invisible past the cap because views render the newest
+ *     MAX_VISIBLE_TREATS only.
+ *  4. RESET_SELECTED SPARES THE TREAT PILE (legacy wiped everything). One tap
+ *     must never destroy minutes of collected snacks; Reset means "back to
+ *     normal", not "take your toys away". Surprise steps accept a frozen
+ *     targetIds cast so mid-cascade taps can't strand the magic.
  */
 
 // === STATE TYPES ===
@@ -56,7 +64,20 @@ export type GameAction =
     | { type: 'APPLY_POTION'; potionType: PotionType }
     | { type: 'GIVE_TREAT'; treatType: TreatType }
     | { type: 'RESET_SELECTED' }
-    | { type: 'APPLY_SURPRISE_STEP'; scale: number; filter: string; classes: string[] }
+    | {
+        type: 'APPLY_SURPRISE_STEP';
+        scale: number;
+        filter: string;
+        classes: string[];
+        /**
+         * Frozen cast for this step (legacy Surprise semantics). The component
+         * snapshots its targets ONCE when Surprise is tapped and passes them
+         * here, so a kid re-choosing friends mid-cascade can't freeze their
+         * dancing friend or kill the remaining steps. Omit to follow the live
+         * selection instead.
+         */
+        targetIds?: AnimalId[];
+    }
     | {
         type: 'APPLY_BREWED_EFFECT';
         primary: string;
@@ -145,24 +166,32 @@ export function gameReducer(state: GamePhaseState, action: GameAction): GamePhas
         }
 
         case 'RESET_SELECTED': {
-            // Game.tsx handleReset: no selection => quiet no-op; selection is KEPT.
-            // DEVIATION (documented in header): legacy `delete updated[id]`
-            // becomes neutralization because effects is a total Record; views
-            // are identical via deriveAnimalViews' fallback.
+            // No selection => quiet no-op; selection is KEPT.
+            // DEVIATIONS (documented in header): legacy `delete updated[id]`
+            // becomes neutralization (total Record), and — a deliberate
+            // product improvement over legacy — the treat PILE survives:
+            // Reset restores the body (scale/filter/classes) but a toddler's
+            // collected snacks are never destroyed by one tap.
             if (state.selectedIds.length === 0) return state;
             const effects = { ...state.effects };
             for (const id of state.selectedIds) {
-                effects[id] = NEUTRAL_EFFECT();
+                const current = effects[id] ?? NEUTRAL_EFFECT();
+                effects[id] = {
+                    ...NEUTRAL_EFFECT(),
+                    treats: current.treats,
+                };
             }
             return { ...state, effects };
         }
 
         case 'APPLY_SURPRISE_STEP': {
-            // Game.tsx handleSurprise per-step setEffects: overwrite everything
-            // visual, keep treats. No selection => quiet no-op.
-            if (state.selectedIds.length === 0) return state;
+            // Per-step overwrite of everything visual, keep treats. Targets
+            // are the frozen cast when provided, else the live selection
+            // (legacy default). Empty targets => quiet no-op.
+            const ids = action.targetIds ?? state.selectedIds;
+            if (ids.length === 0) return state;
             const effects = { ...state.effects };
-            for (const id of state.selectedIds) {
+            for (const id of ids) {
                 const current = effects[id] ?? NEUTRAL_EFFECT();
                 effects[id] = {
                     ...current,
