@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Magic Potions 🧪✨
+
+A delightfully magical browser game for kids aged 3–5. Tap an animal friend,
+feed them potions and treats, and watch them grow, shrink, sparkle, and go
+full rainbow — with joyful sounds and confetti celebrations.
+
+Built with Next.js 16, React 19, Tailwind CSS 4, and the Web Audio API.
 
 ## Getting Started
 
 First, run the development server:
 
 ```bash
+npm install        # add --cache "$PWD/.npm-cache" if the global npm cache is not writable
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Engineering Workflow (TDD + Micro-benchmarks)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+This project follows strict red→green test-driven development and keeps
+micro-benchmarks for all hot paths.
 
-## Learn More
+```bash
+npm run test           # run the full Vitest suite once
+npm run test:watch     # watch mode
+npm run test:coverage  # coverage over app/lib/**
+npm run bench          # micro-benchmarks (tinybench via vitest bench)
+npx tsc --noEmit       # typecheck gate
+npm run lint           # eslint
+npm run build          # production build gate
+```
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Tests live in `tests/**/*.test.{ts,tsx}`; jsdom environment with a Web Audio
+  mock provided by `tests/setup.ts`.
+- Benchmarks live in `tests/**/*.bench.ts` and must consume results so the
+  optimizer cannot fold them away.
+- Performance budgets and baseline numbers: see `docs/perf-budgets.md`.
+- Game logic lives in pure modules under `app/lib/**` (no React/DOM imports)
+  so it can be tested and benchmarked headlessly.
 
 ## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The easiest way to deploy this app is using the [Vercel Platform](https://vercel.com/new).
