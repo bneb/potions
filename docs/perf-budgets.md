@@ -18,6 +18,8 @@ another ~20×, a function meeting its budget still cannot dent a frame.
 | `applyBrewedEffect` | once per selected animal per application step; ≤8 animals × ≤10 steps/s | 80/s |
 | `getRecipeName` | recipe label/discovery list on brew | 2/s |
 | audio envelope construction | one sound per tap; heaviest sound = 5 nodes → ≤5 sounds/s × 5 envelopes | 25 envelopes/s |
+| music scheduler tick (`runMusicTick`) | ONE self-chaining setTimeout while music plays → 1000 ms / 500 ms = 2 ticks/s, always, regardless of taps | 2/s |
+| `playAnimalVoice` construction | voice per animal-card tap; tap ceiling shared with other sounds → ≤5 voices/s | 5/s |
 
 ## Budgets & verdicts (measured medians from docs/perf-baseline.md)
 
@@ -34,6 +36,52 @@ Game loop amplifies one application step into ≤8 per-animal calls, whereas the
 teammate reducer's `APPLY_BREWED_EFFECT` action processes all animals inside a
 single dispatch and is therefore costed at the 20 dispatches/s tap ceiling.
 Same interaction, different call granularity.
+
+## Delight features (audio team, 2025 delight cycle)
+
+Measured medians from `tests/delight-audio.bench.ts`
+(`npx vitest bench --run tests/delight-audio.bench.ts`, Node on Apple-M4,
+plain-JS fake context — same harness caveats as the Audio caveat above).
+
+| Function (worst measured case) | Gameplay ceiling | Budget (ops/s, = 1000× ceiling) | Measured median ops/s | Margin over budget | Verdict |
+| --- | --- | --- | --- | --- | --- |
+| music scheduler tick — one full lookahead pass (~1 pluck + occasional octave shadow ≈ ≤2 osc+gain pairs per pass) | 2 ticks/s | ≥ 2,000 | 1,966,274 | 983× above budget (~983,000× above ceiling) | **PASS** |
+| `playAnimalVoice("scorpion")` — skitter ×4 = 4 osc + 4 gain (heaviest voice) | 5 voices/s (assumed ceiling, see note) | ≥ 5,000 | 8,925,536 | 1785× above budget (~1.79 M× above ceiling) | **PASS** |
+| `playAnimalVoice("husky")` — woof ×2 (typical voice) | 5 voices/s (assumed ceiling, see note) | ≥ 5,000 | 16,264,398 | 3253× above budget | **PASS** |
+| `playShrink` — post-fix falling glide 900→250 Hz | 25 envelopes/s (shared audio ceiling) | ≥ 25,000 | 17,087,409 | 683× above budget | **PASS** |
+
+Honesty notes for these rows:
+- The tick bench drives the engine's internal scheduling pass directly
+  (private-state cast in the bench file), so it measures the pass cost but
+  NOT `startMusic`/timer-arming bookkeeping; the arming path is O(1) timer
+  setup and is covered functionally by tests/audio-music.test.ts.
+- The "≤5 voices/s" ceiling is an interaction-derived assumption shared with
+  all tap sounds (same basis as the legacy audio row), NOT a mechanical bound:
+  the carousel currently fires a voice on every click without a cooldown. If
+  product later wants drum-proofing, a ~120 ms per-animal rate-limit belongs
+  in the component layer; even a pathological 15 taps/s of the heaviest voice
+  (~60 envelopes/s against a fake-context median of 8.9 M/s) still holds
+  >4 orders of magnitude of headroom on this table's own assumptions.
+
+Frame math, honestly stated: the music tick is the only *recurring* new
+main-thread cost in the game — 2 passes/s at ~0.51 µs/pass (fake-context
+median) is ~1 µs/s of JS. Even under the extreme assumption of ~1000× real-
+Web-Audio overhead per node (far above any plausible browser node-construction
+cost), steady-state music costs ~1 ms/s of main thread — about 12% of ONE
+8 ms frame budget spread over an entire second, and Web Audio rendering itself
+runs on the audio thread. Voice construction and playShrink are tap-driven,
+bounded by the same ≤5 sounds/s interaction ceiling as every existing sound.
+
+Design note for reviewers: per-note gain is hard-capped at ≤0.05 and the
+scheduler constructs at most ~2 node-pairs per 500 ms pass; the lookahead
+window (2 s) bounds worst-case catch-up after a hidden-tab pause to one
+pass's worth of notes (clock snap-forward, verified by test).
+
+Noise note: a second same-day rerun measured tick 1,978,906; husky
+17,635,266; scorpion 14,044,909; shrink 17,660,007 — up to ~1.6× swing on
+individual rows (CPU frequency scaling / JIT tiering), exactly the drift class
+documented under "Regression gate" above. Every budget clears by 2–4 orders
+of magnitude even at the slower draw, so verdicts are swing-proof.
 
 ### Audio caveat
 

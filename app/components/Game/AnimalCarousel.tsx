@@ -7,6 +7,7 @@ import { ANIMALS } from '@/lib/data';
 import { AnimalId } from '@/lib/schemas';
 import { audioEngine } from '@/lib/audio/audioEngine';
 import { usePrefersReducedMotion } from './usePrefersReducedMotion';
+import { tickLight } from './haptics';
 import { Orangutan } from './Orangutan';
 import { Trex } from './Trex';
 import { Santa } from './Santa';
@@ -54,6 +55,19 @@ interface AnimalCardProps {
 }
 
 const DEFAULT_STATE: AnimalState = { scale: 1, filter: '', classes: [], overlays: [] };
+
+/**
+ * The animal's own species cry, with a hard safety net: a device-specific
+ * synth failure must never abort the tap before onSelect — selection IS the
+ * game. Header/select-all utility actions intentionally keep the plain pop.
+ */
+function playVoiceOrPop(animalId: AnimalId): void {
+    try {
+        audioEngine.playAnimalVoice(animalId);
+    } catch {
+        audioEngine.playPop();
+    }
+}
 
 /**
  * Static animal renderers, hoisted to module level: building eight JSX
@@ -104,7 +118,12 @@ const AnimalCard = React.memo(function AnimalCard({
     }, []);
 
     const handleTap = () => {
-        if (!silent) audioEngine.playPop();
+        // Haptic tick: gated centrally inside haptics.ts (parent mute mirror,
+        // localStorage kill switch, feature detection) — this call site stays
+        // dumb. Reduced-motion users still feel it: see the reasoning in
+        // haptics.ts (a 12ms static pulse is not motion).
+        tickLight();
+        if (!silent) playVoiceOrPop(animal.id);
         if (!reducedMotion) {
             setBumpEpoch(e => e + 1);
             if (bumpTimer.current) clearTimeout(bumpTimer.current);

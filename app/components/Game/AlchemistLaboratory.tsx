@@ -5,6 +5,7 @@ import { IngredientId, CauldronState, BrewedEffect } from '@/lib/schemas';
 import { INGREDIENTS } from '@/lib/data';
 import { brewPotion, isNewDiscovery } from '@/lib/potionLogic';
 import { audioEngine } from '@/lib/audio/audioEngine';
+import { tickLight } from './haptics';
 import { MixingCauldron } from './MixingCauldron';
 import { IngredientShelf } from './IngredientShelf';
 import { AlchemyControls } from './AlchemyControls';
@@ -14,6 +15,13 @@ import styles from './alchemistLaboratory.module.css';
 interface AlchemistLaboratoryProps {
     onApplyEffect: (effect: BrewedEffect) => void;
     disabled?: boolean;
+    /**
+     * JUICE wiring: every lab control is a user gesture on the game surface,
+     * so Game passes its music-unlock callback down (defensive, idempotent —
+     * see Game.notifyUserGesture). Optional so the lab stays usable in
+     * isolation/tests without Game.
+     */
+    onUserGesture?: () => void;
 }
 
 // Power is fixed now that the drag-slider is gone — keeps brewing gentle
@@ -23,6 +31,7 @@ const FIXED_INTENSITY = 1.0;
 export function AlchemistLaboratory({
     onApplyEffect,
     disabled = false,
+    onUserGesture,
 }: AlchemistLaboratoryProps) {
     // Cauldron state
     const [ingredients, setIngredients] = useState<IngredientId[]>([]);
@@ -85,30 +94,41 @@ export function AlchemistLaboratory({
 
     // Handlers — sounds play outside the state updaters so React StrictMode's
     // double-invoked updaters can't double-fire them; a full cauldron answers
-    // with a friendly blip instead of silence (no dead ends).
+    // with a friendly blip instead of silence (no dead ends). Every handler
+    // also fires the standard LIGHT haptic tick (gated centrally in
+    // haptics.ts) so lab mode is never a tactile dead zone next to classic
+    // mode; handleApply deliberately doesn't tick here — Game's
+    // handleApplyBrewedEffect already pairs light + celebration downstream.
     const handleIngredientAdd = useCallback((ingredientId: IngredientId) => {
+        onUserGesture?.();
+        tickLight();
         if (ingredients.length >= 5) {
             audioEngine.playPop();
             return;
         }
         audioEngine.playPop();
         setIngredients([...ingredients, ingredientId]);
-    }, [ingredients]);
+    }, [ingredients, onUserGesture]);
 
     const handleIngredientRemove = useCallback((index: number) => {
+        onUserGesture?.();
+        tickLight();
         if (index < 0 || index >= ingredients.length) return;
         const next = [...ingredients];
         next.splice(index, 1);
         audioEngine.playPop();
         setIngredients(next);
-    }, [ingredients]);
+    }, [ingredients, onUserGesture]);
 
     const handleHeatChange = useCallback((newHeat: number) => {
+        onUserGesture?.();
+        tickLight(); // the heat dial cycles levels by tap — a tick says "registered"
         setHeat(newHeat);
         audioEngine.playPop();
-    }, []);
+    }, [onUserGesture]);
 
     const handleApply = useCallback(() => {
+        onUserGesture?.();
         if (!brewedEffect) return;
 
         // Track discovery
@@ -123,13 +143,15 @@ export function AlchemistLaboratory({
 
         // Reset cauldron
         setIngredients([]);
-    }, [brewedEffect, isNew, onApplyEffect]);
+    }, [brewedEffect, isNew, onApplyEffect, onUserGesture]);
 
     const handleClearCauldron = useCallback(() => {
+        onUserGesture?.();
+        tickLight();
         setIngredients([]);
         setHeat(1);
         audioEngine.playPop();
-    }, []);
+    }, [onUserGesture]);
 
     return (
         <div className={styles.laboratory}>

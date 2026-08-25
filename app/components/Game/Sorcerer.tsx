@@ -5,9 +5,17 @@ import React, { useState, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import styles from './sorcerer.module.css';
 import { audioEngine } from '@/lib/audio/audioEngine';
+import { tickLight } from './haptics';
 
 interface SorcererProps {
     isCasting: boolean;
+    /**
+     * JUICE wiring: the sorcerer is a tappable part of the game surface
+     * (role="button"), so tapping him counts as the first user interaction
+     * for music unlock and gets the standard light haptic tick. Optional so
+     * he stays usable in isolation without Game.
+     */
+    onUserGesture?: () => void;
 }
 
 // 5 random hover animations
@@ -19,7 +27,7 @@ const HOVER_ANIMATIONS = [
     styles.hoverGlow,
 ] as const;
 
-export function Sorcerer({ isCasting }: SorcererProps) {
+export function Sorcerer({ isCasting, onUserGesture }: SorcererProps) {
     const [hoverAnimation, setHoverAnimation] = useState<string | null>(null);
     const [isClicked, setIsClicked] = useState(false);
 
@@ -34,11 +42,13 @@ export function Sorcerer({ isCasting }: SorcererProps) {
     }, []);
 
     const handleClick = useCallback(() => {
+        onUserGesture?.();
+        tickLight(); // gated centrally in haptics.ts (mute mirror / kill switch)
         setIsClicked(true);
-        audioEngine.playMagic();
+        audioEngine.playMagic(); // engine gates internally when muted
         // Reset after animation
         setTimeout(() => setIsClicked(false), 800);
-    }, []);
+    }, [onUserGesture]);
 
     const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
         if (e.key === 'Enter' || e.key === ' ') {
