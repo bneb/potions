@@ -1,40 +1,20 @@
 
 "use client";
 
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import { cn } from '@/lib/utils';
 import styles from './elephant.module.css';
 
 interface ElephantProps {
     className?: string;
-    selected?: boolean;
+    /** One-shot animation trigger: 'in' on select, 'out' on deselect. */
+    pulse?: 'in' | 'out' | null;
 }
 
-export function Elephant({ className, selected = false }: ElephantProps) {
-    const [animationState, setAnimationState] = useState<'idle' | 'selecting' | 'deselecting'>('idle');
-    const prevSelectedRef = useRef(selected);
-    const hasMountedRef = useRef(false);
-
-    useEffect(() => {
-        hasMountedRef.current = true;
-    }, []);
-
-    useEffect(() => {
-        if (!hasMountedRef.current) return;
-
-        const wasSelected = prevSelectedRef.current;
-        prevSelectedRef.current = selected;
-
-        if (selected && !wasSelected) {
-            setAnimationState('selecting');
-        } else if (!selected && wasSelected) {
-            setAnimationState('deselecting');
-        }
-    }, [selected]);
-
+export function Elephant({ className, pulse = null }: ElephantProps) {
     const animationClass =
-        animationState === 'selecting' ? styles.selected :
-            animationState === 'deselecting' ? styles.unselected : '';
+        pulse === 'in' ? styles.selected :
+            pulse === 'out' ? styles.unselected : '';
 
     // Generate trunk slices
     const trunkSlices = Array.from({ length: 20 }, (_, i) => (
@@ -47,7 +27,10 @@ export function Elephant({ className, selected = false }: ElephantProps) {
 
     return (
         <div className={cn(styles.scene, className)}>
-            <div className={cn(styles.elephant, animationClass)}>
+            {/* The elephant CSS uses descendant selectors (.selected .elephant),
+                so the pulse class must ride on an ANCESTOR of the rig. */}
+            <div className={animationClass}>
+            <div className={styles.elephant}>
 
                 {/* EARS */}
                 <div className={cn(styles.earGroup, styles.earLeft)}>
@@ -128,6 +111,7 @@ export function Elephant({ className, selected = false }: ElephantProps) {
                     </div>
                 </div>
 
+            </div>
             </div>
             <div className={styles.shadow}></div>
         </div>

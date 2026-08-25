@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { AnimalCarousel, AnimalState } from './AnimalCarousel';
 import { PotionShelf } from './PotionShelf';
 import { TreatShelf } from './TreatShelf';
@@ -12,58 +12,133 @@ import { IridescentBackground } from './IridescentBackground';
 import { AnimalId, PotionType, TreatType, BrewedEffect } from '@/lib/schemas';
 import { ANIMALS } from '@/lib/data';
 import { audioEngine } from '@/lib/audio/audioEngine';
-import { applyBrewedEffect, EFFECT_VISUALS } from '@/lib/potionLogic';
+import { applyBrewedEffect } from '@/lib/potionLogic';
 import { walkFx, FX_VISUALS } from '@/lib/markov';
 import { cn } from '@/lib/utils';
+
+const ALL_ANIMAL_IDS: AnimalId[] = ANIMALS.map(a => a.id);
+const MUTED_STORAGE_KEY = 'potions-muted';
+/** Emoji overlays per animal — enough for a pile, small enough to stay fast. */
+const MAX_TREATS_PER_ANIMAL = 6;
+
+interface AnimalEffectState {
+    scale: number;
+    filter: string;
+    classes: string[];
+    treats: TreatType[];
+}
+
+/** One-shot select/deselect animation info, fanned out to animal cards. */
+interface SelectionPulse {
+    epoch: number;
+    added: readonly AnimalId[];
+    removed: readonly AnimalId[];
+}
+const NO_PULSE: SelectionPulse = { epoch: 0, added: [], removed: [] };
+
+/** How big the celebration burst should feel, per kind of action. */
+const MAGNITUDE = { small: 0.6, normal: 1, big: 1.4 } as const;
 
 export function Game() {
     const [selectedIds, setSelectedIds] = useState<AnimalId[]>([]);
     const [isCasting, setIsCasting] = useState(false);
-    const [celebrationTrigger, setCelebrationTrigger] = useState(0);
+    const [celebration, setCelebration] = useState<{ epoch: number; magnitude: number }>({ epoch: 0, magnitude: 1 });
     const [hasInteracted, setHasInteracted] = useState(false);
     const [useLabMode, setUseLabMode] = useState(false); // Simple tap-based mode by default
-    const [overflowLevels, setOverflowLevels] = useState<Partial<Record<AnimalId, number>>>({});
-    const [effects, setEffects] = useState<Partial<Record<AnimalId, {
-        scale: number;
-        filter: string;
-        classes: string[];
-        treats: TreatType[];
-    }>>>({});
+    const [selectionPulse, setSelectionPulse] = useState<SelectionPulse>(NO_PULSE);
+    const [muted, setMuted] = useState(false);
+    const [effects, setEffects] = useState<Partial<Record<AnimalId, AnimalEffectState>>>({});
 
     const surpriseTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
-    useEffect(() => () => surpriseTimers.current.forEach(clearTimeout), []);
+    const castingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const restoreMuteTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    const allAnimalIds = ANIMALS.map(a => a.id);
-    const allSelected = selectedIds.length === allAnimalIds.length;
+    // Restore the parent's sound preference shortly after mount (after the
+    // server-rendered markup has matched), so there is never a hydration flip.
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            try {
+                const stored = window.localStorage.getItem(MUTED_STORAGE_KEY);
+                if (stored !== null) setMuted(stored === 'true');
+            } catch {
+                // Private browsing can block storage — stay unmuted, stay happy.
+            }
+        }, 0);
+        restoreMuteTimer.current = timer;
+        return () => clearTimeout(timer);
+    }, []);
+
+    // Mirror the preference onto the audio engine. The engine owns the final
+    // gate (it checks muted inside every play method), so this silences sounds
+    // triggered anywhere — shelves, sorcerer, lab — not just the calls below.
+    // The optional-call keeps us decoupled from the engine's exact API shape.
+    useEffect(() => {
+        (audioEngine as unknown as { setMuted?: (m: boolean) => void }).setMuted?.(muted);
+    }, [muted]);
+
+    useEffect(() => () => {
+        surpriseTimers.current.forEach(clearTimeout);
+        if (castingTimer.current) clearTimeout(castingTimer.current);
+    }, []);
+
+    const allSelected = selectedIds.length === ALL_ANIMAL_IDS.length && selectedIds.length > 0;
     const hasSelection = selectedIds.length > 0;
 
-    const triggerCelebration = () => {
-        setCelebrationTrigger(prev => prev + 1);
+    /** Play a sound unless the parent muted the game. */
+    const play = (makeSound: () => void) => {
+        if (!muted) makeSound();
+    };
+
+    const triggerCelebration = (magnitude: number = MAGNITUDE.normal) => {
+        setCelebration(prev => ({ epoch: prev.epoch + 1, magnitude }));
+    };
+
+    /**
+     * ZERO DEAD ENDS: actions are never refused. With no friend chosen yet,
+     * pick ALL friends with a happy magic flourish, then let the action apply.
+     */
+    const resolveTargets = (): AnimalId[] => {
+        if (selectedIds.length > 0) return selectedIds;
+        changeSelection(ALL_ANIMAL_IDS);
+        setHasInteracted(true);
+        play(() => audioEngine.playMagic());
+        return ALL_ANIMAL_IDS;
+    };
+
+    /** Central selection changer that also emits one-shot card animations. */
+    const changeSelection = (next: AnimalId[]) => {
+        const added = next.filter(id => !selectedIds.includes(id));
+        const removed = selectedIds.filter(id => !next.includes(id));
+        setSelectedIds(next);
+        if (added.length > 0 || removed.length > 0) {
+            setSelectionPulse(prev => ({ epoch: prev.epoch + 1, added, removed }));
+        }
+    };
+
+    const beginCast = () => {
+        setIsCasting(true);
+        if (castingTimer.current) clearTimeout(castingTimer.current);
+        castingTimer.current = setTimeout(() => setIsCasting(false), 500);
     };
 
     const handleUsePotion = (type: PotionType) => {
-        if (selectedIds.length === 0) {
-            audioEngine.playError();
-            return;
-        }
-
-        setIsCasting(true);
-        setTimeout(() => setIsCasting(false), 500);
+        const targets = resolveTargets();
+        beginCast();
         triggerCelebration();
 
         switch (type) {
-            case 'growth': audioEngine.playGrowth(); break;
-            case 'shrink': audioEngine.playShrink(); break;
-            case 'red': case 'purple': audioEngine.playMagic(); break;
-            case 'rainbow': audioEngine.playRainbow(); break;
-            case 'sunshine': audioEngine.playSunshine(); break;
+            case 'growth': play(() => audioEngine.playGrowth()); break;
+            case 'shrink': play(() => audioEngine.playShrink()); break;
+            case 'red': case 'purple': play(() => audioEngine.playMagic()); break;
+            case 'rainbow': play(() => audioEngine.playRainbow()); break;
+            case 'sunshine': play(() => audioEngine.playSunshine()); break;
         }
 
         setEffects(prev => {
             const updated = { ...prev };
-            selectedIds.forEach(id => {
+            targets.forEach(id => {
                 const current = updated[id] || { scale: 1, filter: '', classes: [], treats: [] };
-                let next = { ...current };
+                const next = { ...current };
 
                 next.scale = 1;
                 next.filter = '';
@@ -85,27 +160,23 @@ export function Game() {
     };
 
     const handleGiveTreat = (type: TreatType) => {
-        if (selectedIds.length === 0) {
-            audioEngine.playError();
-            return;
-        }
-
-        setIsCasting(true);
-        setTimeout(() => setIsCasting(false), 500);
+        const targets = resolveTargets();
+        beginCast();
         triggerCelebration();
 
-        if (type === 'hotdog') audioEngine.playHotdog();
-        else audioEngine.playPresent();
+        if (type === 'hotdog') play(() => audioEngine.playHotdog());
+        else play(() => audioEngine.playPresent());
 
         setEffects(prev => {
             const updated = { ...prev };
-            selectedIds.forEach(id => {
+            targets.forEach(id => {
                 const isDog = id === 'husky';
                 const finalType = (type === 'present' && isDog) ? 'bone' : type;
                 const current = updated[id] || { scale: 1, filter: '', classes: [], treats: [] };
                 updated[id] = {
                     ...current,
-                    treats: [...current.treats, finalType]
+                    // Cap the emoji pile so treat-spam can't grow the DOM forever.
+                    treats: [...current.treats, finalType].slice(-MAX_TREATS_PER_ANIMAL)
                 };
             });
             return updated;
@@ -114,64 +185,59 @@ export function Game() {
 
     const handleSelect = (id: AnimalId) => {
         setHasInteracted(true);
-        setSelectedIds(prev =>
-            prev.includes(id)
-                ? prev.filter(x => x !== id)
-                : [...prev, id]
+        changeSelection(
+            selectedIds.includes(id)
+                ? selectedIds.filter(x => x !== id)
+                : [...selectedIds, id]
         );
     };
 
     const handleToggleSelectAll = () => {
-        audioEngine.playPop();
-        if (allSelected) {
-            setSelectedIds([]);
-        } else {
-            setSelectedIds([...allAnimalIds]);
-        }
+        play(() => audioEngine.playPop());
+        changeSelection(allSelected ? [] : [...ALL_ANIMAL_IDS]);
     };
 
     const handleReset = () => {
-        if (selectedIds.length === 0) {
-            audioEngine.playError();
+        if (!hasSelection) {
+            // Nothing to reset — keep it cheerful, never scolding.
+            play(() => audioEngine.playPop());
             return;
         }
+        const targets = selectedIds;
         setEffects(prev => {
             const updated = { ...prev };
-            selectedIds.forEach(id => {
+            targets.forEach(id => {
                 delete updated[id];
             });
             return updated;
         });
-        audioEngine.playMagic();
-        triggerCelebration();
+        play(() => audioEngine.playMagic());
+        triggerCelebration(MAGNITUDE.small);
     };
 
     // Surprise: walk a Markov chain of visual effects across the selected animals.
     const handleSurprise = () => {
-        if (selectedIds.length === 0) {
-            audioEngine.playError();
-            return;
-        }
+        const targets = resolveTargets();
         setHasInteracted(true);
         surpriseTimers.current.forEach(clearTimeout);
         surpriseTimers.current = [];
-        setIsCasting(true);
+        beginCast();
 
         const path = walkFx(4);
         path.forEach((fx, i) => {
             const timer = setTimeout(() => {
                 const v = FX_VISUALS[fx];
                 switch (v.sound) {
-                    case 'growth': audioEngine.playGrowth(); break;
-                    case 'shrink': audioEngine.playShrink(); break;
-                    case 'rainbow': audioEngine.playRainbow(); break;
-                    case 'sunshine': audioEngine.playSunshine(); break;
-                    default: audioEngine.playMagic();
+                    case 'growth': play(() => audioEngine.playGrowth()); break;
+                    case 'shrink': play(() => audioEngine.playShrink()); break;
+                    case 'rainbow': play(() => audioEngine.playRainbow()); break;
+                    case 'sunshine': play(() => audioEngine.playSunshine()); break;
+                    default: play(() => audioEngine.playMagic());
                 }
-                triggerCelebration();
+                triggerCelebration(MAGNITUDE.big);
                 setEffects(prev => {
                     const updated = { ...prev };
-                    selectedIds.forEach(id => {
+                    targets.forEach(id => {
                         const current = updated[id] || { scale: 1, filter: '', classes: [], treats: [] };
                         updated[id] = {
                             ...current,
@@ -190,21 +256,16 @@ export function Game() {
         surpriseTimers.current.push(done);
     };
 
-    // NEW: Handle brewed potion from AlchemistLaboratory
+    // Handle brewed potion from AlchemistLaboratory
     const handleApplyBrewedEffect = (effect: BrewedEffect) => {
-        if (selectedIds.length === 0) {
-            audioEngine.playError();
-            return;
-        }
+        const targets = resolveTargets();
+        beginCast();
+        triggerCelebration(MAGNITUDE.big);
 
-        setIsCasting(true);
-        setTimeout(() => setIsCasting(false), 500);
-        triggerCelebration();
-
-        // Apply the brewed effect to all selected characters
+        // Apply the effect to all selected characters
         setEffects(prev => {
             const updated = { ...prev };
-            selectedIds.forEach(id => {
+            targets.forEach(id => {
                 const current = updated[id] || { scale: 1, filter: '', classes: [], treats: [] };
                 const effectState = applyBrewedEffect(effect);
 
@@ -217,16 +278,16 @@ export function Game() {
             });
             return updated;
         });
+    };
 
-        // Update overflow levels
-        setOverflowLevels(prev => {
-            const updated = { ...prev };
-            selectedIds.forEach(id => {
-                const effectState = applyBrewedEffect(effect);
-                updated[id] = effectState.overflowLevel;
-            });
-            return updated;
-        });
+    const toggleMuted = () => {
+        const next = !muted;
+        setMuted(next);
+        try {
+            window.localStorage.setItem(MUTED_STORAGE_KEY, String(next));
+        } catch {
+            // Storage unavailable — the toggle still works for this visit.
+        }
     };
 
     // Compute derived view state for carousel
@@ -280,14 +341,22 @@ export function Game() {
     });
 
     return (
-        <div className="w-full h-screen flex flex-col items-center justify-between p-2 relative overflow-y-auto"
-            style={{ background: 'var(--bg-magical-sky)' }}>
+        <div
+            data-game-surface=""
+            className="w-full h-screen flex flex-col items-center justify-between p-2 relative overflow-y-auto"
+            style={{
+                background: 'var(--bg-magical-sky)',
+                touchAction: 'manipulation',
+                userSelect: 'none',
+                WebkitTapHighlightColor: 'transparent',
+            } as React.CSSProperties}
+        >
 
             {/* Iridescent Background */}
             <IridescentBackground />
 
             {/* Celebration Overlay */}
-            <CelebrationOverlay trigger={celebrationTrigger} />
+            <CelebrationOverlay burst={celebration} />
 
             {/* Instructional Prompt */}
             <InstructionalPrompt
@@ -307,9 +376,10 @@ export function Game() {
                 <div className="flex flex-wrap justify-center gap-2 md:gap-3 mt-1">
                     {/* Mode Toggle */}
                     <button
+                        type="button"
                         onClick={() => setUseLabMode(!useLabMode)}
                         className={cn(
-                            "px-4 py-2 rounded-full text-sm font-semibold transition-all",
+                            "btn-kid rounded-full text-sm font-semibold transition-all",
                             "bg-white/10 backdrop-blur-sm border border-white/20",
                             "hover:bg-white/20 hover:scale-105 active:scale-95",
                             useLabMode && "bg-purple-500/30 border-purple-400/50"
@@ -320,9 +390,10 @@ export function Game() {
                         </span>
                     </button>
                     <button
+                        type="button"
                         onClick={handleToggleSelectAll}
                         className={cn(
-                            "px-4 py-2 rounded-full text-sm font-semibold transition-all",
+                            "btn-kid rounded-full text-sm font-semibold transition-all",
                             "bg-white/10 backdrop-blur-sm border border-white/20",
                             "hover:bg-white/20 hover:scale-105 active:scale-95"
                         )}
@@ -332,29 +403,44 @@ export function Game() {
                         </span>
                     </button>
                     <button
+                        type="button"
                         onClick={handleReset}
-                        disabled={!hasSelection}
                         className={cn(
-                            "px-4 py-2 rounded-full text-sm font-semibold transition-all",
+                            "btn-kid rounded-full text-sm font-semibold transition-all",
                             "bg-white/10 backdrop-blur-sm border border-white/20",
-                            "hover:bg-white/20 hover:scale-105 active:scale-95",
-                            !hasSelection && "opacity-40 cursor-not-allowed"
+                            "hover:bg-white/20 hover:scale-105 active:scale-95"
                         )}
                     >
                         <span className="text-white/90">🔄 Reset</span>
                     </button>
                     <button
+                        type="button"
                         onClick={handleSurprise}
-                        disabled={!hasSelection}
                         className={cn(
-                            "px-4 py-2 rounded-full text-sm font-semibold transition-all",
+                            "btn-kid rounded-full text-sm font-semibold transition-all",
                             "bg-gradient-to-r from-pink-500/40 to-purple-500/40 backdrop-blur-sm border border-pink-300/40",
                             "hover:scale-105 active:scale-95",
-                            hasSelection && "ready-glow",
-                            !hasSelection && "opacity-40 cursor-not-allowed"
+                            "ready-glow"
                         )}
                     >
                         <span className="text-white">🎲 Surprise!</span>
+                    </button>
+
+                    {/* Parent sound toggle — state is signalled by the label
+                        alone (no aria-pressed, which would read as
+                        "Turn sounds on, pressed"). */}
+                    <button
+                        type="button"
+                        onClick={toggleMuted}
+                        aria-label={muted ? 'Turn sounds on' : 'Turn sounds off'}
+                        title={muted ? 'Turn sounds on' : 'Turn sounds off'}
+                        className={cn(
+                            "btn-kid rounded-full text-sm font-semibold transition-all",
+                            "bg-white/10 backdrop-blur-sm border border-white/20",
+                            "hover:bg-white/20 hover:scale-105 active:scale-95"
+                        )}
+                    >
+                        <span className="text-white/90" aria-hidden="true">{muted ? '🔇' : '🔊'}</span>
                     </button>
                 </div>
 
@@ -381,30 +467,21 @@ export function Game() {
                     selectedIds={selectedIds}
                     onSelect={handleSelect}
                     animalStates={animalStates}
+                    selectionPulse={selectionPulse}
+                    silent={muted}
                 />
             </main>
 
             {/* Footer - Action Shelves */}
             <footer className="w-full mb-2 z-10 px-2 flex justify-center flex-shrink-0">
                 {useLabMode ? (
-                    /* NEW: Alchemy Laboratory Mode */
-                    <AlchemistLaboratory
-                        onApplyEffect={handleApplyBrewedEffect}
-                        disabled={!hasSelection}
-                    />
+                    /* Alchemy Laboratory Mode */
+                    <AlchemistLaboratory onApplyEffect={handleApplyBrewedEffect} />
                 ) : (
                     /* Classic Mode: Original shelves */
                     <div className="max-w-4xl w-full grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <PotionShelf
-                            onUsePotion={handleUsePotion}
-                            disabled={!hasSelection}
-                            isReady={hasSelection}
-                        />
-                        <TreatShelf
-                            onGiveTreat={handleGiveTreat}
-                            disabled={!hasSelection}
-                            isReady={hasSelection}
-                        />
+                        <PotionShelf onUsePotion={handleUsePotion} isReady={hasSelection} />
+                        <TreatShelf onGiveTreat={handleGiveTreat} isReady={hasSelection} />
                     </div>
                 )}
             </footer>

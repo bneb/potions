@@ -217,10 +217,10 @@ h6 {
   font-weight: 600;
 }
 
-/* === LARGE TOUCH TARGETS === */
+/* === LARGE TOUCH TARGETS (3–5 year-old fingers: ≥64px) === */
 .touch-target {
-  min-width: 56px;
-  min-height: 56px;
+  min-width: 64px;
+  min-height: 64px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -230,6 +230,47 @@ h6 {
   min-width: 72px;
   min-height: 72px;
 }
+
+/* Big friendly header buttons — always an easy target. */
+.btn-kid {
+  min-width: 64px;
+  min-height: 64px;
+  padding: 0 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+/* === TODDLER GESTURE SAFETY ===
+   No double-tap zoom, no long-press selection, no tap flash on game surfaces. */
+[data-game-surface],
+[data-game-surface] * {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+[data-game-surface],
+[data-game-surface] * {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* === REDUCED MOTION KILL SWITCH ===
+   Components also branch in JS; this CSS backstop stops every loop and long
+   transition if the OS asks for calmer motion. */
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 
 /* === AMBIENT PARTICLES === */
 .particle {
@@ -275,6 +316,93 @@ h6 {
   height: 10px;
   animation: confetti 1s ease-out forwards;
 }
+
+/* Emoji confetti burst (stars, hearts, sparkles) — rises, spins, fades. */
+.celebration-particle {
+  position: absolute;
+  line-height: 1;
+  will-change: transform, opacity;
+  animation-name: celebrationFloat;
+  animation-timing-function: ease-out;
+  animation-fill-mode: forwards;
+}
+
+@keyframes celebrationFloat {
+  0% {
+    transform: translateY(0) rotate(0deg) scale(0.4);
+    opacity: 0;
+  }
+
+  15% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(-46vh) rotate(340deg) scale(1.1);
+    opacity: 0;
+  }
+}
+
+/* Big friendly "✨ Yay! ✨" flash */
+.yay-flash {
+  font-weight: 700;
+  color: #fff;
+  text-shadow:
+    0 0 18px rgba(241, 196, 15, 0.9),
+    0 0 42px rgba(241, 196, 15, 0.5),
+    0 4px 8px rgba(0, 0, 0, 0.35);
+  animation: yayFlash 0.9s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  white-space: nowrap;
+}
+
+@keyframes yayFlash {
+  0% {
+    transform: scale(0.2);
+    opacity: 0;
+  }
+
+  45% {
+    transform: scale(1.18);
+    opacity: 1;
+  }
+
+  70% {
+    transform: scale(0.96);
+  }
+
+  100% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+}
+
+/* === ANIMAL TAP FEEDBACK — squash & bounce on every tap === */
+.animal-tap-bounce {
+  animation: tapSquash 0.42s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes tapSquash {
+  0% {
+    transform: scale(1, 1);
+  }
+
+  30% {
+    transform: scale(1.12, 0.86);
+  }
+
+  55% {
+    transform: scale(0.94, 1.08);
+  }
+
+  75% {
+    transform: scale(1.04, 0.97);
+  }
+
+  100% {
+    transform: scale(1, 1);
+  }
+}
+
 
 /* Custom scrollbar hiding */
 .no-scrollbar::-webkit-scrollbar {

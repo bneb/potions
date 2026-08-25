@@ -8,11 +8,14 @@ import { Potion } from './Potion';
 
 interface PotionShelfProps {
     onUsePotion: (type: PotionType) => void;
-    disabled?: boolean;
     isReady?: boolean;
 }
 
-export function PotionShelf({ onUsePotion, disabled, isReady }: PotionShelfProps) {
+/**
+ * Never disabled: with no friend selected, tapping a potion simply picks
+ * everyone first (handled in Game) — zero dead ends for tiny fingers.
+ */
+export function PotionShelf({ onUsePotion, isReady }: PotionShelfProps) {
     return (
         <div className={cn(
             "glass-shelf p-6 transition-all duration-300",
@@ -31,14 +34,14 @@ export function PotionShelf({ onUsePotion, disabled, isReady }: PotionShelfProps
                     >
                         <Potion
                             type={potion.id}
-                            disabled={disabled}
                             isReady={isReady}
+                            label={potion.name}
                             onClick={() => onUsePotion(potion.id)}
                             size="md"
                             showLabel={false}
                         />
                         {/* Label below potion */}
-                        <p className="text-xs text-white/80 text-center font-medium">
+                        <p aria-hidden="true" className="text-xs text-white/80 text-center font-medium">
                             {potion.name.split(' ')[0]}
                         </p>
                     </div>
@@ -47,4 +50,3 @@ export function PotionShelf({ onUsePotion, disabled, isReady }: PotionShelfProps
         </div>
     );
 }
-

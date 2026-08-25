@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import styles from './sorcerer.module.css';
 import { audioEngine } from '@/lib/audio/audioEngine';
@@ -40,12 +40,23 @@ export function Sorcerer({ isCasting }: SorcererProps) {
         setTimeout(() => setIsClicked(false), 800);
     }, []);
 
+    const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleClick();
+        }
+    }, [handleClick]);
+
     return (
         <div
             className="fixed bottom-24 left-6 z-30 cursor-pointer hidden md:block"
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             onClick={handleClick}
+            onKeyDown={handleKeyDown}
+            role="button"
+            tabIndex={0}
+            aria-label="Wave the magic wand"
         >
             <div className={cn(styles.stage)}>
                 <div className={cn(

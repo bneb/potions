@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
+import { usePrefersReducedMotion } from './usePrefersReducedMotion';
 
 interface InstructionalPromptProps {
     show: boolean;
@@ -9,37 +10,47 @@ interface InstructionalPromptProps {
 }
 
 export function InstructionalPrompt({ show, onDismiss }: InstructionalPromptProps) {
-    const [visible, setVisible] = useState(false);
+    const reducedMotion = usePrefersReducedMotion();
+    // The prompt appears after a short beat so the magic scene lands first.
+    const [delayElapsed, setDelayElapsed] = useState(false);
+    const [dismissed, setDismissed] = useState(false);
 
     useEffect(() => {
-        if (show) {
-            const timer = setTimeout(() => setVisible(true), 2000);
-            return () => clearTimeout(timer);
-        } else {
-            setVisible(false);
-        }
+        if (!show) return undefined;
+        const timer = setTimeout(() => setDelayElapsed(true), 2000);
+        return () => clearTimeout(timer);
     }, [show]);
 
-    if (!visible) return null;
+    // Visibility is derived — when `show` goes false the overlay disappears
+    // immediately with no cascading state updates.
+    if (!show || dismissed || !delayElapsed) return null;
 
     return (
         <div
+            data-testid="instructional-overlay"
             className={cn(
                 "absolute inset-0 z-40 flex flex-col items-center justify-center",
-                "animate-in fade-in duration-500"
+                !reducedMotion && "animate-in fade-in duration-500"
             )}
             style={{
                 background: 'radial-gradient(ellipse at center, rgba(26, 10, 46, 0.7) 0%, rgba(26, 10, 46, 0.4) 60%, transparent 100%)',
                 backdropFilter: 'blur(8px)',
-            }}
-            onClick={() => {
-                setVisible(false);
-                onDismiss?.();
+                // Pass taps through to the game — a kid aiming at a friend
+                // should never lose their tap to the hint itself.
+                pointerEvents: 'none',
             }}
         >
-            <div className="flex flex-col items-center gap-4 animate-float">
+            <div
+                data-testid="instructional-card"
+                className={cn("flex flex-col items-center gap-4 cursor-pointer", !reducedMotion && "animate-float")}
+                style={{ pointerEvents: 'auto' }}
+                onClick={() => {
+                    setDismissed(true);
+                    onDismiss?.();
+                }}
+            >
                 {/* Friendly Hand Pointing */}
-                <div className="text-8xl instructional-hand">
+                <div className={cn("text-8xl", !reducedMotion && "instructional-hand")}>
                     👆
                 </div>
 

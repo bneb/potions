@@ -1,42 +1,20 @@
 
 "use client";
 
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import { cn } from '@/lib/utils';
 import styles from './trex.module.css';
 
 interface TrexProps {
     className?: string;
-    selected?: boolean;
+    /** One-shot animation trigger: 'in' on select, 'out' on deselect. */
+    pulse?: 'in' | 'out' | null;
 }
 
-export function Trex({ className, selected = false }: TrexProps) {
-    const [animationState, setAnimationState] = useState<'idle' | 'selecting' | 'deselecting'>('idle');
-    const prevSelectedRef = useRef(selected);
-    const hasMountedRef = useRef(false);
-
-    useEffect(() => {
-        hasMountedRef.current = true;
-    }, []);
-
-    useEffect(() => {
-        if (!hasMountedRef.current) return;
-
-        const wasSelected = prevSelectedRef.current;
-        prevSelectedRef.current = selected;
-
-        if (selected && !wasSelected) {
-            // Transitioning to selected
-            setAnimationState('selecting');
-        } else if (!selected && wasSelected) {
-            // Transitioning to deselected
-            setAnimationState('deselecting');
-        }
-    }, [selected]);
-
+export function Trex({ className, pulse = null }: TrexProps) {
     const animationClass =
-        animationState === 'selecting' ? styles.selected :
-            animationState === 'deselecting' ? styles.unselected : '';
+        pulse === 'in' ? styles.selected :
+            pulse === 'out' ? styles.unselected : '';
 
     return (
         <div className={cn(styles.stage, className)}>

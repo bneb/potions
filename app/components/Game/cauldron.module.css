@@ -20,8 +20,9 @@
 
 .ingredientBadge {
     position: relative;
-    width: 44px;
-    height: 44px;
+    /* ≥64px tap target — removing a potion should never be a fumble */
+    width: 64px;
+    height: 64px;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(10px);

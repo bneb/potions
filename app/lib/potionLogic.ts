@@ -80,7 +80,9 @@ function getIngredientColor(id: IngredientId): string {
     return ingredient?.color ?? '#888888';
 }
 
-function blendColors(colors: string[]): string {
+// Exported (additive) for table-driven unit testing and headless reuse;
+// behavior is unchanged — see tests/logic-potion.test.ts.
+export function blendColors(colors: string[]): string {
     if (colors.length === 0) return '#888888';
     if (colors.length === 1) return colors[0];
 
@@ -262,3 +264,7 @@ export function isNewDiscovery(
 ): boolean {
     return !previousDiscoveries.includes(effect.primary);
 }
+
+// Additive re-export (type-only, zero runtime change): benchmarks and
+// consumers of brewPotion/applyBrewedEffect need BrewedEffect from here.
+export type { BrewedEffect };

@@ -203,6 +203,8 @@
     justify-content: center;
     gap: 0.5rem;
     width: 100%;
+    /* ≥64px tap target — the big finish deserves a big button */
+    min-height: 64px;
     padding: 0.6rem 1rem;
     font-size: 1rem;
     font-weight: 700;

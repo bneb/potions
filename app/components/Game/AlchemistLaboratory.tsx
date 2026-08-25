@@ -83,23 +83,25 @@ export function AlchemistLaboratory({
         return isNewDiscovery(brewedEffect, discoveries);
     }, [brewedEffect, discoveries]);
 
-    // Handlers
+    // Handlers — sounds play outside the state updaters so React StrictMode's
+    // double-invoked updaters can't double-fire them; a full cauldron answers
+    // with a friendly blip instead of silence (no dead ends).
     const handleIngredientAdd = useCallback((ingredientId: IngredientId) => {
-        setIngredients(prev => {
-            if (prev.length >= 5) return prev; // Max 5 ingredients
+        if (ingredients.length >= 5) {
             audioEngine.playPop();
-            return [...prev, ingredientId];
-        });
-    }, []);
+            return;
+        }
+        audioEngine.playPop();
+        setIngredients([...ingredients, ingredientId]);
+    }, [ingredients]);
 
     const handleIngredientRemove = useCallback((index: number) => {
-        setIngredients(prev => {
-            const next = [...prev];
-            next.splice(index, 1);
-            audioEngine.playPop();
-            return next;
-        });
-    }, []);
+        if (index < 0 || index >= ingredients.length) return;
+        const next = [...ingredients];
+        next.splice(index, 1);
+        audioEngine.playPop();
+        setIngredients(next);
+    }, [ingredients]);
 
     const handleHeatChange = useCallback((newHeat: number) => {
         setHeat(newHeat);

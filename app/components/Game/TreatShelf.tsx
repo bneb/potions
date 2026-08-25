@@ -7,11 +7,14 @@ import { cn } from '@/lib/utils';
 
 interface TreatShelfProps {
     onGiveTreat: (type: TreatType) => void;
-    disabled?: boolean;
     isReady?: boolean;
 }
 
-export function TreatShelf({ onGiveTreat, disabled, isReady }: TreatShelfProps) {
+/**
+ * Never disabled: with no friend selected, tapping a treat simply picks
+ * everyone first (handled in Game) — zero dead ends for tiny fingers.
+ */
+export function TreatShelf({ onGiveTreat, isReady }: TreatShelfProps) {
     return (
         <div className={cn(
             "glass-shelf p-6 transition-all duration-300",
@@ -26,14 +29,13 @@ export function TreatShelf({ onGiveTreat, disabled, isReady }: TreatShelfProps) 
                 {TREATS.map((treat) => (
                     <button
                         key={treat.id}
-                        disabled={disabled}
+                        type="button"
                         onClick={() => onGiveTreat(treat.id)}
                         className={cn(
                             "touch-target-lg btn-magic relative group",
                             "flex items-center justify-center",
                             "text-5xl bg-white/15 rounded-2xl",
-                            "shadow-inner border border-white/20",
-                            disabled && "opacity-40 cursor-not-allowed"
+                            "shadow-inner border border-white/20"
                         )}
                         title={treat.name}
                         aria-label={treat.name}

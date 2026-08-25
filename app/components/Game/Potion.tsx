@@ -74,6 +74,8 @@ interface PotionProps {
     disabled?: boolean;
     isReady?: boolean;
     onClick?: () => void;
+    /** Accessible name announced to screen readers (and used by tests). */
+    label?: string;
     size?: 'sm' | 'md' | 'lg';
     showLabel?: boolean;
 }
@@ -83,6 +85,7 @@ export function Potion({
     disabled = false,
     isReady = false,
     onClick,
+    label,
     size = 'md',
     showLabel = false,
 }: PotionProps) {
@@ -113,7 +116,15 @@ export function Potion({
                 isReady && styles.ready
             )}
             onClick={disabled ? undefined : onClick}
+            onKeyDown={(e) => {
+                if (disabled || !onClick) return;
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onClick();
+                }
+            }}
             role="button"
+            aria-label={label ?? `${config.label} potion`}
             tabIndex={disabled ? -1 : 0}
             aria-disabled={disabled}
         >

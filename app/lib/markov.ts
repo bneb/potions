@@ -42,9 +42,9 @@ const TRANSITIONS: Record<string, [string, number][]> = {
 
 const START_STATES = ['grow', 'rainbow', 'sparkle', 'float', 'red'];
 
-function pick<T>(items: [T, number][]): T {
+function pick<T>(items: [T, number][], rng: () => number): T {
     const total = items.reduce((s, [, w]) => s + w, 0);
-    let r = Math.random() * total;
+    let r = rng() * total;
     for (const [item, w] of items) {
         r -= w;
         if (r <= 0) return item;
@@ -52,17 +52,25 @@ function pick<T>(items: [T, number][]): T {
     return items[items.length - 1][0];
 }
 
-function nextFx(current: string): string {
-    return pick(TRANSITIONS[current] ?? [['rainbow', 1]]);
+function nextFx(current: string, rng: () => number): string {
+    return pick(TRANSITIONS[current] ?? [['rainbow', 1]], rng);
 }
 
 // Walk the chain `steps` times from a random start, avoiding immediate repeats.
-export function walkFx(steps: number): string[] {
-    const path: string[] = [START_STATES[Math.floor(Math.random() * START_STATES.length)]];
+// `rng` is an optional injectable random source (default Math.random) so walks
+// can be made deterministic under a seeded generator. Additive & backward
+// compatible. Note: like the original, a walk always contains at least one
+// state, even for steps <= 0.
+//
+// The retry below is defensive only: today's TRANSITIONS table has no
+// self-loops, so `n !== prev` always holds after one pick. It guards against
+// future table edits introducing a self-transition.
+export function walkFx(steps: number, rng: () => number = Math.random): string[] {
+    const path: string[] = [START_STATES[Math.floor(rng() * START_STATES.length)]];
     while (path.length < steps) {
         const prev = path[path.length - 1];
-        let n = nextFx(prev);
-        if (n === prev) n = nextFx(n);
+        let n = nextFx(prev, rng);
+        if (n === prev) n = nextFx(n, rng);
         path.push(n);
     }
     return path;

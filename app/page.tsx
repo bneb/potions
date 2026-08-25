@@ -4,8 +4,8 @@ import { Game } from './components/Game/Game';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Magic Potions | Potions Lab',
-  description: 'A magical playground for testing potions on animals.',
+  title: 'Magic Potions 🧪',
+  description: 'Tap a friend, mix a magic potion, watch the wonder.',
 };
 
 export default function Home() {
