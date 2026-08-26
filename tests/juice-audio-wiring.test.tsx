@@ -61,7 +61,7 @@ beforeEach(() => {
     startMusic.mockClear();
     stopMusic.mockClear();
     playAnimalVoice.mockClear();
-    playPopSpy.mockClear();
+    playPopSpy.mockReset();
     installMusicMocks();
     (audioEngine as unknown as Record<string, unknown>).playAnimalVoice = playAnimalVoice;
 });
@@ -74,6 +74,7 @@ afterEach(() => {
     // tests (or into other suites via module-registry reuse patterns).
     if (typeof audioEngine.stopMusic === 'function') audioEngine.stopMusic();
     audioEngine.setMuted(false);
+    playPopSpy.mockReset();
     uninstallEngineMocks();
     if (vibrateMock) {
         // Truly DELETE the own property (not merely set undefined) so the
